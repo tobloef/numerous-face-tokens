@@ -1,0 +1,11 @@
+{
+    "compilerOptions": {
+        "target": "esnext",
+        "esModuleInterop": true,
+        "strict": true,
+        "rootDir": "./src",
+        "outDir": "./build",
+        "moduleResolution": "node",
+        "sourceMap": true,
+    }
+}

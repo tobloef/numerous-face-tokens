@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+model NFT {
+  id        Int       @id @default(autoincrement())
+  minterId  Int
+  minter    User      @relation("Minted", fields: [minterId], references: [id])
+  mintedAt  DateTime  @default(now())
+  ownerId   Int
+  owner     User      @relation("Owned", fields: [ownerId], references: [id])
+  seed      String
+  title     String
+  trades    Trade[]
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  createdAt     DateTime  @default(now())
+  username      String    @unique
+  balance       Int
+  ownedNfts     NFT[]     @relation("Owned")
+  mintedNfts    NFT[]     @relation("Minted")
+  boughtTrades  Trade[]   @relation("Bought")
+  soldTrades    Trade[]   @relation("Sold")
+}
+
+model Trade {
+  id          Int        @id @default(autoincrement())
+  createdAt   DateTime   @default(now())
+  sellerId    Int
+  seller      User       @relation("Sold", fields: [sellerId], references: [id])
+  buyerId     Int
+  buyer       User       @relation("Bought", fields: [buyerId], references: [id])
+  nftId       Int
+  nft         NFT       @relation(fields: [nftId], references: [id])
+  price       Int
+  accepted    Boolean    @default(false)
+  acceptedAt  DateTime? 
+}
