@@ -38,8 +38,8 @@ model Trade {
   buyerId     Int
   buyer       User       @relation("Bought", fields: [buyerId], references: [id])
   nftId       Int
-  nft         NFT       @relation(fields: [nftId], references: [id])
+  nft         NFT        @relation(fields: [nftId], references: [id])
   price       Int
   accepted    Boolean    @default(false)
-  acceptedAt  DateTime? 
+  acceptedAt  DateTime?  
 }
