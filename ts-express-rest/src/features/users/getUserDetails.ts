@@ -1,16 +1,28 @@
-import { ok } from "neverthrow";
-import UseCase from "../../UseCase";
+import express from "express";
+import Context from "../../types/Context";
+import Feature from "../../types/feature";
+import SetupRequest from "../../types/SetupRequest";
 
 type GetUserDetailsRequest = {
     username: string,
 };
 
-type GetUserDetailsResponse = {
+type GetUserDetailsResponse = UserDTO[];
+
+type UserDTO = {
 
 };
 
-const getUserDetails: UseCase<GetUserDetailsRequest, GetUserDetailsResponse> = async (request, ctx) => {
-    return ok({});
+export const getUserDetails: Feature<GetUserDetailsRequest, GetUserDetailsResponse> = async (
+    request: GetUserDetailsRequest,
+    ctx: Context,
+) => {
+    
 };
 
-export default getUserDetails;
+export const setupGetUserDetailsRequest: SetupRequest<GetUserDetailsRequest> = (
+    req: express.Request,
+    res: express.Response,
+) => {
+
+}

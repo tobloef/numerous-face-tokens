@@ -23,6 +23,7 @@ model User {
   id            Int       @id @default(autoincrement())
   createdAt     DateTime  @default(now())
   username      String    @unique
+  passwordHash  String
   balance       Int
   ownedNfts     NFT[]     @relation("Owned")
   mintedNfts    NFT[]     @relation("Minted")

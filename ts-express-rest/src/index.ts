@@ -1,16 +1,15 @@
-import express from "express";
+import express, { Request } from "express";
 import dotenv from "dotenv";
 import { PrismaClient } from "@prisma/client"
-import createUser from "./features/users/createUser";
-import runUseCase from "./runUseCase";
-import getUsersOverview from "./features/users/getUsersOverview";
-import getUserDetails from "./features/users/getUserDetails";
-import updateUser from "./features/users/updateUser";
-import Context from "./Context";
-import ParseRouteParameters from "./ParseRouteParameters";
-import ApiError from "./ApiError";
+import { getUsersOverview, setupGetUsersOverviewRequest } from "./features/users/getUsersOverview";
+import { getUserDetails, setupGetUserDetailsRequest } from "./features/users/getUserDetails";
+import Context from "./types/Context";
 import { Result } from "neverthrow";
-import UseCase from "./UseCase";
+import ApiError from "./ApiError";
+import Feature from "./types/feature";
+import SetupRequest from "./types/SetupRequest";
+import { createUser, setupCreateUserRequest } from "./features/users/createUser";
+import { setupUpdateUserRequest, updateUser } from "./features/users/updateUser";
 
 dotenv.config({ path: "../.env" });
 
@@ -18,50 +17,41 @@ const ctx: Context = {
   prisma: new PrismaClient(),
 }
 
-const app = express();
-
-const route = "/users/:id";
-
-function setupEndpoint<
-  Path extends string,
-  Params extends ParseRouteParameters<Path>,
-  Request,
-  Response,
->({
-  router,
-  path,
-  method,
-  makeRequest,
-  useCase,
-}: {
-  router: express.Router,
-  path: Path,
-  method: "get" | "post" | "patch" | "delete"
-  makeRequest: (req: express.Request, res: express.Response) => Result<Request, ApiError>,
-  useCase: UseCase<Request, Response>,
-}): void {
-  app[method](route, async (req: express.Request, res: express.Response) => {
-    const requestResult: Result<Request, ApiError> = makeRequest(req, res);
-    if (requestResult.isErr()) {
-
-    }
-    const response: Response = await useCase(request);
-  });
+const handleApiError = (
+  req: express.Request,
+  res: express.Response,
+  error: ApiError,
+): void => {
+  res.status(error.statusCode).send(error.message);
 }
 
-setupEndpoint({
-  router: app,
-  path: "/users/:id",
-  makeRequest: makeCreateUser,
-  useCase: createUser,
-});
+function createHandler<Request, Response>(
+  setupRequest: SetupRequest<Request>,
+  feature: Feature<Request, Response>,
+): ((req: express.Request, res: express.Response) => Promise<void>) {
+  return async (req: express.Request, res: express.Response) => {
+    const requestResult = setupRequest(req, res);
+    if (requestResult.isErr()) {
+      handleApiError(req, res, requestResult.error);
+      return;
+    }
 
+    const responseResult = await feature(requestResult.value, ctx);
+    if (responseResult.isErr()) {
+      handleApiError(req, res, responseResult.error);
+      return;
+    }
 
+    res.status(200).json(responseResult.value);
+  }
+}
 
-app.get("/users", runUseCase(getUsersOverview));
-app.post("/users", runUseCase(createUser));
-app.get("/users/:id", runUseCase(getUserDetails));
-app.patch("/users/:id", runUseCase(updateUser));
+const app = express();
+
+app.get("/users", createHandler(setupGetUsersOverviewRequest, getUsersOverview));
+app.get("/users/:id", createHandler(setupGetUserDetailsRequest, getUserDetails));
+app.post("/users", createHandler(setupCreateUserRequest, createUser));
+app.patch("/users/:id", createHandler(setupUpdateUserRequest, updateUser));
 
 app.listen(process.env.API_PORT, () => {
   console.info(`Started API on port ${process.env.API_PORT}.`);
