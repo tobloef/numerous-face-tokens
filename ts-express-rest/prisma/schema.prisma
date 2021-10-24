@@ -8,18 +8,18 @@ datasource db {
 }
 
 model NFT {
-  id        Int       @id @default(autoincrement())
+  id        Int               @id @default(autoincrement())
   minterId  Int
-  minter    User      @relation("Minted", fields: [minterId], references: [id])
-  mintedAt  DateTime  @default(now())
+  minter    UserWithPassword  @relation("Minted", fields: [minterId], references: [id])
+  mintedAt  DateTime          @default(now())
   ownerId   Int
-  owner     User      @relation("Owned", fields: [ownerId], references: [id])
+  owner     UserWithPassword  @relation("Owned", fields: [ownerId], references: [id])
   seed      String
   title     String
   trades    Trade[]
 }
 
-model User {
+model UserWithPassword {
   id            Int       @id @default(autoincrement())
   createdAt     DateTime  @default(now())
   username      String    @unique
@@ -32,15 +32,15 @@ model User {
 }
 
 model Trade {
-  id          Int        @id @default(autoincrement())
-  createdAt   DateTime   @default(now())
+  id          Int               @id @default(autoincrement())
+  createdAt   DateTime          @default(now())
   sellerId    Int
-  seller      User       @relation("Sold", fields: [sellerId], references: [id])
+  seller      UserWithPassword  @relation("Sold", fields: [sellerId], references: [id])
   buyerId     Int
-  buyer       User       @relation("Bought", fields: [buyerId], references: [id])
+  buyer       UserWithPassword  @relation("Bought", fields: [buyerId], references: [id])
   nftId       Int
-  nft         NFT        @relation(fields: [nftId], references: [id])
+  nft         NFT               @relation(fields: [nftId], references: [id])
   price       Int
-  accepted    Boolean    @default(false)
+  accepted    Boolean           @default(false)
   acceptedAt  DateTime?  
 }

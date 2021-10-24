@@ -1,27 +1,31 @@
-import { User } from "@prisma/client";
+import { UserWithPassword } from "@prisma/client";
 import express from "express";
-import { ok } from "neverthrow";
+import { is } from "typescript-is";
+import { err, ok } from "neverthrow";
+import ApiError from "../../ApiError";
 import Context from "../../types/Context";
 import Feature from "../../types/feature";
-import Never from "../../types/Never";
 import SetupRequest from "../../types/SetupRequest";
 import deleteProp from "../../utils/deleteProp";
+import User from "../../types/User";
+import bcrypt from "bcryptjs";
+
 
 type CreateUserRequest = {
     username: string,
     password: string,
 };
 
-type CreateUserResponse = Never<User, "passwordHash">;
+type CreateUserResponse = User;
 
 export const createUser: Feature<CreateUserRequest, CreateUserResponse> = async (
     request: CreateUserRequest,
     ctx: Context,
 ) => {
-    const user: User = await ctx.prisma.user.create({
+    const user: UserWithPassword = await ctx.prisma.userWithPassword.create({
         data: {
             username: request.username,
-            passwordHash: request.password,
+            passwordHash: bcrypt.hashSync(request.password),
             balance: 0,
         }
     });
@@ -33,7 +37,10 @@ export const createUser: Feature<CreateUserRequest, CreateUserResponse> = async 
 
 export const setupCreateUserRequest: SetupRequest<CreateUserRequest> = (
     req: express.Request,
-    res: express.Response,
 ) => {
+    if (!is<CreateUserRequest>(req.body)) {
+        return err(new ApiError("Invalid user information", 400));
+    }
     
+    return ok(req.body);
 }

@@ -4,7 +4,6 @@ import ApiError from "../ApiError";
 
 type SetupRequest<Request> = (
     req: express.Request,
-    res: express.Response,
 ) => Result<Request, ApiError>;
 
 export default SetupRequest;
