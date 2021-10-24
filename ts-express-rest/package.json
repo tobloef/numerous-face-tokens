@@ -12,6 +12,7 @@
     "express": "^4.17.1",
     "neverthrow": "^4.3.0",
     "prisma": "^3.3.0",
+    "qs": "^6.10.1",
     "typescript-is": "^0.18.3"
   },
   "devDependencies": {

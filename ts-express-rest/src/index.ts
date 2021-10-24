@@ -47,6 +47,7 @@ function createHandler<Request, Response>(
 const app = express();
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.get("/users", createHandler(setupGetAllUsersRequest, getAllUsers));
 app.get("/users/:username", createHandler(setupGetUserRequest, getUser));

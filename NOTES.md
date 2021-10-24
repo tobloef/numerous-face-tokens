@@ -11,8 +11,14 @@
 * API will define a maximum limit and return status code `400` if the given limit is too high.
 
 ### Filtering
-* Get all where name is "tobias": `?name=tobias`.
-* Get all where time later than 12:00: `?time>12:00`.
+* Get all where name is "tobias": `?name[eq]=tobias`.
+* Ops:
+    * `gt`: works on `number` and `Date`
+    * `gte`: works on `number` and `Date`
+    * `lt`: works on `number` and `Date`
+    * `lte`: works on `number` and `Date`
+    * `eq`: works on `string` and `number` and `Date`
+    * `search`: works on `string`
 
 # Thoughts on technologies
 

@@ -6,8 +6,32 @@ import Feature from "../../types/feature";
 import SetupRequest from "../../types/SetupRequest";
 import User from "../../types/User";
 import deleteProp from "../../utils/deleteProp";
+ 
+// TODO: Move these types elsewhere when finished
+type Sorts<Keys extends string | number | symbol> = Partial<Record<Keys, "desc" | "asc">>
+type FilterOps = {
+    gt: number | Date,
+    gte: number | Date,
+    lt: number | Date,
+    lte: number | Date,
+    eq: string | number | Date,
+    search: string,
+};
+type Filters<Keys extends string | number | symbol> = Partial<Record<Keys, Partial<FilterOps>>>;
 
-type GetAllUsersRequest = undefined;
+type GetAllUsersRequest = {
+    page?: number,
+    limit?: number,
+    sorts?: Sorts<
+        | "username"
+        | "createdAt"
+        | "ownedNftsCount"
+        | "mintedNftsCount"
+    >,
+    filters?: Filters<
+        | "username" // TODO: This is not how this type should work
+    >
+};
 
 type GetAllUsersResponse = User[];
 
@@ -25,5 +49,5 @@ export const getAllUsers: Feature<GetAllUsersRequest, GetAllUsersResponse> = asy
 export const setupGetAllUsersRequest: SetupRequest<GetAllUsersRequest> = (
     req: express.Request,
 ) => {
-    return ok(undefined);
+    return ok({});
 }
