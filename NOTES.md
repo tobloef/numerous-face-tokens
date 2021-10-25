@@ -1,3 +1,6 @@
+## Misc.
+* I have tried to be pragmatic in my approach when creating each app. I could have created layers of abstraction that would have made it easier to switch between techologies, etc., but apart from being needlessly complex, it would also take away from the experience of each technology.
+
 ## Thoughts on API URLs
 
 ### Sorting
