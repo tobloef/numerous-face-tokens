@@ -16,8 +16,8 @@ type GetUserRequest = {
 type GetUserResponse = User;
 
 export const getUser: Feature<GetUserRequest, GetUserResponse> = async (
-    request: GetUserRequest,
-    ctx: Context,
+    request,
+    ctx,
 ) => {
     const user: UserWithPassword | null = await ctx.prisma.userWithPassword.findUnique({
         where: {

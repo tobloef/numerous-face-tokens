@@ -3,7 +3,6 @@ import express from "express";
 import { is } from "typescript-is";
 import { err, ok } from "neverthrow";
 import ApiError from "../../ApiError";
-import Context from "../../types/Context";
 import Feature from "../../types/feature";
 import SetupRequest from "../../types/SetupRequest";
 import deleteProp from "../../utils/deleteProp";
@@ -19,8 +18,8 @@ type CreateUserRequest = {
 type CreateUserResponse = User;
 
 export const createUser: Feature<CreateUserRequest, CreateUserResponse> = async (
-    request: CreateUserRequest,
-    ctx: Context,
+    request,
+    ctx,
 ) => {
     const user: UserWithPassword = await ctx.prisma.userWithPassword.create({
         data: {

@@ -7,7 +7,7 @@ datasource db {
   url      = env("DB_URL")
 }
 
-model NFT {
+model Nft {
   id        Int               @id @default(autoincrement())
   minterId  Int
   minter    UserWithPassword  @relation("Minted", fields: [minterId], references: [id])
@@ -25,8 +25,8 @@ model UserWithPassword {
   username      String    @unique
   passwordHash  String
   balance       Int
-  ownedNfts     NFT[]     @relation("Owned")
-  mintedNfts    NFT[]     @relation("Minted")
+  ownedNfts     Nft[]     @relation("Owned")
+  mintedNfts    Nft[]     @relation("Minted")
   boughtTrades  Trade[]   @relation("Bought")
   soldTrades    Trade[]   @relation("Sold")
 }
@@ -39,7 +39,7 @@ model Trade {
   buyerId     Int
   buyer       UserWithPassword  @relation("Bought", fields: [buyerId], references: [id])
   nftId       Int
-  nft         NFT               @relation(fields: [nftId], references: [id])
+  nft         Nft               @relation(fields: [nftId], references: [id])
   price       Int
   accepted    Boolean           @default(false)
   acceptedAt  DateTime?  

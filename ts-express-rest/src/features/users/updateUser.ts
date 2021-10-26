@@ -21,8 +21,8 @@ type UpdateUserRequest = {
 type UpdateUserResponse = User;
 
 export const updateUser: Feature<UpdateUserRequest, UpdateUserResponse> = async (
-    request: UpdateUserRequest,
-    ctx: Context,
+    request,
+    ctx,
 ) => {
     const user: UserWithPassword = await ctx.prisma.userWithPassword.update({
         where: {

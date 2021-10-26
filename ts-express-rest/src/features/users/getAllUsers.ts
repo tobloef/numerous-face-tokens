@@ -1,7 +1,6 @@
 import { UserWithPassword } from ".prisma/client";
 import express from "express";
 import { ok } from "neverthrow";
-import Context from "../../types/Context";
 import Feature from "../../types/feature";
 import SetupRequest from "../../types/SetupRequest";
 import User from "../../types/User";
@@ -36,8 +35,8 @@ type GetAllUsersRequest = {
 type GetAllUsersResponse = User[];
 
 export const getAllUsers: Feature<GetAllUsersRequest, GetAllUsersResponse> = async (
-    request: GetAllUsersRequest,
-    ctx: Context,
+    request,
+    ctx,
 ) => {
     const userWithPasswords: UserWithPassword[] = await ctx.prisma.userWithPassword.findMany();
 
