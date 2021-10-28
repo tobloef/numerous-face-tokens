@@ -49,6 +49,11 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.post("/login", createHandler(setupLoginRequest, login));
+app.post("/signup", createHandler(setupSignupRequest, signup));
+
+app.use(authMiddleware(ctx));
+
 app.get("/users", createHandler(setupGetAllUsersRequest, getAllUsers));
 app.get("/users/:username", createHandler(setupGetUserRequest, getUser));
 app.post("/users", createHandler(setupCreateUserRequest, createUser));
