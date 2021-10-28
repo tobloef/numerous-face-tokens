@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
-    "start": "ts-node -C ttypescript ./src/index.ts"
+    "start": "ts-node-dev --respawn --compiler ttypescript ./src/index.ts",
     "update-db": "prisma db push --accept-data-loss",
     "start-db": "cd .. && docker-compose --file ./postgres.docker.yml up"
   },
@@ -23,6 +23,7 @@
     "@types/node": "^16.11.4",
     "dotenv-cli": "^4.0.0",
     "ts-node": "^10.3.1",
+    "ts-node-dev": "^1.1.8",
     "ttypescript": "^1.5.12",
     "typescript": "^4.4.4"
   }
