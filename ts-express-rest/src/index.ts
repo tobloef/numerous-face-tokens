@@ -56,7 +56,6 @@ app.use(authMiddleware(ctx));
 
 app.get("/users", createHandler(setupGetAllUsersRequest, getAllUsers));
 app.get("/users/:username", createHandler(setupGetUserRequest, getUser));
-app.post("/users", createHandler(setupCreateUserRequest, createUser));
 app.patch("/users/:username", createHandler(setupUpdateUserRequest, updateUser));
 
 app.listen(process.env.API_PORT, () => {
