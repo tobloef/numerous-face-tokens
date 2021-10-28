@@ -45,11 +45,11 @@ export const setupUpdateUserRequest: SetupRequest<UpdateUserRequest> = (
     req: express.Request,
 ) => {
     if (!is<string>(req.params.username)) {
-        return err(new ApiError("Invalid username given.", 400));
+        return err(new ApiError("Invalid username", 400));
     }
 
     if (!is<UpdateUserRequest["patch"]>(req.body)) {
-        return err(new ApiError("Invalid user information", 400));
+        return err(new ApiError("Invalid user", 400));
     }
     
     return ok({

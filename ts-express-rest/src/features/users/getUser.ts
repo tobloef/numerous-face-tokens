@@ -44,7 +44,7 @@ export const setupGetUserRequest: SetupRequest<GetUserRequest> = (
     req: express.Request,
 ) => {
     if (!is<string>(req.params.username)) {
-        return err(new ApiError("Invalid username given.", 400));
+        return err(new ApiError("Invalid username", 400));
     }
     
     return ok({
