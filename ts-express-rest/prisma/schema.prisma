@@ -25,7 +25,7 @@ model UserWithPassword {
   createdAt     DateTime  @default(now())
   username      String    @unique
   passwordHash  String
-  balance       Int
+  balance       Int       @default(0)
   ownedNfts     Nft[]     @relation("Owned")
   mintedNfts    Nft[]     @relation("Minted")
   boughtTrades  Trade[]   @relation("Bought")
