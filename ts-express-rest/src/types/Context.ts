@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 
 type Context = {
-    prisma: PrismaClient,
+    prisma: Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use'>,
 };
 
 export default Context;

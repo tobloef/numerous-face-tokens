@@ -11,38 +11,60 @@ import { getAllUsers, setupGetAllUsersRequest } from "./features/users/getAllUse
 import authMiddleware from "./middleware/authMiddleware";
 import { login, setupLoginRequest } from "./features/auth/login";
 import { setupSignupRequest, signup } from "./features/auth/signup";
+import { Result } from "neverthrow";
 
 dotenv.config({ path: "../.env" });
 
+const prismaClient = new PrismaClient();
+
 const ctx: Context = {
-  prisma: new PrismaClient(),
-}
+  prisma: prismaClient,
+};
 
 const handleApiError = (
   res: express.Response,
   error: ApiError,
 ): void => {
-  res.status(error.statusCode).send(error.message);
+  res.status(error.statusCode).json({ error: error.message });
 }
 
 function createHandler<Request, Response>(
   setupRequest: SetupRequest<Request>,
   feature: Feature<Request, Response>,
-): ((req: express.Request, res: express.Response) => Promise<void>) {
-  return async (req: express.Request, res: express.Response) => {
-    const requestResult = setupRequest(req);
-    if (requestResult.isErr()) {
-      handleApiError(res, requestResult.error);
-      return;
-    }
+): ((req: express.Request, res: express.Response, next: express.NextFunction) => Promise<void>) {
+  return async (req: express.Request, res: express.Response, next: express.NextFunction) => {      
+      const requestResult = setupRequest(req);
+      if (requestResult.isErr()) {
+        handleApiError(res, requestResult.error);
+        return;
+      }
 
-    const responseResult = await feature(requestResult.value, ctx);
-    if (responseResult.isErr()) {
-      handleApiError(res, responseResult.error);
-      return;
-    }
+      let responseResult: Result<Response, ApiError>;
 
-    res.status(200).json(responseResult.value);
+      try {
+        await prismaClient.$transaction(async (transactionPrisma) => {
+          responseResult = await feature(
+            requestResult.value,
+            {
+              ...ctx,
+              prisma: transactionPrisma,
+            }
+          );
+        });
+      } catch (error) {
+        next(error);
+        return;
+      }
+
+      // @ts-ignore
+      responseResult = responseResult as Result<Response, ApiError>
+
+      if (responseResult.isErr()) {
+        handleApiError(res, responseResult.error);
+        return;
+      }
+
+      res.status(200).json(responseResult.value);
   }
 }
 
