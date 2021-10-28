@@ -5,10 +5,12 @@ import Context from "./types/Context";
 import ApiError from "./ApiError";
 import Feature from "./types/feature";
 import SetupRequest from "./types/SetupRequest";
-import { createUser, setupCreateUserRequest } from "./features/users/createUser";
 import { setupUpdateUserRequest, updateUser } from "./features/users/updateUser";
 import { getUser, setupGetUserRequest } from "./features/users/getUser";
 import { getAllUsers, setupGetAllUsersRequest } from "./features/users/getAllUsers";
+import authMiddleware from "./middleware/authMiddleware";
+import { login, setupLoginRequest } from "./features/auth/login";
+import { setupSignupRequest, signup } from "./features/auth/signup";
 
 dotenv.config({ path: "../.env" });
 
