@@ -15,7 +15,7 @@ model Nft {
   mintedAt  DateTime          @default(now())
   ownerId   Int
   owner     UserWithPassword  @relation("Owned", fields: [ownerId], references: [id])
-  seed      String
+  seed      String            @unique
   title     String
   trades    Trade[]
 }

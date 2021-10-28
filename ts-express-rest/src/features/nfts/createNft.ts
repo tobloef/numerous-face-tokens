@@ -18,6 +18,16 @@ export const createUser: Feature<CreateNftRequest, CreateNftResponse> = async (
     request,
     ctx,
 ) => {
+    const existingNft = await ctx.prisma.nft.findUnique({
+        where: {
+            seed: request.seed,
+        }
+    });
+
+    if (existingNft !== null) {
+        return err(new ApiError("NFT with given seed already exists", 409));
+    }
+
     const nft = await ctx.prisma.nft.create({
         data: {
             seed: request.seed,
