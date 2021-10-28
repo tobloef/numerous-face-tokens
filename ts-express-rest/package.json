@@ -4,6 +4,7 @@
   "license": "MIT",
   "scripts": {
     "start": "ts-node -C ttypescript ./src/index.ts"
+    "update-db": "prisma db push --accept-data-loss",
   },
   "dependencies": {
     "@prisma/client": "^3.3.0",
