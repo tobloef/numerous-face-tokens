@@ -4,7 +4,9 @@ import { err, ok } from "neverthrow";
 import ApiError from "../../ApiError";
 import Feature from "../../types/feature";
 import SetupRequest from "../../types/SetupRequest";
-import { Nft } from "@prisma/client";
+import { Nft, Trade } from "@prisma/client";
+import User from "../../types/User";
+import deleteProp from "../../utils/deleteProp";
 
 type CreateNftRequest = {
     seed: string,
@@ -12,7 +14,13 @@ type CreateNftRequest = {
     minterId: number,
 };
 
-type CreateNftResponse = Nft;
+type CreateNftResponse = 
+    & Nft
+    & {
+        minter: User;
+        owner: User;
+        trades: Trade[];
+    };
 
 export const createUser: Feature<CreateNftRequest, CreateNftResponse> = async (
     request,
@@ -28,14 +36,25 @@ export const createUser: Feature<CreateNftRequest, CreateNftResponse> = async (
         return err(new ApiError("NFT with given seed already exists", 409));
     }
 
-    const nft = await ctx.prisma.nft.create({
+    const nftWithUserPasswords = await ctx.prisma.nft.create({
         data: {
             seed: request.seed,
             title: request.title,
             minterId: request.minterId,
             ownerId: request.minterId,
+        },
+        include: {
+            minter: true,
+            owner: true,
+            trades: true,
         }
     });
+
+    const nft = {
+        ...nftWithUserPasswords,
+        minter: deleteProp(nftWithUserPasswords.minter, "passwordHash"),
+        owner: deleteProp(nftWithUserPasswords.owner, "passwordHash"),
+    };
 
     return ok(nft);
 };
