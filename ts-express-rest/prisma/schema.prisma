@@ -33,15 +33,15 @@ model UserWithPassword {
 }
 
 model Trade {
-  id          Int               @id @default(autoincrement())
-  createdAt   DateTime          @default(now())
+  id          Int                @id @default(autoincrement())
+  createdAt   DateTime           @default(now())
   sellerId    Int
   seller      UserWithPassword  @relation("Sold", fields: [sellerId], references: [id])
-  buyerId     Int
-  buyer       UserWithPassword  @relation("Bought", fields: [buyerId], references: [id])
+  buyerId     Int?
+  buyer       UserWithPassword?  @relation("Bought", fields: [buyerId], references: [id])
   nftId       Int
-  nft         Nft               @relation(fields: [nftId], references: [id])
+  nft         Nft                @relation(fields: [nftId], references: [id])
   price       Int
-  accepted    Boolean           @default(false)
+  accepted    Boolean            @default(false)
   acceptedAt  DateTime?  
 }
