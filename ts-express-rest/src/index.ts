@@ -17,10 +17,6 @@ dotenv.config({ path: "../.env" });
 
 const prismaClient = new PrismaClient();
 
-const ctx: Context = {
-  prisma: prismaClient,
-};
-
 const handleApiError = (
   res: express.Response,
   error: ApiError,
@@ -28,12 +24,24 @@ const handleApiError = (
   res.status(error.statusCode).json({ error: error.message });
 }
 
-function createHandler<Request, Response>(
-  setupRequest: SetupRequest<Request>,
-  feature: Feature<Request, Response>,
-): ((req: express.Request, res: express.Response, next: express.NextFunction) => Promise<void>) {
+type HandlerProp<Request, Response> = 
+  | {
+    setupRequest: SetupRequest<Request>,
+    feature: PrivateFeature<Request, Response>,
+    auth: false
+  }
+  | {
+    setupRequest: SetupRequest<Request>,
+    feature: PublicFeature<Request, Response>,
+    options: true
+  }
+
+type ExpressHandler = (req: express.Request, res: express.Response, next: express.NextFunction) => Promise<void>;
+
+function createHandler<Request, Response>(props: HandlerProp<Request, Response>): ExpressHandler {
   return async (req: express.Request, res: express.Response, next: express.NextFunction) => {      
-      const requestResult = setupRequest(req);
+    // TODO  
+    const requestResult = setupRequest(req);
       if (requestResult.isErr()) {
         handleApiError(res, requestResult.error);
         return;
@@ -43,12 +51,14 @@ function createHandler<Request, Response>(
 
       try {
         await prismaClient.$transaction(async (transactionPrisma) => {
+          const ctx: Context = {  
+            prisma: transactionPrisma,
+            user: req.user,
+          };
+
           responseResult = await feature(
             requestResult.value,
-            {
-              ...ctx,
-              prisma: transactionPrisma,
-            }
+            ctx,
           );
         });
       } catch (error) {
@@ -73,11 +83,52 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.post("/login", createHandler(setupLoginRequest, login));
-app.post("/signup", createHandler(setupSignupRequest, signup));
-app.get("/users", createHandler(setupGetAllUsersRequest, getAllUsers));
-app.get("/users/:username", createHandler(setupGetUserRequest, getUser));
-app.patch("/users/:username", authMiddleware(ctx), createHandler(setupUpdateUserRequest, updateUser));
+// Routes
+
+app.post(
+  "/login",
+  createHandler({
+    setupRequest: setupLoginRequest,
+    feature: login,
+    auth: false
+  })
+);
+
+app.post(
+  "/signup",
+  createHandler({
+    setupRequest: setupSignupRequest,
+    feature: signup,
+    auth: false
+  }),
+);
+
+app.get(
+  "/users",
+  createHandler({
+    setupRequest: setupGetAllUsersRequest,
+    feature: getAllUsers,
+    auth: false
+  }),
+);
+
+app.get(
+  "/users/:username",
+  createHandler({
+    setupRequest: setupGetUserRequest,
+    feature: getUser,
+    auth: false
+  }),
+);
+
+app.patch(
+  "/users/:username",
+  createHandler({
+    setupRequest: setupUpdateUserRequest,
+    feature: updateUser,
+    auth: true
+  }),
+);
 
 app.listen(process.env.API_PORT, () => {
   console.info(`Started API on port ${process.env.API_PORT}.`);
