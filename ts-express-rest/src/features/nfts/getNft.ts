@@ -24,7 +24,7 @@ export const getNft: Feature<GetNftRequest, GetNftResponse> = async (
     request,
     ctx,
 ) => {
-    const nftWithPasswords = await ctx.prisma.nft.findUnique({
+    const nftWithUserPasswords = await ctx.prisma.nft.findUnique({
         where: {
             seed: request.seed,
         },
@@ -35,14 +35,14 @@ export const getNft: Feature<GetNftRequest, GetNftResponse> = async (
         }
     });
 
-    if (nftWithPasswords == null) {
-        return err(new ApiError(`No NFT found with seed "${request.seed}".`, 404));
+    if (nftWithUserPasswords == null) {
+        return err(new ApiError("NFT not found", 404));
     }
     
     const nft = {
-        ...nftWithPasswords,
-        minter: deleteProp(nftWithPasswords.minter, "passwordHash"),
-        owner: deleteProp(nftWithPasswords.owner, "passwordHash"),
+        ...nftWithUserPasswords,
+        minter: deleteProp(nftWithUserPasswords.minter, "passwordHash"),
+        owner: deleteProp(nftWithUserPasswords.owner, "passwordHash"),
     };
 
     return ok(nft);
