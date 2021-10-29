@@ -11,7 +11,7 @@ import deleteProp from "../../utils/deleteProp";
 type CreateNftRequest = {
     seed: string,
     title: string,
-    minterUsername: string,
+    minterId: string,
 };
 
 type CreateNftResponse = 
@@ -38,7 +38,7 @@ export const createNft: Feature<CreateNftRequest, CreateNftResponse> = async (
 
     const user = await ctx.prisma.userWithPassword.findUnique({
         where: {
-            username: request.minterUsername,
+            id: request.minterId,
         }
     });
 
@@ -76,12 +76,12 @@ export const setupCreateNftRequest: SetupRequest<CreateNftRequest> = (
         return err(new ApiError("Invalid NFT", 400));
     }
 
-    if (req.body.minterUsername !== req.user.username) {
+    if (req.body.minterId !== req.user.username) {
         return err(new ApiError("Cannot create NFT for someone else", 400));
     }
     
     return ok({
-        minterUsername: req.user.username,
+        minterId: req.user.id,
         seed: req.body.seed,
         title: req.body.title,
     });

@@ -7,7 +7,7 @@ import SetupRequest from "../../types/SetupRequest";
 import { SUCCESS, Success } from "../../utils/Success";
 
 type GetTradeRequest = {
-    id: number,
+    id: string,
 };
 
 type GetTradeResponse = Success;
@@ -38,7 +38,7 @@ export const getTrade: Feature<GetTradeRequest, GetTradeResponse> = async (
 export const setupGetTradeRequest: SetupRequest<GetTradeRequest> = (
     req: express.Request,
 ) => {
-    if (!is<number>(req.params.id)) {
+    if (!is<string>(req.params.id)) {
         return err(new ApiError("Invalid id", 400));
     }
     

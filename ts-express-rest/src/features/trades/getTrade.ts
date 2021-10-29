@@ -9,7 +9,7 @@ import deleteProp from "../../utils/deleteProp";
 import User from "../../types/User";
 
 type GetTradeRequest = {
-    id: number,
+    id: string,
 };
 
 type GetTradeResponse = 
@@ -53,7 +53,7 @@ export const getTrade: Feature<GetTradeRequest, GetTradeResponse> = async (
 export const setupGetTradeRequest: SetupRequest<GetTradeRequest> = (
     req: express.Request,
 ) => {
-    if (!is<number>(req.params.id)) {
+    if (!is<string>(req.params.id)) {
         return err(new ApiError("Invalid id", 400));
     }
     

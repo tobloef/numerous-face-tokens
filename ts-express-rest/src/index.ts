@@ -75,12 +75,9 @@ app.use(express.urlencoded({ extended: true }));
 
 app.post("/login", createHandler(setupLoginRequest, login));
 app.post("/signup", createHandler(setupSignupRequest, signup));
-
-app.use(authMiddleware(ctx));
-
 app.get("/users", createHandler(setupGetAllUsersRequest, getAllUsers));
 app.get("/users/:username", createHandler(setupGetUserRequest, getUser));
-app.patch("/users/:username", createHandler(setupUpdateUserRequest, updateUser));
+app.patch("/users/:username", authMiddleware(ctx), createHandler(setupUpdateUserRequest, updateUser));
 
 app.listen(process.env.API_PORT, () => {
   console.info(`Started API on port ${process.env.API_PORT}.`);

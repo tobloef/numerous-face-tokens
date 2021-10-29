@@ -9,11 +9,11 @@ datasource db {
 }
 
 model Nft {
-  id        Int               @id @default(autoincrement())
-  minterId  Int
+  id        String            @id @default(uuid())
+  minterId  String
   minter    UserWithPassword  @relation("Minted", fields: [minterId], references: [id])
   mintedAt  DateTime          @default(now())
-  ownerId   Int
+  ownerId   String
   owner     UserWithPassword  @relation("Owned", fields: [ownerId], references: [id])
   seed      String            @unique
   title     String
@@ -21,7 +21,7 @@ model Nft {
 }
 
 model UserWithPassword {
-  id            Int       @id @default(autoincrement())
+  id            String    @id @default(uuid())
   createdAt     DateTime  @default(now())
   username      String    @unique
   passwordHash  String
@@ -33,15 +33,17 @@ model UserWithPassword {
 }
 
 model Trade {
-  id          Int                @id @default(autoincrement())
-  createdAt   DateTime           @default(now())
-  sellerId    Int
-  seller      UserWithPassword  @relation("Sold", fields: [sellerId], references: [id])
-  buyerId     Int?
-  buyer       UserWithPassword?  @relation("Bought", fields: [buyerId], references: [id])
-  nftId       Int
-  nft         Nft                @relation(fields: [nftId], references: [id])
-  price       Int
-  accepted    Boolean            @default(false)
-  acceptedAt  DateTime?  
+  id                String             @id @default(uuid())
+  createdAt         DateTime           @default(now())
+  sellerId          String
+  seller            UserWithPassword   @relation("Sold", fields: [sellerId], references: [id])
+  sellerAccepted    Boolean            @default(false)
+  sellerAcceptedAt  DateTime?  
+  buyerId           String?
+  buyer             UserWithPassword?  @relation("Bought", fields: [buyerId], references: [id])
+  buyerAccepted     Boolean            @default(false)
+  buyerAcceptedAt   DateTime?  
+  nftId             String
+  nft               Nft                @relation(fields: [nftId], references: [id])
+  price             Int
 }

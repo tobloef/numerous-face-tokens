@@ -10,7 +10,7 @@ import deleteProp from "../../utils/deleteProp";
 import bcrypt from "bcryptjs";
 
 type UpdateUserRequest = {
-    username: string,
+    id: string,
     patch: {
         username?: string,
         password?: string,
@@ -32,7 +32,7 @@ export const updateUser: Feature<UpdateUserRequest, UpdateUserResponse> = async 
 ) => {
     const user = await ctx.prisma.userWithPassword.update({
         where: {
-            username: request.username,
+            id: request.id,
         },
         data: {
             username: request.patch.username,
@@ -56,8 +56,8 @@ export const updateUser: Feature<UpdateUserRequest, UpdateUserResponse> = async 
 export const setupUpdateUserRequest: SetupRequest<UpdateUserRequest> = (
     req: express.Request,
 ) => {
-    if (!is<string>(req.params.username)) {
-        return err(new ApiError("Invalid username", 400));
+    if (!is<string>(req.params.id)) {
+        return err(new ApiError("Invalid id", 400));
     }
 
     if (!is<UpdateUserRequest["patch"]>(req.body)) {
@@ -65,7 +65,7 @@ export const setupUpdateUserRequest: SetupRequest<UpdateUserRequest> = (
     }
     
     return ok({
-        username: req.params.username,
+        id: req.params.id,
         patch: req.body,
     });
 }

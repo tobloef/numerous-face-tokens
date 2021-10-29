@@ -9,8 +9,8 @@ import User from "../../types/User";
 import deleteProp from "../../utils/deleteProp";
 
 type CreateTradeRequest = {
-    sellerUsername: string,
-    buyerUsername: string | null,
+    sellerId: string,
+    buyerId: string | null,
     nftSeed: string,
     price: number,
 };
@@ -27,9 +27,13 @@ export const createTrade: Feature<CreateTradeRequest, CreateTradeResponse> = asy
     request,
     ctx,
 ) => {
+    if (request.sellerId === request.buyerId) {
+        return err(new ApiError("Cannot create trade with yourself", 400));
+    }
+
     const sellerWithPassword = await ctx.prisma.userWithPassword.findUnique({
         where: {
-            username: request.sellerUsername,
+            id: request.sellerId,
         }
     });
 
@@ -38,10 +42,10 @@ export const createTrade: Feature<CreateTradeRequest, CreateTradeResponse> = asy
     }
 
     let buyerUserWithPassword;
-    if (request.buyerUsername !== null) {
+    if (request.buyerId !== null) {
         buyerUserWithPassword = await ctx.prisma.userWithPassword.findUnique({
             where: {
-                username: request.buyerUsername,
+                id: request.buyerId,
             }
         });
 
@@ -61,7 +65,7 @@ export const createTrade: Feature<CreateTradeRequest, CreateTradeResponse> = asy
     }
 
     if (nft.ownerId !== sellerWithPassword.id) {
-        return err(new ApiError("Selles does not own the NFT", 403));
+        return err(new ApiError("Seller does not own the NFT", 403));
     }
 
     if (request.price < 0) {
@@ -100,8 +104,11 @@ export const setupCreateTradeRequest: SetupRequest<CreateTradeRequest> = (
         return err(new ApiError("Invalid trade", 400));
     }
 
-    if (req.body.sellerUsername !== req.user.username) {
-        return err(new ApiError("Cannot create trade for someone else", 400));
+    if (
+        req.body.sellerId !== req.user.id &&
+        req.body.buyerId !== req.user.id
+    ) {
+        return err(new ApiError("Cannot create trade you are not participating in", 400));
     }
     
     return ok(req.body);
