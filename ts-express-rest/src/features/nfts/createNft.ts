@@ -11,7 +11,7 @@ import deleteProp from "../../utils/deleteProp";
 type CreateNftRequest = {
     seed: string,
     title: string,
-    minterId: number,
+    minterUsername: string,
 };
 
 type CreateNftResponse = 
@@ -22,7 +22,7 @@ type CreateNftResponse =
         trades: Trade[];
     };
 
-export const createUser: Feature<CreateNftRequest, CreateNftResponse> = async (
+export const createNft: Feature<CreateNftRequest, CreateNftResponse> = async (
     request,
     ctx,
 ) => {
@@ -36,12 +36,22 @@ export const createUser: Feature<CreateNftRequest, CreateNftResponse> = async (
         return err(new ApiError("NFT with given seed already exists", 409));
     }
 
+    const user = await ctx.prisma.userWithPassword.findUnique({
+        where: {
+            username: request.minterUsername,
+        }
+    });
+
+    if (user === null) {
+        return err(new ApiError("User not found", 404));
+    }
+
     const nftWithUserPasswords = await ctx.prisma.nft.create({
         data: {
             seed: request.seed,
             title: request.title,
-            minterId: request.minterId,
-            ownerId: request.minterId,
+            minterId: user.id,
+            ownerId: user.id,
         },
         include: {
             minter: true,
@@ -59,17 +69,19 @@ export const createUser: Feature<CreateNftRequest, CreateNftResponse> = async (
     return ok(nft);
 };
 
-export const setupCreateUserRequest: SetupRequest<CreateNftRequest> = (
+export const setupCreateNftRequest: SetupRequest<CreateNftRequest> = (
     req: express.Request,
 ) => {
-    type RequestWithoutMinterId = Omit<CreateNftRequest, "minterId">;
-
-    if (!is<RequestWithoutMinterId>(req.body)) {
+    if (!is<CreateNftRequest>(req.body)) {
         return err(new ApiError("Invalid NFT", 400));
+    }
+
+    if (req.body.minterUsername !== req.user.username) {
+        return err(new ApiError("Cannot create NFT for someone else", 400));
     }
     
     return ok({
-        minterId: req.user.id,
+        minterUsername: req.user.username,
         seed: req.body.seed,
         title: req.body.title,
     });
