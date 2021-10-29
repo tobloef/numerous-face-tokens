@@ -1,4 +1,4 @@
-import { UserWithPassword } from "@prisma/client";
+import { Nft, Trade, UserWithPassword } from "@prisma/client";
 import express from "express";
 import { err, ok } from "neverthrow";
 import { is } from "typescript-is";
@@ -13,13 +13,20 @@ type GetUserRequest = {
     username: string,
 };
 
-type GetUserResponse = User;
+type GetUserResponse = 
+ & User
+ & {
+    boughtTrades: Trade[];
+    soldTrades: Trade[];
+    ownedNfts: Nft[];
+    mintedNfts: Nft[];
+};
 
 export const getUser: Feature<GetUserRequest, GetUserResponse> = async (
     request,
     ctx,
 ) => {
-    const user: UserWithPassword | null = await ctx.prisma.userWithPassword.findUnique({
+    const user = await ctx.prisma.userWithPassword.findUnique({
         where: {
             username: request.username,
         },

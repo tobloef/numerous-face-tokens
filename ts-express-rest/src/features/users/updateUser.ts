@@ -1,8 +1,7 @@
-import { UserWithPassword } from "@prisma/client";
+import { Nft, Trade, UserWithPassword } from "@prisma/client";
 import express from "express";
 import { is } from "typescript-is";
 import { err, ok } from "neverthrow";
-import Context from "../../types/Context";
 import Feature from "../../types/feature";
 import SetupRequest from "../../types/SetupRequest";
 import ApiError from "../../ApiError";
@@ -18,13 +17,20 @@ type UpdateUserRequest = {
     },
 };
 
-type UpdateUserResponse = User;
+type UpdateUserResponse = 
+    & User
+    & {
+        boughtTrades: Trade[];
+        soldTrades: Trade[];
+        ownedNfts: Nft[];
+        mintedNfts: Nft[];
+    };
 
 export const updateUser: Feature<UpdateUserRequest, UpdateUserResponse> = async (
     request,
     ctx,
 ) => {
-    const user: UserWithPassword = await ctx.prisma.userWithPassword.update({
+    const user = await ctx.prisma.userWithPassword.update({
         where: {
             username: request.username,
         },
@@ -33,6 +39,12 @@ export const updateUser: Feature<UpdateUserRequest, UpdateUserResponse> = async 
             passwordHash: request.patch.password !== undefined
                 ? bcrypt.hashSync(request.patch.password)
                 : undefined
+        },
+        include: {
+            boughtTrades: true,
+            soldTrades: true,
+            ownedNfts: true,
+            mintedNfts: true,
         }
     });
 
