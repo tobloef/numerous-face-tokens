@@ -5,7 +5,8 @@
   "scripts": {
     "start": "ts-node-dev --respawn --compiler ttypescript ./src/index.ts",
     "update-db": "prisma db push --accept-data-loss",
-    "start-db": "cd .. && docker-compose --file ./postgres.docker.yml up"
+    "start-db": "cd .. && docker-compose --file ./postgres.docker.yml up",
+    "compile": "ttsc --noEmit"
   },
   "dependencies": {
     "@prisma/client": "^3.3.0",
