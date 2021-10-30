@@ -9,9 +9,10 @@ type TransactionPrismaClient = Omit<PrismaClient,
     | '$use'
 >;
 
-type Context = {
+export type PublicContext = {
     prisma: TransactionPrismaClient,
-    user: User,
 };
 
-export default Context;
+export type PrivateContext = PublicContext & {
+    user: User,
+};

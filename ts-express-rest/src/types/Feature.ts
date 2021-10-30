@@ -1,10 +1,13 @@
 import { Result } from "neverthrow";
 import ApiError from "../ApiError";
-import Context from "./Context";
+import { PrivateContext, PublicContext } from "./Context";
 
-type Feature<Request, Response> = (
+export type PublicFeature<Request, Response> = (
     request: Request,
-    ctx: Context,
+    ctx: PublicContext,
 ) => Promise<Result<Response, ApiError>>;
 
-export default Feature;
+export type PrivateFeature<Request, Response> = (
+    request: Request,
+    ctx: PrivateContext,
+) => Promise<Result<Response, ApiError>>;

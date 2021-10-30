@@ -2,7 +2,7 @@ import express from "express";
 import { is } from "typescript-is";
 import { err, ok } from "neverthrow";
 import ApiError from "../../ApiError";
-import Feature from "../../types/feature";
+import { PrivateFeature } from "../../types/feature";
 import SetupRequest from "../../types/SetupRequest";
 import { Nft, Trade } from "@prisma/client";
 import User from "../../types/User";
@@ -11,7 +11,6 @@ import deleteProp from "../../utils/deleteProp";
 type CreateNftRequest = {
     seed: string,
     title: string,
-    minterId: string,
 };
 
 type CreateNftResponse = 
@@ -22,7 +21,7 @@ type CreateNftResponse =
         trades: Trade[];
     };
 
-export const createNft: Feature<CreateNftRequest, CreateNftResponse> = async (
+export const createNft: PrivateFeature<CreateNftRequest, CreateNftResponse> = async (
     request,
     ctx,
 ) => {
@@ -38,7 +37,7 @@ export const createNft: Feature<CreateNftRequest, CreateNftResponse> = async (
 
     const user = await ctx.prisma.userWithPassword.findUnique({
         where: {
-            id: request.minterId,
+            id: ctx.user.id,
         }
     });
 
@@ -75,14 +74,6 @@ export const setupCreateNftRequest: SetupRequest<CreateNftRequest> = (
     if (!is<CreateNftRequest>(req.body)) {
         return err(new ApiError("Invalid NFT", 400));
     }
-
-    if (req.body.minterId !== req.user.username) {
-        return err(new ApiError("Cannot create NFT for someone else", 400));
-    }
     
-    return ok({
-        minterId: req.user.id,
-        seed: req.body.seed,
-        title: req.body.title,
-    });
+    return ok(req.body);
 }

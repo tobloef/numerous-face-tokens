@@ -2,7 +2,7 @@ import express, { request } from "express";
 import { is } from "typescript-is";
 import { err, ok } from "neverthrow";
 import ApiError from "../../ApiError";
-import Feature from "../../types/feature";
+import { PrivateFeature, PublicFeature } from "../../types/feature";
 import SetupRequest from "../../types/SetupRequest";
 import { Nft, Trade } from "@prisma/client";
 import User from "../../types/User";
@@ -23,10 +23,17 @@ type CreateTradeResponse =
         buyer: User | null;
     };
 
-export const createTrade: Feature<CreateTradeRequest, CreateTradeResponse> = async (
+export const createTrade: PrivateFeature<CreateTradeRequest, CreateTradeResponse> = async (
     request,
     ctx,
 ) => {
+    if (
+        request.sellerId !== ctx.user.id &&
+        request.buyerId !== ctx.user.id
+    ) {
+        return err(new ApiError("Cannot create trade you are not participating in", 403));
+    }
+
     if (request.sellerId === request.buyerId) {
         return err(new ApiError("Cannot create trade with yourself", 400));
     }
@@ -102,13 +109,6 @@ export const setupCreateTradeRequest: SetupRequest<CreateTradeRequest> = (
 ) => {
     if (!is<CreateTradeRequest>(req.body)) {
         return err(new ApiError("Invalid trade", 400));
-    }
-
-    if (
-        req.body.sellerId !== req.user.id &&
-        req.body.buyerId !== req.user.id
-    ) {
-        return err(new ApiError("Cannot create trade you are not participating in", 400));
     }
     
     return ok(req.body);

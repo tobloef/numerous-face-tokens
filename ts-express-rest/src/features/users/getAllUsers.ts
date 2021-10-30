@@ -1,7 +1,7 @@
 import { UserWithPassword } from ".prisma/client";
 import express from "express";
 import { ok } from "neverthrow";
-import Feature from "../../types/feature";
+import { PublicFeature } from "../../types/feature";
 import SetupRequest from "../../types/SetupRequest";
 import User from "../../types/User";
 import deleteProp from "../../utils/deleteProp";
@@ -34,7 +34,7 @@ type GetAllUsersRequest = {
 
 type GetAllUsersResponse = User[];
 
-export const getAllUsers: Feature<GetAllUsersRequest, GetAllUsersResponse> = async (
+export const getAllUsers: PublicFeature<GetAllUsersRequest, GetAllUsersResponse> = async (
     request,
     ctx,
 ) => {

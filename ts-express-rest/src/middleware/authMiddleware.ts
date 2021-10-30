@@ -1,21 +1,21 @@
+import { PrismaClient } from ".prisma/client";
 import express from "express";
 import jwt from "jsonwebtoken";
 import AuthPayload from "../types/AuthPayload";
-import Context from "../types/Context";
 import deleteProp from "../utils/deleteProp";
 
-const authMiddleware = (ctx: Context) => (
+const authMiddleware = (prisma: PrismaClient) => (
     async (req: express.Request, res: express.Response, next: express.NextFunction) => {
         const authHeader = req.header("Authorization");
 
         if (authHeader === undefined) {
-        res.status(401).json({ error: "No authorization header" });
-        return;
+            next();
+            return;
         }
     
         if (!/^Bearer .+$/.test(authHeader)) {
-        res.status(400).json({ error: "Invalid authorization header" });
-        return;
+            res.status(400).json({ error: "Invalid authorization header" });
+            return;
         }
     
         const unvalidatedAuthToken = authHeader.replace(/^Bearer /, "");
@@ -29,7 +29,7 @@ const authMiddleware = (ctx: Context) => (
             return;
         }
 
-        const userWithPassword = await ctx.prisma.userWithPassword.findUnique({
+        const userWithPassword = await prisma.userWithPassword.findUnique({
             where: {
                 id: payload.user.id,
             }

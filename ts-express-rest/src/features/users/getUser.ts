@@ -3,8 +3,7 @@ import express from "express";
 import { err, ok } from "neverthrow";
 import { is } from "typescript-is";
 import ApiError from "../../ApiError";
-import Context from "../../types/Context";
-import Feature from "../../types/feature";
+import { PublicFeature } from "../../types/feature";
 import SetupRequest from "../../types/SetupRequest";
 import User from "../../types/User";
 import deleteProp from "../../utils/deleteProp";
@@ -22,7 +21,7 @@ type GetUserResponse =
     mintedNfts: Nft[];
 };
 
-export const getUser: Feature<GetUserRequest, GetUserResponse> = async (
+export const getUser: PublicFeature<GetUserRequest, GetUserResponse> = async (
     request,
     ctx,
 ) => {

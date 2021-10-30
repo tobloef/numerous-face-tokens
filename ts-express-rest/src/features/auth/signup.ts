@@ -3,13 +3,13 @@ import express from "express";
 import { is } from "typescript-is";
 import { err, ok } from "neverthrow";
 import ApiError from "../../ApiError";
-import Feature from "../../types/feature";
 import SetupRequest from "../../types/SetupRequest";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import AuthPayload from "../../types/AuthPayload";
 import deleteProp from "../../utils/deleteProp";
 import AuthToken from "../../types/AuthToken";
+import { PublicFeature } from "../../types/feature";
 
 type SignupRequest = {
     username: string,
@@ -18,7 +18,7 @@ type SignupRequest = {
 
 type SignupResponse = AuthToken;
 
-export const signup: Feature<SignupRequest, SignupResponse> = async (
+export const signup: PublicFeature<SignupRequest, SignupResponse> = async (
     request,
     ctx,
 ) => {

@@ -1,7 +1,7 @@
 import { Trade, UserWithPassword } from ".prisma/client";
 import express from "express";
 import { ok } from "neverthrow";
-import Feature from "../../types/feature";
+import { PublicFeature } from "../../types/feature";
 import SetupRequest from "../../types/SetupRequest";
 import User from "../../types/User";
 import deleteProp from "../../utils/deleteProp";
@@ -12,7 +12,7 @@ type GetAllTradesRequest = {
 
 type GetAllTradesResponse = Trade[];
 
-export const getAllTrades: Feature<GetAllTradesRequest, GetAllTradesResponse> = async (
+export const getAllTrades: PublicFeature<GetAllTradesRequest, GetAllTradesResponse> = async (
     request,
     ctx,
 ) => {

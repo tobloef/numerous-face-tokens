@@ -1,9 +1,8 @@
 import express from "express";
 import dotenv from "dotenv";
 import { PrismaClient } from "@prisma/client"
-import Context from "./types/Context";
 import ApiError from "./ApiError";
-import Feature from "./types/feature";
+import { PrivateFeature, PublicFeature } from "./types/feature";
 import SetupRequest from "./types/SetupRequest";
 import { setupUpdateUserRequest, updateUser } from "./features/users/updateUser";
 import { getUser, setupGetUserRequest } from "./features/users/getUser";
@@ -12,6 +11,7 @@ import authMiddleware from "./middleware/authMiddleware";
 import { login, setupLoginRequest } from "./features/auth/login";
 import { setupSignupRequest, signup } from "./features/auth/signup";
 import { Result } from "neverthrow";
+import { PrivateContext, PublicContext } from "./types/Context";
 
 dotenv.config({ path: "../.env" });
 
@@ -28,12 +28,12 @@ type HandlerProp<Request, Response> =
   | {
     setupRequest: SetupRequest<Request>,
     feature: PrivateFeature<Request, Response>,
-    auth: false
+    auth: true
   }
   | {
     setupRequest: SetupRequest<Request>,
     feature: PublicFeature<Request, Response>,
-    options: true
+    auth: false
   }
 
 type ExpressHandler = (req: express.Request, res: express.Response, next: express.NextFunction) => Promise<void>;
@@ -41,7 +41,7 @@ type ExpressHandler = (req: express.Request, res: express.Response, next: expres
 function createHandler<Request, Response>(props: HandlerProp<Request, Response>): ExpressHandler {
   return async (req: express.Request, res: express.Response, next: express.NextFunction) => {      
     // TODO  
-    const requestResult = setupRequest(req);
+    const requestResult = props.setupRequest(req);
       if (requestResult.isErr()) {
         handleApiError(res, requestResult.error);
         return;
@@ -50,16 +50,32 @@ function createHandler<Request, Response>(props: HandlerProp<Request, Response>)
       let responseResult: Result<Response, ApiError>;
 
       try {
-        await prismaClient.$transaction(async (transactionPrisma) => {
-          const ctx: Context = {  
+        await prismaClient.$transaction(async (transactionPrisma) => {                   
+          const publicContext = {
             prisma: transactionPrisma,
-            user: req.user,
           };
+          
+          if (props.auth) {
+            if (req.user === undefined) {
+              res.status(401).send("Unauthenticated");
+              return;
+            }
 
-          responseResult = await feature(
-            requestResult.value,
-            ctx,
-          );
+            const privateContext = {
+              ...publicContext,
+              user: req.user,
+            };
+            
+            responseResult = await props.feature(
+              requestResult.value,
+              privateContext,
+            );
+          } else {
+            responseResult = await props.feature(
+              requestResult.value,
+              publicContext,
+            );
+          }
         });
       } catch (error) {
         next(error);
@@ -82,6 +98,7 @@ const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(authMiddleware(prismaClient));
 
 // Routes
 

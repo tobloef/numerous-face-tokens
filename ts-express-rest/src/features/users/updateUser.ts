@@ -2,7 +2,7 @@ import { Nft, Trade, UserWithPassword } from "@prisma/client";
 import express from "express";
 import { is } from "typescript-is";
 import { err, ok } from "neverthrow";
-import Feature from "../../types/feature";
+import { PublicFeature } from "../../types/feature";
 import SetupRequest from "../../types/SetupRequest";
 import ApiError from "../../ApiError";
 import User from "../../types/User";
@@ -26,7 +26,7 @@ type UpdateUserResponse =
         mintedNfts: Nft[];
     };
 
-export const updateUser: Feature<UpdateUserRequest, UpdateUserResponse> = async (
+export const updateUser: PublicFeature<UpdateUserRequest, UpdateUserResponse> = async (
     request,
     ctx,
 ) => {

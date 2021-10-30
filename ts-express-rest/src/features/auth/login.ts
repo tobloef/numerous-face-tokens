@@ -3,7 +3,7 @@ import express from "express";
 import { is } from "typescript-is";
 import { err, ok } from "neverthrow";
 import ApiError from "../../ApiError";
-import Feature from "../../types/feature";
+import { PublicFeature } from "../../types/feature";
 import SetupRequest from "../../types/SetupRequest";
 import deleteProp from "../../utils/deleteProp";
 import User from "../../types/User";
@@ -19,7 +19,7 @@ type LoginRequest = {
 
 type LoginResponse = AuthToken;
 
-export const login: Feature<LoginRequest, LoginResponse> = async (
+export const login: PublicFeature<LoginRequest, LoginResponse> = async (
     request,
     ctx,
 ) => {

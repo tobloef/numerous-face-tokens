@@ -3,7 +3,7 @@ import express from "express";
 import { err, ok } from "neverthrow";
 import { is } from "typescript-is";
 import ApiError from "../../ApiError";
-import Feature from "../../types/feature";
+import { PublicFeature } from "../../types/feature";
 import SetupRequest from "../../types/SetupRequest";
 import deleteProp from "../../utils/deleteProp";
 import User from "../../types/User";
@@ -20,7 +20,7 @@ type GetTradeResponse =
     buyer: User | null;
 };
 
-export const getTrade: Feature<GetTradeRequest, GetTradeResponse> = async (
+export const getTrade: PublicFeature<GetTradeRequest, GetTradeResponse> = async (
     request,
     ctx,
 ) => {
