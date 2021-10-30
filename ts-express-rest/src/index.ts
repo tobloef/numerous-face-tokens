@@ -10,8 +10,9 @@ import { getAllUsers, setupGetAllUsersRequest } from "./features/users/getAllUse
 import authMiddleware from "./middleware/authMiddleware";
 import { login, setupLoginRequest } from "./features/auth/login";
 import { setupSignupRequest, signup } from "./features/auth/signup";
-import { Result } from "neverthrow";
+import { err, ok, Result } from "neverthrow";
 import { PrivateContext, PublicContext } from "./types/Context";
+import { createNft, setupCreateNftRequest } from "./features/nfts/createNft";
 
 dotenv.config({ path: "../.env" });
 
@@ -40,57 +41,47 @@ type ExpressHandler = (req: express.Request, res: express.Response, next: expres
 
 function createHandler<Request, Response>(props: HandlerProp<Request, Response>): ExpressHandler {
   return async (req: express.Request, res: express.Response, next: express.NextFunction) => {      
-    // TODO  
     const requestResult = props.setupRequest(req);
-      if (requestResult.isErr()) {
-        handleApiError(res, requestResult.error);
-        return;
-      }
 
-      let responseResult: Result<Response, ApiError>;
+    if (requestResult.isErr()) {
+      handleApiError(res, requestResult.error);
+      return;
+    }
 
-      try {
-        await prismaClient.$transaction(async (transactionPrisma) => {                   
-          const publicContext = {
-            prisma: transactionPrisma,
+    let responseResult: Result<Response, ApiError>;
+
+    try {
+      responseResult = await prismaClient.$transaction(async (transactionPrisma): Promise<Result<Response, ApiError>> => {                   
+        const publicContext = {
+          prisma: transactionPrisma,
+        };
+        
+        if (props.auth) {
+          if (req.user === undefined) {
+            return err(new ApiError("Unauthenticated", 403));
+          }
+
+          const privateContext = {
+            ...publicContext,
+            user: req.user,
           };
           
-          if (props.auth) {
-            if (req.user === undefined) {
-              res.status(401).send("Unauthenticated");
-              return;
-            }
+          return props.feature(requestResult.value, privateContext);
+        } else {
+          return props.feature(requestResult.value, publicContext);
+        }
+      });
+    } catch (error) {
+      next(error);
+      return;
+    }
 
-            const privateContext = {
-              ...publicContext,
-              user: req.user,
-            };
-            
-            responseResult = await props.feature(
-              requestResult.value,
-              privateContext,
-            );
-          } else {
-            responseResult = await props.feature(
-              requestResult.value,
-              publicContext,
-            );
-          }
-        });
-      } catch (error) {
-        next(error);
-        return;
-      }
+    if (responseResult.isErr()) {
+      handleApiError(res, responseResult.error);
+      return;
+    }
 
-      // @ts-ignore
-      responseResult = responseResult as Result<Response, ApiError>
-
-      if (responseResult.isErr()) {
-        handleApiError(res, responseResult.error);
-        return;
-      }
-
-      res.status(200).json(responseResult.value);
+    res.status(200).json(responseResult.value);
   }
 }
 
@@ -120,29 +111,11 @@ app.post(
   }),
 );
 
-app.get(
-  "/users",
+app.post(
+  "/nfts",
   createHandler({
-    setupRequest: setupGetAllUsersRequest,
-    feature: getAllUsers,
-    auth: false
-  }),
-);
-
-app.get(
-  "/users/:username",
-  createHandler({
-    setupRequest: setupGetUserRequest,
-    feature: getUser,
-    auth: false
-  }),
-);
-
-app.patch(
-  "/users/:username",
-  createHandler({
-    setupRequest: setupUpdateUserRequest,
-    feature: updateUser,
+    setupRequest: setupCreateNftRequest,
+    feature: createNft,
     auth: true
   }),
 );
