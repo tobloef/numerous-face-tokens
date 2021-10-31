@@ -2,9 +2,9 @@ import { Trade, UserWithPassword } from ".prisma/client";
 import express from "express";
 import { ok } from "neverthrow";
 import { PublicFeature } from "../../types/feature";
-import SetupRequest from "../../types/SetupRequest";
 import User from "../../types/User";
 import deleteProp from "../../utils/deleteProp";
+import { SetupRequest } from "../../utils/expressHandler";
  
 type GetAllTradesRequest = {
     // TODO: Filtering
@@ -21,8 +21,6 @@ export const getAllTrades: PublicFeature<GetAllTradesRequest, GetAllTradesRespon
     return ok(trades);
 };
 
-export const setupGetAllTradesRequest: SetupRequest<GetAllTradesRequest> = (
-    req: express.Request,
-) => {
+export const setupGetAllTradesRequest: SetupRequest<GetAllTradesRequest, {}> = (req) => {
     return ok({});
 }

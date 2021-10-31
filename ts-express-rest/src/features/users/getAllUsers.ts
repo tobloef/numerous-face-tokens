@@ -2,9 +2,9 @@ import { UserWithPassword } from ".prisma/client";
 import express from "express";
 import { ok } from "neverthrow";
 import { PublicFeature } from "../../types/feature";
-import SetupRequest from "../../types/SetupRequest";
 import User from "../../types/User";
 import deleteProp from "../../utils/deleteProp";
+import { SetupRequest } from "../../utils/expressHandler";
  
 // TODO: Move these types elsewhere when finished
 type Sorts<Keys extends string | number | symbol> = Partial<Record<Keys, "desc" | "asc">>
@@ -45,8 +45,6 @@ export const getAllUsers: PublicFeature<GetAllUsersRequest, GetAllUsersResponse>
     return ok(users);
 };
 
-export const setupGetAllUsersRequest: SetupRequest<GetAllUsersRequest> = (
-    req: express.Request,
-) => {
+export const setupGetAllUsersRequest: SetupRequest<GetAllUsersRequest, {}> = (req) => {
     return ok({});
 }

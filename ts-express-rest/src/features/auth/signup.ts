@@ -3,13 +3,14 @@ import express from "express";
 import { is } from "typescript-is";
 import { err, ok } from "neverthrow";
 import ApiError from "../../ApiError";
-import SetupRequest from "../../types/SetupRequest";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import AuthPayload from "../../types/AuthPayload";
 import deleteProp from "../../utils/deleteProp";
 import AuthToken from "../../types/AuthToken";
 import { PublicFeature } from "../../types/feature";
+import { SetupRequest } from "../../utils/expressHandler";
+import generateId from "../../utils/generateId";
 
 type SignupRequest = {
     username: string,
@@ -22,9 +23,11 @@ export const signup: PublicFeature<SignupRequest, SignupResponse> = async (
     request,
     ctx,
 ) => {
+    const username = request.username.toLowerCase();
+
     const existingUser = await ctx.prisma.userWithPassword.findUnique({
         where: {
-            username: request.username,
+            username,
         }
     });
 
@@ -34,8 +37,10 @@ export const signup: PublicFeature<SignupRequest, SignupResponse> = async (
 
     const newUserWithPassword: UserWithPassword = await ctx.prisma.userWithPassword.create({
         data: {
-            username: request.username,
+            id: generateId(),
+            username,
             passwordHash: bcrypt.hashSync(request.password),
+            balance: 1000,
         }
     });
 
@@ -50,9 +55,7 @@ export const signup: PublicFeature<SignupRequest, SignupResponse> = async (
     return ok(token);
 };
 
-export const setupSignupRequest: SetupRequest<SignupRequest> = (
-    req: express.Request,
-) => {
+export const setupSignupRequest: SetupRequest<SignupRequest, {}> = (req) => {
     if (!is<SignupRequest>(req.body)) {
         return err(new ApiError("Invalid signup info", 400));
     }

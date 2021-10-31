@@ -2,19 +2,18 @@ import { Nft, Trade, UserWithPassword } from "@prisma/client";
 import express from "express";
 import { is } from "typescript-is";
 import { err, ok } from "neverthrow";
-import { PublicFeature } from "../../types/feature";
-import SetupRequest from "../../types/SetupRequest";
+import { PrivateFeature, PublicFeature } from "../../types/feature";
 import ApiError from "../../ApiError";
 import User from "../../types/User";
 import deleteProp from "../../utils/deleteProp";
 import bcrypt from "bcryptjs";
+import { SetupRequest } from "../../utils/expressHandler";
 
 type UpdateUserRequest = {
-    id: string,
+    username: string,
     patch: {
-        username?: string,
         password?: string,
-    },
+    }
 };
 
 type UpdateUserResponse = 
@@ -26,16 +25,31 @@ type UpdateUserResponse =
         mintedNfts: Nft[];
     };
 
-export const updateUser: PublicFeature<UpdateUserRequest, UpdateUserResponse> = async (
+export const updateUser: PrivateFeature<UpdateUserRequest, UpdateUserResponse> = async (
     request,
     ctx,
 ) => {
+    const username = request.username.toLowerCase();
+
+    if (username !== ctx.user.username.toLowerCase()) {
+        return err(new ApiError("Cannot update user other than yourself", 403));
+    }
+
+    const existingUser = await ctx.prisma.userWithPassword.findUnique({
+        where: {
+            username,
+        }
+    });
+
+    if (existingUser === null) {
+        return err(new ApiError("User not found", 404));
+    }
+
     const user = await ctx.prisma.userWithPassword.update({
         where: {
-            id: request.id,
+            username,
         },
         data: {
-            username: request.patch.username,
             passwordHash: request.patch.password !== undefined
                 ? bcrypt.hashSync(request.patch.password)
                 : undefined
@@ -53,19 +67,13 @@ export const updateUser: PublicFeature<UpdateUserRequest, UpdateUserResponse> = 
     return ok(userWithoutPassword);
 };
 
-export const setupUpdateUserRequest: SetupRequest<UpdateUserRequest> = (
-    req: express.Request,
-) => {
-    if (!is<string>(req.params.id)) {
-        return err(new ApiError("Invalid id", 400));
-    }
-
+export const setupUpdateUserRequest: SetupRequest<UpdateUserRequest, { username: string }> = (req) => {
     if (!is<UpdateUserRequest["patch"]>(req.body)) {
         return err(new ApiError("Invalid user", 400));
     }
     
     return ok({
-        id: req.params.id,
+        username: req.params.username,
         patch: req.body,
     });
 }

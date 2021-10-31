@@ -3,14 +3,15 @@ import { is } from "typescript-is";
 import { err, ok } from "neverthrow";
 import ApiError from "../../ApiError";
 import { PrivateFeature, PublicFeature } from "../../types/feature";
-import SetupRequest from "../../types/SetupRequest";
+import { SetupRequest } from "../../utils/expressHandler";
 import { Nft, Trade } from "@prisma/client";
 import User from "../../types/User";
 import deleteProp from "../../utils/deleteProp";
+import generateId from "../../utils/generateId";
 
 type CreateTradeRequest = {
-    sellerId: string,
-    buyerId: string | null,
+    sellerUsername: string,
+    buyerUsername: string | null,
     nftSeed: string,
     price: number,
 };
@@ -28,19 +29,19 @@ export const createTrade: PrivateFeature<CreateTradeRequest, CreateTradeResponse
     ctx,
 ) => {
     if (
-        request.sellerId !== ctx.user.id &&
-        request.buyerId !== ctx.user.id
+        request.sellerUsername !== ctx.user.username &&
+        request.buyerUsername !== ctx.user.username
     ) {
         return err(new ApiError("Cannot create trade you are not participating in", 403));
     }
 
-    if (request.sellerId === request.buyerId) {
+    if (request.sellerUsername === request.buyerUsername) {
         return err(new ApiError("Cannot create trade with yourself", 400));
     }
 
     const sellerWithPassword = await ctx.prisma.userWithPassword.findUnique({
         where: {
-            id: request.sellerId,
+            username: request.sellerUsername,
         }
     });
 
@@ -49,10 +50,10 @@ export const createTrade: PrivateFeature<CreateTradeRequest, CreateTradeResponse
     }
 
     let buyerUserWithPassword;
-    if (request.buyerId !== null) {
+    if (request.buyerUsername !== null) {
         buyerUserWithPassword = await ctx.prisma.userWithPassword.findUnique({
             where: {
-                id: request.buyerId,
+                username: request.buyerUsername,
             }
         });
 
@@ -81,10 +82,13 @@ export const createTrade: PrivateFeature<CreateTradeRequest, CreateTradeResponse
 
     const tradeWithUserPasswords = await ctx.prisma.trade.create({
         data: {
+            id: generateId(),
             price: request.price,
             sellerId: sellerWithPassword.id,
             buyerId: buyerUserWithPassword?.id,
             nftId: nft.id,
+            buyerAccepted: ctx.user.username === request.buyerUsername,
+            sellerAccepted: ctx.user.username === request.sellerUsername
         },
         include: {
             buyer: true,
@@ -104,9 +108,7 @@ export const createTrade: PrivateFeature<CreateTradeRequest, CreateTradeResponse
     return ok(trade);
 };
 
-export const setupCreateTradeRequest: SetupRequest<CreateTradeRequest> = (
-    req: express.Request,
-) => {
+export const setupCreateTradeRequest: SetupRequest<CreateTradeRequest, {}> = (req) => {
     if (!is<CreateTradeRequest>(req.body)) {
         return err(new ApiError("Invalid trade", 400));
     }

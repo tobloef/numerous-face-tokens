@@ -9,7 +9,7 @@ datasource db {
 }
 
 model Nft {
-  id        String            @id @default(uuid())
+  id        String            @id
   minterId  String
   minter    UserWithPassword  @relation("Minted", fields: [minterId], references: [id])
   mintedAt  DateTime          @default(now())
@@ -21,7 +21,7 @@ model Nft {
 }
 
 model UserWithPassword {
-  id            String    @id @default(uuid())
+  id            String    @id
   createdAt     DateTime  @default(now())
   username      String    @unique
   passwordHash  String
@@ -33,7 +33,7 @@ model UserWithPassword {
 }
 
 model Trade {
-  id                String             @id @default(uuid())
+  id                String             @id
   createdAt         DateTime           @default(now())
   sellerId          String
   seller            UserWithPassword   @relation("Sold", fields: [sellerId], references: [id])

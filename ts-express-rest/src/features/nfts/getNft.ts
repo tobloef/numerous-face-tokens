@@ -4,9 +4,10 @@ import { err, ok } from "neverthrow";
 import { is } from "typescript-is";
 import ApiError from "../../ApiError";
 import { PublicFeature } from "../../types/feature";
-import SetupRequest from "../../types/SetupRequest";
 import deleteProp from "../../utils/deleteProp";
 import User from "../../types/User";
+import { SetupRequest } from "../../utils/expressHandler";
+// du er dum skriv på discord når du ser dette 
 
 type GetNftRequest = {
     seed: string,
@@ -48,13 +49,7 @@ export const getNft: PublicFeature<GetNftRequest, GetNftResponse> = async (
     return ok(nft);
 };
 
-export const setupGetNftRequest: SetupRequest<GetNftRequest> = (
-    req: express.Request,
-) => {
-    if (!is<string>(req.params.seed)) {
-        return err(new ApiError("Invalid seed", 400));
-    }
-    
+export const setupGetNftRequest: SetupRequest<GetNftRequest, { seed: string }> = (req) => {
     return ok({
         seed: req.params.seed,
     });

@@ -3,14 +3,14 @@ import { is } from "typescript-is";
 import { err, ok } from "neverthrow";
 import ApiError from "../../ApiError";
 import { PrivateFeature } from "../../types/feature";
-import SetupRequest from "../../types/SetupRequest";
+import { SetupRequest } from "../../utils/expressHandler";
 import { Nft, Trade } from "@prisma/client";
 import User from "../../types/User";
 import deleteProp from "../../utils/deleteProp";
 import assert from "assert";
 
 type AcceptTradeRequest = {
-    tradeId: string,
+    id: string,
 };
 
 type AcceptTradeResponse = 
@@ -27,7 +27,7 @@ export const acceptTrade: PrivateFeature<AcceptTradeRequest, AcceptTradeResponse
 ) => {
     const trade = await ctx.prisma.trade.findUnique({
         where: {
-            id: request.tradeId,
+            id: request.id,
         },
         include: {
             buyer: true,
@@ -58,13 +58,13 @@ export const acceptTrade: PrivateFeature<AcceptTradeRequest, AcceptTradeResponse
         return err(new ApiError("Already accepted", 400));
     }
 
-    if (trade.buyer.balance >= trade.price) {
+    if (trade.buyer.balance < trade.price) {
         return err(new ApiError("Insufficient funds", 400));
     }
 
     const updatedTradeWithPasswords = await ctx.prisma.trade.update({
         where: {
-            id: request.tradeId,
+            id: request.id,
         },
         include: {
             nft: true,
@@ -110,12 +110,8 @@ export const acceptTrade: PrivateFeature<AcceptTradeRequest, AcceptTradeResponse
     return ok(updatedTrade);
 };
 
-export const setupAcceptTradeRequest: SetupRequest<AcceptTradeRequest> = (
-    req: express.Request,
-) => {
-    if (!is<AcceptTradeRequest>(req.body)) {
-        return err(new ApiError("Invalid trade acceptation", 400));
-    }
-    
-    return ok(req.body);
+export const setupAcceptTradeRequest: SetupRequest<AcceptTradeRequest, { id: string }> = (req) => {
+    return ok({
+        id: req.params.id,
+    });
 }

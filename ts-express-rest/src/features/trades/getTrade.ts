@@ -4,9 +4,9 @@ import { err, ok } from "neverthrow";
 import { is } from "typescript-is";
 import ApiError from "../../ApiError";
 import { PublicFeature } from "../../types/feature";
-import SetupRequest from "../../types/SetupRequest";
 import deleteProp from "../../utils/deleteProp";
 import User from "../../types/User";
+import { SetupRequest } from "../../utils/expressHandler";
 
 type GetTradeRequest = {
     id: string,
@@ -50,13 +50,7 @@ export const getTrade: PublicFeature<GetTradeRequest, GetTradeResponse> = async 
     return ok(trade);
 };
 
-export const setupGetTradeRequest: SetupRequest<GetTradeRequest> = (
-    req: express.Request,
-) => {
-    if (!is<string>(req.params.id)) {
-        return err(new ApiError("Invalid id", 400));
-    }
-    
+export const setupGetTradeRequest: SetupRequest<GetTradeRequest, { id: string }> = (req) => {
     return ok({
         id: req.params.id,
     });

@@ -4,9 +4,9 @@ import { err, ok } from "neverthrow";
 import { is } from "typescript-is";
 import ApiError from "../../ApiError";
 import { PublicFeature } from "../../types/feature";
-import SetupRequest from "../../types/SetupRequest";
 import User from "../../types/User";
 import deleteProp from "../../utils/deleteProp";
+import { SetupRequest } from "../../utils/expressHandler";
 
 type GetUserRequest = {
     username: string,
@@ -46,9 +46,7 @@ export const getUser: PublicFeature<GetUserRequest, GetUserResponse> = async (
     return ok(userWithoutPassword);
 };
 
-export const setupGetUserRequest: SetupRequest<GetUserRequest> = (
-    req: express.Request,
-) => {
+export const setupGetUserRequest: SetupRequest<GetUserRequest, { username: string }> = (req) => {
     if (!is<string>(req.params.username)) {
         return err(new ApiError("Invalid username", 400));
     }

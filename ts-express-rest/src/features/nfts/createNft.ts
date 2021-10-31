@@ -3,10 +3,11 @@ import { is } from "typescript-is";
 import { err, ok } from "neverthrow";
 import ApiError from "../../ApiError";
 import { PrivateFeature } from "../../types/feature";
-import SetupRequest from "../../types/SetupRequest";
 import { Nft, Trade } from "@prisma/client";
 import User from "../../types/User";
 import deleteProp from "../../utils/deleteProp";
+import { SetupRequest } from "../../utils/expressHandler";
+import generateId from "../../utils/generateId";
 
 type CreateNftRequest = {
     seed: string,
@@ -47,6 +48,7 @@ export const createNft: PrivateFeature<CreateNftRequest, CreateNftResponse> = as
 
     const nftWithUserPasswords = await ctx.prisma.nft.create({
         data: {
+            id: generateId(),
             seed: request.seed,
             title: request.title,
             minterId: user.id,
@@ -68,9 +70,7 @@ export const createNft: PrivateFeature<CreateNftRequest, CreateNftResponse> = as
     return ok(nft);
 };
 
-export const setupCreateNftRequest: SetupRequest<CreateNftRequest> = (
-    req: express.Request,
-) => {
+export const setupCreateNftRequest: SetupRequest<CreateNftRequest, {}> = (req) => {
     if (!is<CreateNftRequest>(req.body)) {
         return err(new ApiError("Invalid NFT", 400));
     }

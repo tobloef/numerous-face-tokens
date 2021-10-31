@@ -3,16 +3,16 @@ import { err, ok } from "neverthrow";
 import { is } from "typescript-is";
 import ApiError from "../../ApiError";
 import { PrivateFeature } from "../../types/feature";
-import SetupRequest from "../../types/SetupRequest";
+import { SetupRequest } from "../../utils/expressHandler";
 import { SUCCESS, Success } from "../../utils/Success";
 
-type GetTradeRequest = {
+type DeleteTradeRequest = {
     id: string,
 };
 
-type GetTradeResponse = Success;
+type DeleteTradeResponse = Success;
 
-export const getTrade: PrivateFeature<GetTradeRequest, GetTradeResponse> = async (
+export const deleteTrade: PrivateFeature<DeleteTradeRequest, DeleteTradeResponse> = async (
     request,
     ctx,
 ) => {
@@ -42,13 +42,7 @@ export const getTrade: PrivateFeature<GetTradeRequest, GetTradeResponse> = async
     return ok(SUCCESS);
 };
 
-export const setupGetTradeRequest: SetupRequest<GetTradeRequest> = (
-    req: express.Request,
-) => {
-    if (!is<string>(req.params.id)) {
-        return err(new ApiError("Invalid id", 400));
-    }
-    
+export const setupDeleteTradeRequest: SetupRequest<DeleteTradeRequest, { id: string }> = (req) => {
     return ok({
         id: req.params.id,
     });

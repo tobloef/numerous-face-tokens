@@ -4,13 +4,13 @@ import { is } from "typescript-is";
 import { err, ok } from "neverthrow";
 import ApiError from "../../ApiError";
 import { PublicFeature } from "../../types/feature";
-import SetupRequest from "../../types/SetupRequest";
 import deleteProp from "../../utils/deleteProp";
 import User from "../../types/User";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import AuthToken from "../../types/AuthToken";
 import AuthPayload from "../../types/AuthPayload";
+import { SetupRequest } from "../../utils/expressHandler";
 
 type LoginRequest = {
     username: string,
@@ -23,9 +23,11 @@ export const login: PublicFeature<LoginRequest, LoginResponse> = async (
     request,
     ctx,
 ) => {
+    const username = request.username.toLowerCase();
+
     const userWithPassword = await ctx.prisma.userWithPassword.findUnique({
         where: {
-            username: request.username,
+            username,
         }
     });
 
@@ -48,9 +50,7 @@ export const login: PublicFeature<LoginRequest, LoginResponse> = async (
     return ok(token)
 };
 
-export const setupLoginRequest: SetupRequest<LoginRequest> = (
-    req: express.Request,
-) => {
+export const setupLoginRequest: SetupRequest<LoginRequest, {}> = (req) => {
     if (!is<LoginRequest>(req.body)) {
         return err(new ApiError("Invalid login info", 400));
     }
