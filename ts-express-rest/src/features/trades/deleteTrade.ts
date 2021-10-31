@@ -4,7 +4,7 @@ import { is } from "typescript-is";
 import ApiError from "../../ApiError";
 import { PrivateFeature } from "../../types/feature";
 import { SetupRequest } from "../../utils/expressHandler";
-import { SUCCESS, Success } from "../../utils/Success";
+import { SUCCESS, Success } from "../../types/Success";
 
 type DeleteTradeRequest = {
     id: string,
