@@ -8,11 +8,12 @@ import User from "../../types/User";
 import { DEFAULT_TAKE } from "../../utils/constants";
 import deleteProp from "../../utils/deleteProp";
 import { SetupRequest } from "../../utils/expressHandler";
+
+// TODO: Move these types elsewhere when finished
  
 type SortOrder = "desc" | "asc";
 
-// TODO: Move these types elsewhere when finished
-type Sort<Keys extends string> = Partial<Record<Keys, SortOrder>>;
+type Sort<Keys extends string> = Array<[Keys, SortOrder]>;
 
 type NumberFilterOps = {
     gt: number,
@@ -45,8 +46,10 @@ type FilterOps<T> = T extends string
         )
     );
 
+type FilterProps = Record<string, string | number | Date>;
+
 // TODO: Make it so you can't pass in "sort" | "skip" | "take" | "filters"
-type Filters<Props extends object> = {
+type Filters<Props extends FilterProps> = {
     [Key in keyof Props]?: Partial<FilterOps<Props[Key]>>
 } | undefined;
 
@@ -54,51 +57,9 @@ type Skip = number | undefined;
 
 type Take = number;
 
-type BaseGetAllRequest<SortKeys extends string, FilterProps extends object> = {
-    skip: Skip,
-    take: Take,
-    sort: Sort<SortKeys>,
-    filters: Filters<FilterProps>,
-}
+/////////////////////////////////////////////////////////////////////////////////////////
 
-const sortKeys = ["username", "createdAt", "balance", "ownedNftsCount", "mintedNftsCount"] as const;
-type SortKeys = (typeof sortKeys)[number];
-
-type GetAllUsersRequest = BaseGetAllRequest<SortKeys,
-    {
-        username: string,
-    }
->
-
-type GetAllUsersResponse = User[];
-
-const countIfDefined = (prop: SortOrder | undefined) => prop !== undefined
-    ? { _count: prop }
-    : undefined;
-
-export const getAllUsers: PublicFeature<GetAllUsersRequest, GetAllUsersResponse> = async (
-    request,
-    ctx,
-) => {
-    const userWithPasswords: UserWithPassword[] = await ctx.prisma.userWithPassword.findMany({
-        take: request.take,
-        skip: request.skip,
-        orderBy: {
-            username: request.sort.username,
-            createdAt: request.sort.createdAt,
-            balance: request.sort.balance,
-            ownedNfts: countIfDefined(request.sort.ownedNftsCount),
-            mintedNfts: countIfDefined(request.sort.mintedNftsCount),
-        },
-        where: request.filters,
-    });
-
-    const users = userWithPasswords.map((user) => deleteProp(user, "passwordHash"));
-
-    return ok(users);
-};
-
-const parseNumberIfDefined = (input?: unknown): Result<Skip | undefined, string> => {
+const parseNumberIfDefined = (input: unknown | undefined): Result<number | undefined, string> => {
     if (input === undefined) {
         return ok(undefined);
     }
@@ -112,10 +73,10 @@ const parseNumberIfDefined = (input?: unknown): Result<Skip | undefined, string>
     return ok(number);
 };
 
-const parseSortIfDefined = <Keys extends string>(
+const parseSortIfDefined = <SortKeys extends string>(
     input: unknown | undefined,
-    keys: readonly string[]
-): Result<Sort<Keys> | undefined, string> => {
+    validKeys: readonly SortKeys[],
+): Result<Sort<SortKeys> | undefined, string> => {
     if (input === undefined) {
         ok(undefined);
     }
@@ -128,90 +89,114 @@ const parseSortIfDefined = <Keys extends string>(
         return err(`Invalid structure`);
     }
 
-    let sort: Sort<Keys> = {};
-
     const parts = input.split(",");
+
+    let sort: Sort<SortKeys> = [];
 
     for (const part of parts) {
         const sign = part.slice(0, 1);
         const key = part.slice(1);
-
         const order = sign === "+" ? "asc" : "desc";
 
-        if (!keys.includes(key)) {
-            return err(`Invalid key ('${key}') to sort on. Valid keys: ${keys.join(", ")}`);
+        if (!validKeys.includes(key as SortKeys)) {
+            return err(`Invalid key to sort on. Valid keys: ${validKeys.join(", ")}`);
         }
 
-        sort[key as Keys] = order;
+        sort.push([key as SortKeys, order]);
     }
 
     return ok(sort);
 };
 
-const parseFiltersIfDefined = <Props extends object>(input?: object): Result<Filters<Props> | undefined, string> => {
-    if (input === undefined) {
-        return ok(undefined);
-    }
+const sortToOrderBy = <Keys extends string>(sort: Sort<Keys>, countKeys?: Array<Keys>) => {
+    return sort.map(([key, order]) => {
+        if (countKeys?.includes(key)) {
+            return {
+                [key]: { _count: order },
+            }
+        }
 
-    // TODO
+        return {
+            [key]: order,
+        }
+    })
+}
 
-    return ok({});
+/////////////////////////////////////////////////////////////////////////////////////////
+
+const SORT_KEYS = [
+    "username",
+    "createdAt",
+    "balance",
+    "ownedNftsCount",
+    "mintedNftsCount",
+] as const;
+
+type SortKeys = (typeof SORT_KEYS)[number];
+
+type GetAllUsersRequest = {
+    skip: Skip,
+    take: Take,
+    sort: Sort<SortKeys>,
+    filters: Filters<{
+        username: string,
+    }>,
+}
+
+type GetAllUsersResponse = User[];
+
+export const getAllUsers: PublicFeature<GetAllUsersRequest, GetAllUsersResponse> = async (
+    request,
+    ctx,
+) => {
+    const userWithPasswords: UserWithPassword[] = await ctx.prisma.userWithPassword.findMany({
+        take: request.take,
+        skip: request.skip,
+        orderBy: sortToOrderBy(request.sort, ["mintedNftsCount", "ownedNftsCount"]),
+        where: {
+            [key]: {
+                [op]: value
+            }
+        },
+    });
+
+    const users = userWithPasswords.map((user) => deleteProp(user, "passwordHash"));
+
+    return ok(users);
 };
 
-const parseBaseGetAllQuery = <SortKeys extends string, FilterProps extends object>(
-    query: ParsedQs,
-    sortKeys: readonly string[],
-): Result<Partial<BaseGetAllRequest<SortKeys, FilterProps>>, string> => {
+export const setupGetAllUsersRequest: SetupRequest<GetAllUsersRequest, {}> = (req) => {
     const {
         take: unparsedTake,
         skip: unparsedSkip,
         sort: unparsedSort,
         ...unparsedFilters
-    } = query;
+    } = req.query;
 
+    const sortResult = parseSortIfDefined(unparsedSort, SORT_KEYS);
     const takeResult = parseNumberIfDefined(unparsedTake);
     const skipResult = parseNumberIfDefined(unparsedSkip);
-    const sortResult =  parseSortIfDefined(unparsedSort, sortKeys);
     const filtersResult = parseFiltersIfDefined(unparsedFilters);
 
+    if (sortResult.isErr()) {
+        return err(new ApiError(`Invalid sort parameter. ${sortResult.error}.`, 400));
+    }
     if (takeResult.isErr()) {
-        return err(`Invalid take parameter. ${takeResult.error}`);
+        return err(new ApiError(`Invalid take parameter. ${takeResult.error}.`, 400));
     }
     if (skipResult.isErr()) {
-        return err(`Invalid skip parameter. ${skipResult.error}`);
-    }
-    if (sortResult.isErr()) {
-        return err(`Invalid sort parameter. ${sortResult.error}`);
+        return err(new ApiError(`Invalid skip parameter. ${skipResult.error}.`, 400));
     }
     if (filtersResult.isErr()) {
-        return err(`Invalid filter parameters. ${filtersResult.error}`);
+        return err(new ApiError(`Invalid filter parameters. ${filtersResult.error}.`, 400));
     }
-
+    
     return ok({
-        take: takeResult.value,
+        take: takeResult.value ?? DEFAULT_TAKE,
         skip: skipResult.value,
-        sort: sortResult.value,
-        filters: filtersResult.value,
-    });
-}
+        sort: sortResult.value ?? [["createdAt", "desc"]],
+        filters: {
 
-export const setupGetAllUsersRequest: SetupRequest<GetAllUsersRequest, {}> = (req) => {
-    console.debug("query", req.query);
-
-    const baseRequestResult = parseBaseGetAllQuery(req.query, sortKeys);
-
-    if (baseRequestResult.isErr()) {
-        return err(new ApiError(baseRequestResult.error, 400));
-    }
-
-    const request: GetAllUsersRequest = {
-        take: baseRequestResult.value.take ?? DEFAULT_TAKE,
-        skip: baseRequestResult.value.skip,
-        sort: baseRequestResult.value.sort ?? { createdAt: "desc" },
-        filters: baseRequestResult.value.filters,
-    };
-
-    console.debug("request", request);
-
-    return ok(request)
+        },
+    })
 }
