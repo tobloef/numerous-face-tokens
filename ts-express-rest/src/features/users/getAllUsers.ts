@@ -1,8 +1,5 @@
 import { UserWithPassword } from ".prisma/client";
-import { err, ok, Result } from "neverthrow";
-import { ParsedQs } from "qs";
-import { is } from "typescript-is";
-import ApiError from "../../ApiError";
+import { err, ok } from "neverthrow";
 import { PublicFeature } from "../../types/feature";
 import User from "../../types/User";
 import { DEFAULT_TAKE } from "../../utils/constants";
@@ -27,6 +24,8 @@ const FILTER_KEYS = [
     "username",
     "createdAt",
     "balance",
+    "ownedNftsCount",
+    "mintedNftsCount",
 ] as const;
 
 type FilterKeys = (typeof FILTER_KEYS)[number];
