@@ -21,6 +21,7 @@ const sortKeyToOrderByMap = {
     "ownedNftsCount": (o: SortOrder): OrderBy => ({ ownedNfts: { _count: o } }),
     "mintedNftsCount": (o: SortOrder): OrderBy =>  ({ mintedNfts: { _count: o } }),
 } as const;
+type SortKeyToOrderByMap = typeof sortKeyToOrderByMap;
 
 const filterKeyToWhereMap = {
     "username": {
@@ -28,8 +29,6 @@ const filterKeyToWhereMap = {
         contains: (val: string): Where => ({ username: { contains: val } }),
     },
 } as const;
-
-type SortKeyToOrderByMap = typeof sortKeyToOrderByMap;
 type FilterKeyToWhereMap = typeof filterKeyToWhereMap;
 
 type GetAllUsersRequest = {
@@ -68,7 +67,7 @@ export const setupGetAllUsersRequest: SetupRequest<GetAllUsersRequest, {}> = (re
     const takeResult = parseTakeIfDefined(unparsedTake);
     const skipResult = parseSkipIfDefined(unparsedSkip);
     const sortResult = parseSortIfDefined(unparsedSort, sortKeyToOrderByMap);
-    const filtersResult = parseFiltersIfDefined<Where>(unparsedFilters, filterKeyToWhereMap);
+    const filtersResult = parseFiltersIfDefined(unparsedFilters, filterKeyToWhereMap);
 
     if (sortResult.isErr()) {
         return err(sortResult.error);

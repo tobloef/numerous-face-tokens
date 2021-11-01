@@ -32,6 +32,7 @@
 * Most of this seems to be an inherint problem with web APIs, SSR likely won't suffer from the same issues.
 
 * I found it hard to create a consise type-safe way to do filter query parameters in a general way. Boiler plate, boiler plate and more boiler plate. It ended up being like a DSL on top of express, with very little transferable knowledge.
+* Having to write this stuff for every single project would be a huge pain. It's the validation, both from a type POV and a user input POV that is annoying to write, especially when the two should match, with minimal boilerplate.
 
 ## Prisma
 * I'm not sure I like creating schema files instead of decorating domain models.
