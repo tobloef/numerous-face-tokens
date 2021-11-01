@@ -52,7 +52,6 @@ export const getAllUsers: PublicFeature<GetAllUsersRequest, GetAllUsersResponse>
     const userWithPasswords: UserWithPassword[] = await ctx.prisma.userWithPassword.findMany({
         take: request.take,
         skip: request.skip,
-        //orderBy: sortToOrderBy(request.sort, ["mintedNftsCount", "ownedNftsCount"]),
         orderBy: request.sort.map(([key, order]) => sortKeyToOrderByMap[key](order)),
         where: request.filters,
     });

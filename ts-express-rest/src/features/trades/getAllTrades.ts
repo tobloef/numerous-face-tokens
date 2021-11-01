@@ -5,7 +5,6 @@ import { DEFAULT_TAKE } from "../../utils/constants";
 import { SetupRequest } from "../../utils/expressHandler";
 import { Filters, parseFiltersIfDefined } from "../../utils/request/filters";
 import { Skip, parseSkipIfDefined } from "../../utils/request/skip";
-import { Sort, sortToOrderBy, parseSortIfDefined } from "../../utils/request/sort";
 import { Take, parseTakeIfDefined } from "../../utils/request/take";
  
 const SORT_KEYS = [
@@ -40,7 +39,7 @@ type FilterKeys = (typeof FILTER_KEYS)[number];
 type GetAllTradesRequest = {
     skip: Skip,
     take: Take,
-    sort: Sort<SortKeys>,
+    //sort: Sort<SortKeys>,
     //filters: Filters<Trade, FilterKeys>,
 };
 
@@ -53,7 +52,7 @@ export const getAllTrades: PublicFeature<GetAllTradesRequest, GetAllTradesRespon
     const trades = await ctx.prisma.trade.findMany({
         take: request.take,
         skip: request.skip,
-        orderBy: sortToOrderBy(request.sort),
+        //orderBy: sortToOrderBy(request.sort),
         //where: request.filters,
     });
 
@@ -70,12 +69,12 @@ export const setupGetAllTradesRequest: SetupRequest<GetAllTradesRequest, {}> = (
 
     const takeResult = parseTakeIfDefined(unparsedTake);
     const skipResult = parseSkipIfDefined(unparsedSkip);
-    const sortResult = parseSortIfDefined<SortKeys>(unparsedSort, SORT_KEYS);
+    //const sortResult = parseSortIfDefined<SortKeys>(unparsedSort, SORT_KEYS);
     //const filtersResult = parseFiltersIfDefined<Trade, FilterKeys>(unparsedFilters, FILTER_KEYS);
 
-    if (sortResult.isErr()) {
-        return err(sortResult.error);
-    }
+    //if (sortResult.isErr()) {
+        //return err(sortResult.error);
+    //}
     if (takeResult.isErr()) {
         return err(takeResult.error);
     }
@@ -89,7 +88,7 @@ export const setupGetAllTradesRequest: SetupRequest<GetAllTradesRequest, {}> = (
     return ok({
         take: takeResult.value ?? DEFAULT_TAKE,
         skip: skipResult.value,
-        sort: sortResult.value ?? [["createdAt", "desc"]],
+        //sort: sortResult.value ?? [["createdAt", "desc"]],
         //filters: filtersResult.value,
     })
 }
