@@ -9,29 +9,30 @@ import { Sort, sortToOrderBy, parseSortIfDefined } from "../../utils/request/sor
 import { Take, parseTakeIfDefined } from "../../utils/request/take";
  
 const SORT_KEYS = [
-    "createdAt",
-    "sellerName",
-    "sellerAccepted",
-    "sellerAcceptedAt",
-    "buyerName",
-    "buyerAccepted",
-    "buyerAcceptedAt",
     "nftSeed",
     "price",
+    "buyerName",
+    "sellerName",
+    "createdAt",
+    "sellerAccepted",
+    "buyerAccepted",
 ] as const;
 
 type SortKeys = (typeof SORT_KEYS)[number];
 
+// Seed
+// Buyer
+// Seller
+// Price
+
 const FILTER_KEYS = [
-    "createdAt",
-    "sellerName",
-    "sellerAccepted",
-    "sellerAcceptedAt",
-    "buyerName",
-    "buyerAccepted",
-    "buyerAcceptedAt",
     "nftSeed",
     "price",
+    "buyerName",
+    "sellerName",
+    "createdAt",
+    "sellerAccepted",
+    "buyerAccepted",
 ] as const;
 
 type FilterKeys = (typeof FILTER_KEYS)[number];
@@ -40,7 +41,7 @@ type GetAllTradesRequest = {
     skip: Skip,
     take: Take,
     sort: Sort<SortKeys>,
-    filters: Filters<Trade, FilterKeys>,
+    //filters: Filters<Trade, FilterKeys>,
 };
 
 type GetAllTradesResponse = Trade[];
@@ -53,7 +54,7 @@ export const getAllTrades: PublicFeature<GetAllTradesRequest, GetAllTradesRespon
         take: request.take,
         skip: request.skip,
         orderBy: sortToOrderBy(request.sort),
-        where: request.filters,
+        //where: request.filters,
     });
 
     return ok(trades);
@@ -70,7 +71,7 @@ export const setupGetAllTradesRequest: SetupRequest<GetAllTradesRequest, {}> = (
     const takeResult = parseTakeIfDefined(unparsedTake);
     const skipResult = parseSkipIfDefined(unparsedSkip);
     const sortResult = parseSortIfDefined<SortKeys>(unparsedSort, SORT_KEYS);
-    const filtersResult = parseFiltersIfDefined<Trade, FilterKeys>(unparsedFilters, FILTER_KEYS);
+    //const filtersResult = parseFiltersIfDefined<Trade, FilterKeys>(unparsedFilters, FILTER_KEYS);
 
     if (sortResult.isErr()) {
         return err(sortResult.error);
@@ -81,14 +82,14 @@ export const setupGetAllTradesRequest: SetupRequest<GetAllTradesRequest, {}> = (
     if (skipResult.isErr()) {
         return err(skipResult.error);
     }
-    if (filtersResult.isErr()) {
-        return err(filtersResult.error);
-    }
+    //if (filtersResult.isErr()) {
+        //return err(filtersResult.error);
+    //}
     
     return ok({
         take: takeResult.value ?? DEFAULT_TAKE,
         skip: skipResult.value,
         sort: sortResult.value ?? [["createdAt", "desc"]],
-        filters: filtersResult.value,
+        //filters: filtersResult.value,
     })
 }

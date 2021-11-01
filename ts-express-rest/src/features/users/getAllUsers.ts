@@ -1,5 +1,6 @@
-import { UserWithPassword } from ".prisma/client";
+import { Prisma, UserWithPassword } from "@prisma/client";
 import { err, ok } from "neverthrow";
+import { is } from "typescript-is";
 import { PublicFeature } from "../../types/feature";
 import User from "../../types/User";
 import { DEFAULT_TAKE } from "../../utils/constants";
@@ -7,34 +8,39 @@ import deleteProp from "../../utils/deleteProp";
 import { SetupRequest } from "../../utils/expressHandler";
 import { Filters, parseFiltersIfDefined } from "../../utils/request/filters";
 import { parseSkipIfDefined, Skip } from "../../utils/request/skip";
-import { parseSortIfDefined, Sort, sortToOrderBy } from "../../utils/request/sort";
+import { parseSortIfDefined, Sort, SortOrder } from "../../utils/request/sort";
 import { parseTakeIfDefined, Take } from "../../utils/request/take";
 
-const SORT_KEYS = [
-    "username",
-    "createdAt",
-    "balance",
-    "ownedNftsCount",
-    "mintedNftsCount",
-] as const;
+type OrderBy = Prisma.UserWithPasswordOrderByWithRelationInput;
+type Where = Prisma.UserWithPasswordWhereInput;
 
-type SortKeys = (typeof SORT_KEYS)[number];
+const sortKeyToOrderByMap = {
+    "username": (o: SortOrder): OrderBy => ({ username: o }),
+    "createdAt": (o: SortOrder): OrderBy => ({ createdAt: o }),
+    "balance": (o: SortOrder): OrderBy => ({ balance: o }),
+    "ownedNftsCount": (o: SortOrder): OrderBy => ({ ownedNfts: { _count: o } }),
+    "mintedNftsCount": (o: SortOrder): OrderBy =>  ({ mintedNfts: { _count: o } }),
+} as const;
 
-const FILTER_KEYS = [
-    "username",
-    "createdAt",
-    "balance",
-    "ownedNftsCount",
-    "mintedNftsCount",
-] as const;
+const filterKeyToWhereMap = {
+    "username": {
+        equals: (val: string): Where => ({ username: { equals: val } }),
+        contains: (val: string): Where => ({ username: { contains: val } }),
+    },
+} as const;
 
-type FilterKeys = (typeof FILTER_KEYS)[number];
+type BaseRequest<SortMap, FilterMap> = {
+    skip: Skip,
+    take: Take,
+    sort: Sort<typeof sortKeyToOrderByMap, keyof typeof sortKeyToOrderByMap, OrderBy>,
+    filters: Filters<typeof filterKeyToWhereMap, Where>,
+}
 
 type GetAllUsersRequest = {
     skip: Skip,
     take: Take,
-    sort: Sort<SortKeys>,
-    filters: Filters<User, FilterKeys>,
+    sort: Sort<typeof sortKeyToOrderByMap, keyof typeof sortKeyToOrderByMap, OrderBy>,
+    filters: Filters<typeof filterKeyToWhereMap, Where>,
 }
 
 type GetAllUsersResponse = User[];
@@ -46,7 +52,8 @@ export const getAllUsers: PublicFeature<GetAllUsersRequest, GetAllUsersResponse>
     const userWithPasswords: UserWithPassword[] = await ctx.prisma.userWithPassword.findMany({
         take: request.take,
         skip: request.skip,
-        orderBy: sortToOrderBy(request.sort, ["mintedNftsCount", "ownedNftsCount"]),
+        //orderBy: sortToOrderBy(request.sort, ["mintedNftsCount", "ownedNftsCount"]),
+        orderBy: request.sort.map(([key, order]) => sortKeyToOrderByMap[key](order)),
         where: request.filters,
     });
 
@@ -65,8 +72,8 @@ export const setupGetAllUsersRequest: SetupRequest<GetAllUsersRequest, {}> = (re
 
     const takeResult = parseTakeIfDefined(unparsedTake);
     const skipResult = parseSkipIfDefined(unparsedSkip);
-    const sortResult = parseSortIfDefined<SortKeys>(unparsedSort, SORT_KEYS);
-    const filtersResult = parseFiltersIfDefined<User, FilterKeys>(unparsedFilters, FILTER_KEYS);
+    const sortResult = parseSortIfDefined(unparsedSort, sortKeyToOrderByMap);
+    const filtersResult = parseFiltersIfDefined<Where>(unparsedFilters, filterKeyToWhereMap);
 
     if (sortResult.isErr()) {
         return err(sortResult.error);

@@ -31,6 +31,8 @@
 * You also have to do type sharing between frontend and backend.
 * Most of this seems to be an inherint problem with web APIs, SSR likely won't suffer from the same issues.
 
+* I found it hard to create a consise type-safe way to do filter query parameters in a general way.
+
 ## Prisma
 * I'm not sure I like creating schema files instead of decorating domain models.
 * I'm not sure I like that relations must always have a counterpart. For this instance it made sense, so maybe it always does? Seems unlikely tho.

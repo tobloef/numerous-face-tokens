@@ -36,7 +36,7 @@ type GetAllNftsRequest = {
     skip: Skip,
     take: Take,
     sort: Sort<SortKeys>,
-    filters: Filters<Nft, FilterKeys>,
+    //filters: Filters<Nft, FilterKeys>,
 };
 
 type GetAllNftsResponse = Nft[];
@@ -49,7 +49,7 @@ export const getAllNfts: PublicFeature<GetAllNftsRequest, GetAllNftsResponse> = 
         take: request.take,
         skip: request.skip,
         orderBy: sortToOrderBy(request.sort),
-        where: request.filters,
+        //where: request.filters,
     });
 
     return ok(nfts);
@@ -66,7 +66,7 @@ export const setupGetAllNftsRequest: SetupRequest<GetAllNftsRequest, {}> = (req)
     const takeResult = parseTakeIfDefined(unparsedTake);
     const skipResult = parseSkipIfDefined(unparsedSkip);
     const sortResult = parseSortIfDefined<SortKeys>(unparsedSort, SORT_KEYS);
-    const filtersResult = parseFiltersIfDefined<Nft, FilterKeys>(unparsedFilters, FILTER_KEYS);
+    //const filtersResult = parseFiltersIfDefined<Nft, FilterKeys>(unparsedFilters, FILTER_KEYS);
 
     if (sortResult.isErr()) {
         return err(sortResult.error);
@@ -77,14 +77,14 @@ export const setupGetAllNftsRequest: SetupRequest<GetAllNftsRequest, {}> = (req)
     if (skipResult.isErr()) {
         return err(skipResult.error);
     }
-    if (filtersResult.isErr()) {
-        return err(filtersResult.error);
-    }
+    //if (filtersResult.isErr()) {
+        //return err(filtersResult.error);
+    //}
     
     return ok({
         take: takeResult.value ?? DEFAULT_TAKE,
         skip: skipResult.value,
         sort: sortResult.value ?? [["mintedAt", "desc"]],
-        filters: filtersResult.value,
+        //filters: filtersResult.value,
     })
 }

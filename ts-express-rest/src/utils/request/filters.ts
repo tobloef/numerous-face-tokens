@@ -2,31 +2,26 @@ import { Result, err, ok } from "neverthrow";
 import { is } from "typescript-is";
 import ApiError from "../../ApiError";
 
-const FILTER_OPS = [
-    "gt",
-    "gte",
-    "lt",
-    "lte",
-    "equals",
-    "contains",
-] as const;
+type FilterKeyToWhereMap<Where> = { [key: string]: { [key: string]: (val: any) => Where } }
 
-export type FilterOps = (typeof FILTER_OPS)[number];
-
-export type Filters<Obj extends object, Keys extends keyof Obj> = {
-    [Key in Keys]?: Partial<Record<FilterOps, Obj[Key]>>
+export type Filters<Map extends FilterKeyToWhereMap<Where>, Where> = {
+    [Key in keyof Map]?: {
+        [Op in keyof Map[Key]]: any
+    }
 } | undefined;
 
-export const parseFiltersIfDefined = <Obj extends object, Keys extends keyof Obj>(
+export const parseFiltersIfDefined = <Where>(
     unparsedFilters: Record<string, unknown>,
-    validKeys: readonly Keys[],
-): Result<Filters<Obj, Keys>, ApiError> => {
+    filterKeyToWhereMap: FilterKeyToWhereMap<Where>,
+): Result<Filters<typeof filterKeyToWhereMap, Where>, ApiError> => {
     if (unparsedFilters === undefined) {
         return ok(undefined);
     }
 
     for (const filterKey in unparsedFilters) {
-        if (!validKeys.includes(filterKey as Keys)) {
+        const validKeys = Object.keys(filterKeyToWhereMap);
+        
+        if (!validKeys.includes(filterKey)) {
             return err(new ApiError(`Invalid key ('${filterKey}') to filter on. Valid keys: ${validKeys.join(", ")}`, 400));
         }
 
@@ -34,12 +29,14 @@ export const parseFiltersIfDefined = <Obj extends object, Keys extends keyof Obj
             return err(new ApiError(`Invalid filter value for key '${filterKey}'`, 400));
         }
 
+        const validOps = Object.keys(filterKeyToWhereMap[filterKey]);
+
         for (const filterOp in unparsedFilters[filterKey] as object) {
-            if (!FILTER_OPS.includes(filterOp as FilterOps)) {
-                return err(new ApiError(`Invalid filter operation ('${filterOp}') for key '${filterKey}'. Valid operations: ${FILTER_OPS.join(", ")}`, 400));
+            if (!validOps.includes(filterOp)) {
+                return err(new ApiError(`Invalid filter operation ('${filterOp}') for key '${filterKey}'. Valid operations: ${validOps.join(", ")}`, 400));
             }
         }
     }
 
-    return ok(unparsedFilters as Filters<Obj, Keys>);
+    return ok(unparsedFilters as Filters<typeof filterKeyToWhereMap, Where>);
 }

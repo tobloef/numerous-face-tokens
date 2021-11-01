@@ -4,12 +4,14 @@ import ApiError from "../../ApiError";
 
 export type SortOrder = "desc" | "asc";
 
-export type Sort<Keys extends string> = Array<[Keys, SortOrder]>;
+type SortKeyToOrderByMap<Keys extends string, OrderBy> = { [key in Keys]: (o: SortOrder) => OrderBy };
 
-export const parseSortIfDefined = <Keys extends string>(
+export type Sort<Map extends SortKeyToOrderByMap<Keys, OrderBy>, Keys extends string, OrderBy> = Array<[keyof Map, SortOrder]>;
+
+export const parseSortIfDefined = <Keys extends string, OrderBy>(
     unparsedSort: unknown | undefined,
-    validKeys: readonly Keys[],
-): Result<Sort<Keys> | undefined, ApiError> => {
+    sortKeyToOrderByMap: SortKeyToOrderByMap<Keys, OrderBy>,
+): Result<Sort<typeof sortKeyToOrderByMap, Keys, OrderBy> | undefined, ApiError> => {
     if (unparsedSort === undefined) {
         return ok(undefined);
     }
@@ -24,14 +26,16 @@ export const parseSortIfDefined = <Keys extends string>(
 
     const parts = unparsedSort.split(",");
 
-    let sort: Sort<Keys> = [];
+    let sort: Sort<typeof sortKeyToOrderByMap, Keys, OrderBy> = [];
 
     for (const part of parts) {
         const sign = part.slice(0, 1);
         const key = part.slice(1);
         const order = sign === "+" ? "asc" : "desc";
 
-        if (!validKeys.includes(key as Keys)) {
+        const validKeys = Object.keys(sortKeyToOrderByMap);
+
+        if (!validKeys.includes(key)) {
             return err(new ApiError(`Invalid key ('${key}') to sort on. Valid keys: ${validKeys.join(", ")}`, 400));
         }
 
@@ -40,17 +44,3 @@ export const parseSortIfDefined = <Keys extends string>(
 
     return ok(sort);
 };
-
-export const sortToOrderBy = <Keys extends string>(sort: Sort<Keys>, countKeys?: Array<Keys>) => {
-    return sort.map(([key, order]) => {
-        if (countKeys?.includes(key)) {
-            return {
-                [key]: { _count: order },
-            }
-        }
-
-        return {
-            [key]: order,
-        }
-    })
-}
