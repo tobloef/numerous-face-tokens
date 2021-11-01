@@ -13,6 +13,8 @@ import { parseTakeIfDefined, Take } from "../../utils/request/take";
 
 type OrderBy = Prisma.UserWithPasswordOrderByWithRelationInput;
 type Where = Prisma.UserWithPasswordWhereInput;
+type SortKeyToOrderByMap = typeof sortKeyToOrderByMap;
+type FilterKeyToWhereMap = typeof filterKeyToWhereMap;
 
 const sortKeyToOrderByMap = {
     "username": (o: SortOrder): OrderBy => ({ username: o }),
@@ -21,7 +23,6 @@ const sortKeyToOrderByMap = {
     "ownedNftsCount": (o: SortOrder): OrderBy => ({ ownedNfts: { _count: o } }),
     "mintedNftsCount": (o: SortOrder): OrderBy =>  ({ mintedNfts: { _count: o } }),
 } as const;
-type SortKeyToOrderByMap = typeof sortKeyToOrderByMap;
 
 const filterKeyToWhereMap = {
     "username": {
@@ -29,7 +30,6 @@ const filterKeyToWhereMap = {
         contains: (val: string): Where => ({ username: { contains: val } }),
     },
 } as const;
-type FilterKeyToWhereMap = typeof filterKeyToWhereMap;
 
 type GetAllUsersRequest = {
     skip: Skip,
@@ -56,6 +56,7 @@ export const getAllUsers: PublicFeature<GetAllUsersRequest, GetAllUsersResponse>
     return ok(users);
 };
 
+// TODO: Could maybe be refactored out into a common thing?
 export const setupGetAllUsersRequest: SetupRequest<GetAllUsersRequest, {}> = (req) => {
     const {
         take: unparsedTake,
