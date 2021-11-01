@@ -31,7 +31,7 @@
 * You also have to do type sharing between frontend and backend.
 * Most of this seems to be an inherint problem with web APIs, SSR likely won't suffer from the same issues.
 
-* I found it hard to create a consise type-safe way to do filter query parameters in a general way.
+* I found it hard to create a consise type-safe way to do filter query parameters in a general way. Boiler plate, boiler plate and more boiler plate. It ended up being like a DSL on top of express, with very little transferable knowledge.
 
 ## Prisma
 * I'm not sure I like creating schema files instead of decorating domain models.
