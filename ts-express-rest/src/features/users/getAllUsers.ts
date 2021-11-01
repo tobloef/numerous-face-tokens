@@ -29,18 +29,14 @@ const filterKeyToWhereMap = {
     },
 } as const;
 
-type BaseRequest<SortMap, FilterMap> = {
-    skip: Skip,
-    take: Take,
-    sort: Sort<typeof sortKeyToOrderByMap, keyof typeof sortKeyToOrderByMap, OrderBy>,
-    filters: Filters<typeof filterKeyToWhereMap, Where>,
-}
+type SortKeyToOrderByMap = typeof sortKeyToOrderByMap;
+type FilterKeyToWhereMap = typeof filterKeyToWhereMap;
 
 type GetAllUsersRequest = {
     skip: Skip,
     take: Take,
-    sort: Sort<typeof sortKeyToOrderByMap, keyof typeof sortKeyToOrderByMap, OrderBy>,
-    filters: Filters<typeof filterKeyToWhereMap, Where>,
+    sort: Sort<SortKeyToOrderByMap, keyof SortKeyToOrderByMap, OrderBy>,
+    filters: Filters<FilterKeyToWhereMap, Where>,
 }
 
 type GetAllUsersResponse = User[];
