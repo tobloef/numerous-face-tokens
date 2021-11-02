@@ -25,12 +25,12 @@
 
 # Thoughts on technologies
 
-## Express.js
+## Express.js (TS)
 * Creating a type-safe API requires a bunch of layers of abstraction, especially if you want to do it in a succinct way for each endpoint.
 * You also have to do a bunch of stuff for handling query parameters (filtering, etc.).
 * You also have to do type sharing between frontend and backend.
 * Most of this seems to be an inherint problem with web APIs, SSR likely won't suffer from the same issues.
-
+* I really really like having full type-safety. Once the proper types has been set up, the code writes itself.
 * I found it hard to create a consise type-safe way to do filter query parameters in a general way. Boiler plate, boiler plate and more boiler plate. It ended up being like a DSL on top of express, with very little transferable knowledge.
 * Having to write this stuff for every single project would be a huge pain. It's the validation, both from a type POV and a user input POV that is annoying to write, especially when the two should match, with minimal boilerplate.
 
