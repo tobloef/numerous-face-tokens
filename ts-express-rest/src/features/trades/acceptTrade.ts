@@ -1,5 +1,3 @@
-import express, { request } from "express";
-import { is } from "typescript-is";
 import { err, ok } from "neverthrow";
 import ApiError from "../../ApiError";
 import { PrivateFeature } from "../../types/feature";
@@ -30,8 +28,16 @@ export const acceptTrade: PrivateFeature<AcceptTradeRequest, AcceptTradeResponse
             id: request.id,
         },
         include: {
+            nft: {
+                include: {
+                    highestTrade: true,
+                    lastTrade: true,
+                }
+            },
             buyer: true,
             seller: true,
+            highestTradeOfNft: true,
+            lastTradeOfNft: true,
         }
     });
 
@@ -72,14 +78,9 @@ export const acceptTrade: PrivateFeature<AcceptTradeRequest, AcceptTradeResponse
             seller: true,
         },
         data: {
-            ...(trade.buyerId === ctx.user.id ? {
-                buyerAccepted: true,
-                buyerAcceptedAt: new Date(),
-            } : {}),
-            ...(trade.sellerId === ctx.user.id ? {
-                sellerAccepted: true,
-                sellerAcceptedAt: new Date(),
-            } : {}),
+            buyerAccepted: trade.buyerAccepted || trade.buyerId === ctx.user.id,
+            sellerAccepted: trade.sellerAccepted || trade.sellerId === ctx.user.id,
+            soldAt: new Date(),
             buyer: {
                 update: {
                     balance: trade.seller.balance - trade.price,
@@ -92,9 +93,13 @@ export const acceptTrade: PrivateFeature<AcceptTradeRequest, AcceptTradeResponse
             },
             nft: {
                 update: {
-                    ownerId: trade.buyerId
+                    ownerId: trade.buyerId,
+                    highestTradeId: (trade.nft.highestTrade === null || trade.nft.highestTrade.price <= trade.price)
+                        ? trade.id
+                        : undefined,
+                    lastTradeId: trade.id,
                 }
-            }
+            },
         }
     });
 

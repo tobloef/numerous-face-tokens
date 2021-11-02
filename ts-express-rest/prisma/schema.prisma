@@ -9,15 +9,19 @@ datasource db {
 }
 
 model Nft {
-  id        String            @id
-  minterId  String
-  minter    UserWithPassword  @relation("Minted", fields: [minterId], references: [id])
-  mintedAt  DateTime          @default(now())
-  ownerId   String
-  owner     UserWithPassword  @relation("Owned", fields: [ownerId], references: [id])
-  seed      String            @unique
-  title     String
-  trades    Trade[]
+  id              String            @id
+  minterId        String
+  minter          UserWithPassword  @relation("Minted", fields: [minterId], references: [id])
+  mintedAt        DateTime          @default(now())
+  ownerId         String
+  owner           UserWithPassword  @relation("Owned", fields: [ownerId], references: [id])
+  seed            String            @unique
+  title           String
+  trades          Trade[]           @relation("Trades")
+  lastTradeId     String?           
+  lastTrade       Trade?            @relation("LastTrade", fields: [lastTradeId], references: [lastTradeOfNftId])
+  highestTradeId  String?           
+  highestTrade    Trade?            @relation("HighestTrade", fields: [highestTradeId], references: [highestTradeOfNftId])
 }
 
 model UserWithPassword {
@@ -33,17 +37,20 @@ model UserWithPassword {
 }
 
 model Trade {
-  id                String             @id
-  createdAt         DateTime           @default(now())
-  sellerId          String
-  seller            UserWithPassword   @relation("Sold", fields: [sellerId], references: [id])
-  sellerAccepted    Boolean            @default(false)
-  sellerAcceptedAt  DateTime?  
-  buyerId           String?
-  buyer             UserWithPassword?  @relation("Bought", fields: [buyerId], references: [id])
-  buyerAccepted     Boolean            @default(false)
-  buyerAcceptedAt   DateTime?  
-  nftId             String
-  nft               Nft                @relation(fields: [nftId], references: [id])
-  price             Int
+  id                   String             @id
+  createdAt            DateTime           @default(now())
+  sellerId             String
+  seller               UserWithPassword   @relation("Sold", fields: [sellerId], references: [id])
+  sellerAccepted       Boolean            @default(false)
+  buyerId              String?
+  buyer                UserWithPassword?  @relation("Bought", fields: [buyerId], references: [id])
+  buyerAccepted        Boolean            @default(false)
+  soldAt               DateTime?  
+  nftId                String
+  nft                  Nft                @relation("Trades", fields: [nftId], references: [id])
+  price                Int
+  lastTradeOfNftId     String?             @unique
+  lastTradeOfNft       Nft?                @relation("LastTrade")
+  highestTradeOfNftId  String?             @unique
+  highestTradeOfNft    Nft?                @relation("HighestTrade")
 }
