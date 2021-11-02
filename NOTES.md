@@ -38,3 +38,5 @@
 * I'm not sure I like creating schema files instead of decorating domain models.
 * I'm not sure I like that relations must always have a counterpart. For this instance it made sense, so maybe it always does? Seems unlikely tho.
 * No good way to exclude fields, like password hash. 
+* I really like automatic migrations.
+* I really really like the strong typing, though the exported types could have shorter names.
