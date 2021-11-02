@@ -33,6 +33,8 @@ export const getNft: PublicFeature<GetNftRequest, GetNftResponse> = async (
             minter: true,
             owner: true,
             trades: true,
+            lastTrade: true,
+            highestTrade: true,
         }
     });
 

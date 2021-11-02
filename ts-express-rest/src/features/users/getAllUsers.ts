@@ -56,7 +56,6 @@ export const getAllUsers: PublicFeature<GetAllUsersRequest, GetAllUsersResponse>
     return ok(users);
 };
 
-// TODO: Could maybe be refactored out into a common thing?
 export const setupGetAllUsersRequest: SetupRequest<GetAllUsersRequest, {}> = (req) => {
     const {
         take: unparsedTake,

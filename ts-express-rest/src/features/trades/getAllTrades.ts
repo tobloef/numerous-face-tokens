@@ -1,46 +1,68 @@
-import { Trade } from ".prisma/client";
+import { Trade, Prisma } from "@prisma/client";
 import { err, ok } from "neverthrow";
 import { PublicFeature } from "../../types/feature";
 import { DEFAULT_TAKE } from "../../utils/constants";
 import { SetupRequest } from "../../utils/expressHandler";
 import { Filters, parseFiltersIfDefined } from "../../utils/request/filters";
 import { Skip, parseSkipIfDefined } from "../../utils/request/skip";
+import { parseSortIfDefined, Sort, SortOrder } from "../../utils/request/sort";
 import { Take, parseTakeIfDefined } from "../../utils/request/take";
  
-const SORT_KEYS = [
-    "nftSeed",
-    "price",
-    "buyerName",
-    "sellerName",
-    "createdAt",
-    "sellerAccepted",
-    "buyerAccepted",
-] as const;
+type OrderBy = Prisma.TradeOrderByWithRelationInput;
+type Where = Prisma.TradeWhereInput;
+type SortKeyToOrderByMap = typeof sortKeyToOrderByMap;
+type FilterKeyToWhereMap = typeof filterKeyToWhereMap;
 
-type SortKeys = (typeof SORT_KEYS)[number];
+const sortKeyToOrderByMap = {
+    "nftSeed": (o: SortOrder): OrderBy => ({ nft: { seed: o } }),
+    "price": (o: SortOrder): OrderBy => ({ price: o }),
+    "buyerUsername": (o: SortOrder): OrderBy => ({ buyer: { username: o } }),
+    "sellerUsername": (o: SortOrder): OrderBy => ({ seller: { username: o } }),
+    "createdAt": (o: SortOrder): OrderBy =>  ({ createdAt: o }),
+    "sellerAccepted": (o: SortOrder): OrderBy =>  ({ sellerAccepted: o }),
+    "buyerAccepted": (o: SortOrder): OrderBy =>  ({ buyerAccepted: o }),
+} as const;
 
-// Seed
-// Buyer
-// Seller
-// Price
-
-const FILTER_KEYS = [
-    "nftSeed",
-    "price",
-    "buyerName",
-    "sellerName",
-    "createdAt",
-    "sellerAccepted",
-    "buyerAccepted",
-] as const;
-
-type FilterKeys = (typeof FILTER_KEYS)[number];
+const filterKeyToWhereMap = {
+    "nftSeed": {
+        equals: (val: string): Where => ({ nft: { seed: { equals: val } } }),
+        contains: (val: string): Where => ({ nft: { seed: { contains: val } } }),
+    },
+    "price": {
+        equals: (val: number): Where => ({ price: { equals: val } }),
+        gt: (val: number): Where => ({ price: { gt: val } }),
+        gte: (val: number): Where => ({ price: { gte: val } }),
+        lt: (val: number): Where => ({ price: { lt: val } }),
+        lte: (val: number): Where => ({ price: { lte: val } }),
+    },
+    "buyerUsername": {
+        equals: (val: string): Where => ({ buyer: { username: { equals: val} } }),
+        contains: (val: string): Where => ({ buyer: { username: { contains: val} } }),
+    },
+    "sellerUsername": {
+        equals: (val: string): Where => ({ seller: { username: { equals: val} } }),
+        contains: (val: string): Where => ({ seller: { username: { contains: val} } }),
+    },
+    "createdAt": {
+        equals: (val: Date): Where => ({ createdAt: { equals: val } }),
+        gt: (val: Date): Where => ({ createdAt: { gt: val } }),
+        gte: (val: Date): Where => ({ createdAt: { gte: val } }),
+        lt: (val: Date): Where => ({ createdAt: { lt: val } }),
+        lte: (val: Date): Where => ({ createdAt: { lte: val } }),
+    },
+    "sellerAccepted": {
+        equals: (val: boolean): Where => ({ sellerAccepted: val }),
+    },
+    "buyerAccepted": {
+        equals: (val: boolean): Where => ({ buyerAccepted: val }),
+    },
+} as const;
 
 type GetAllTradesRequest = {
     skip: Skip,
     take: Take,
-    //sort: Sort<SortKeys>,
-    //filters: Filters<Trade, FilterKeys>,
+    sort: Sort<SortKeyToOrderByMap, keyof SortKeyToOrderByMap, OrderBy>,
+    filters: Filters<FilterKeyToWhereMap, Where>,
 };
 
 type GetAllTradesResponse = Trade[];
@@ -52,8 +74,8 @@ export const getAllTrades: PublicFeature<GetAllTradesRequest, GetAllTradesRespon
     const trades = await ctx.prisma.trade.findMany({
         take: request.take,
         skip: request.skip,
-        //orderBy: sortToOrderBy(request.sort),
-        //where: request.filters,
+        orderBy: request.sort.map(([key, order]) => sortKeyToOrderByMap[key](order)),
+        where: request.filters,
     });
 
     return ok(trades);
@@ -69,26 +91,26 @@ export const setupGetAllTradesRequest: SetupRequest<GetAllTradesRequest, {}> = (
 
     const takeResult = parseTakeIfDefined(unparsedTake);
     const skipResult = parseSkipIfDefined(unparsedSkip);
-    //const sortResult = parseSortIfDefined<SortKeys>(unparsedSort, SORT_KEYS);
-    //const filtersResult = parseFiltersIfDefined<Trade, FilterKeys>(unparsedFilters, FILTER_KEYS);
+    const sortResult = parseSortIfDefined(unparsedSort, sortKeyToOrderByMap);
+    const filtersResult = parseFiltersIfDefined(unparsedFilters, filterKeyToWhereMap);
 
-    //if (sortResult.isErr()) {
-        //return err(sortResult.error);
-    //}
+    if (sortResult.isErr()) {
+        return err(sortResult.error);
+    }
     if (takeResult.isErr()) {
         return err(takeResult.error);
     }
     if (skipResult.isErr()) {
         return err(skipResult.error);
     }
-    //if (filtersResult.isErr()) {
-        //return err(filtersResult.error);
-    //}
+    if (filtersResult.isErr()) {
+        return err(filtersResult.error);
+    }
     
     return ok({
         take: takeResult.value ?? DEFAULT_TAKE,
         skip: skipResult.value,
-        //sort: sortResult.value ?? [["createdAt", "desc"]],
-        //filters: filtersResult.value,
+        sort: sortResult.value ?? [["createdAt", "desc"]],
+        filters: filtersResult.value,
     })
 }

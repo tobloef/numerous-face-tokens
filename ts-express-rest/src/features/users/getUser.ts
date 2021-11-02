@@ -38,7 +38,7 @@ export const getUser: PublicFeature<GetUserRequest, GetUserResponse> = async (
     });
 
     if (user == null) {
-        return err(new ApiError(`No user found with username "${request.username}".`, 404));
+        return err(new ApiError(`No user found with username '${request.username}'.`, 404));
     }
     
     const userWithoutPassword = deleteProp(user, "passwordHash");
