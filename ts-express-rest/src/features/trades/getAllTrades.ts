@@ -1,68 +1,84 @@
 import { Trade, Prisma } from "@prisma/client";
 import { err, ok } from "neverthrow";
+import ApiError from "../../ApiError";
 import { PublicFeature } from "../../types/feature";
 import { DEFAULT_TAKE } from "../../utils/constants";
 import { SetupRequest } from "../../utils/expressHandler";
-import { Filters, parseFiltersIfDefined } from "../../utils/request/filters";
-import { Skip, parseSkipIfDefined } from "../../utils/request/skip";
-import { parseSortIfDefined, Sort, SortOrder } from "../../utils/request/sort";
-import { Take, parseTakeIfDefined } from "../../utils/request/take";
+import { identityResult } from "../../utils/identity";
+import { createQueryProp, parseBoolean, parseDate, parseFilters, parseIfDefined, parseNumber, parseSort } from "../../utils/query";
+import { SortOrder } from "../../utils/request/sort";
  
 type OrderBy = Prisma.TradeOrderByWithRelationInput;
 type Where = Prisma.TradeWhereInput;
-type SortKeyToOrderByMap = typeof sortKeyToOrderByMap;
-type FilterKeyToWhereMap = typeof filterKeyToWhereMap;
 
-const sortKeyToOrderByMap = {
-    "nftSeed": (o: SortOrder): OrderBy => ({ nft: { seed: o } }),
-    "price": (o: SortOrder): OrderBy => ({ price: o }),
-    "buyerUsername": (o: SortOrder): OrderBy => ({ buyer: { username: o } }),
-    "sellerUsername": (o: SortOrder): OrderBy => ({ seller: { username: o } }),
-    "createdAt": (o: SortOrder): OrderBy =>  ({ createdAt: o }),
-    "sellerAccepted": (o: SortOrder): OrderBy =>  ({ sellerAccepted: o }),
-    "buyerAccepted": (o: SortOrder): OrderBy =>  ({ buyerAccepted: o }),
-} as const;
-
-const filterKeyToWhereMap = {
-    "nftSeed": {
-        equals: (val: string): Where => ({ nft: { seed: { equals: val } } }),
-        contains: (val: string): Where => ({ nft: { seed: { contains: val } } }),
-    },
-    "price": {
-        equals: (val: number): Where => ({ price: { equals: val } }),
-        gt: (val: number): Where => ({ price: { gt: val } }),
-        gte: (val: number): Where => ({ price: { gte: val } }),
-        lt: (val: number): Where => ({ price: { lt: val } }),
-        lte: (val: number): Where => ({ price: { lte: val } }),
-    },
-    "buyerUsername": {
-        equals: (val: string): Where => ({ buyer: { username: { equals: val} } }),
-        contains: (val: string): Where => ({ buyer: { username: { contains: val} } }),
-    },
-    "sellerUsername": {
-        equals: (val: string): Where => ({ seller: { username: { equals: val} } }),
-        contains: (val: string): Where => ({ seller: { username: { contains: val} } }),
-    },
-    "createdAt": {
-        equals: (val: Date): Where => ({ createdAt: { equals: val } }),
-        gt: (val: Date): Where => ({ createdAt: { gt: val } }),
-        gte: (val: Date): Where => ({ createdAt: { gte: val } }),
-        lt: (val: Date): Where => ({ createdAt: { lt: val } }),
-        lte: (val: Date): Where => ({ createdAt: { lte: val } }),
-    },
-    "sellerAccepted": {
-        equals: (val: boolean): Where => ({ sellerAccepted: val }),
-    },
-    "buyerAccepted": {
-        equals: (val: boolean): Where => ({ buyerAccepted: val }),
-    },
+const queryPropMap = {
+    nftSeed: createQueryProp({
+        deserialize: identityResult,
+        toOrderBy: (order: SortOrder): OrderBy => ({ nft: { seed: order } }),
+        toWhere: {
+            equals: (val: string): Where => ({ nft: { seed: { equals: val } } }),
+            contains: (val: string): Where => ({ nft: { seed: { contains: val } } }),
+        },
+    }),
+    price: createQueryProp({
+        deserialize: parseNumber,
+        toOrderBy: (order: SortOrder): OrderBy => ({ price: order }),
+        toWhere: {
+            equals: (val: number): Where => ({ price: { equals: val } }),
+            gt: (val: number): Where => ({ price: { gt: val } }),
+            gte: (val: number): Where => ({ price: { gte: val } }),
+            lt: (val: number): Where => ({ price: { lt: val } }),
+            lte: (val: number): Where => ({ price: { lte: val } }),
+        },
+    }),
+    buyerUsername: createQueryProp({
+        deserialize: identityResult,
+        toOrderBy: (order: SortOrder): OrderBy => ({ buyer: { username: order } }),
+        toWhere: {
+            equals: (val: string): Where => ({ buyer: { username: { equals: val} } }),
+            contains: (val: string): Where => ({ buyer: { username: { contains: val} } }),
+        },
+    }),
+    sellerUsername: createQueryProp({
+        deserialize: identityResult,
+        toOrderBy: (order: SortOrder): OrderBy => ({ buyer: { username: order } }),
+        toWhere: {
+            equals: (val: string): Where => ({ seller: { username: { equals: val} } }),
+            contains: (val: string): Where => ({ seller: { username: { contains: val} } }),
+        },
+    }),
+    createdAt: createQueryProp({
+        deserialize: parseDate,
+        toOrderBy: (order: SortOrder): OrderBy => ({ createdAt: order }),
+        toWhere: {
+            equals: (val: Date): Where => ({ createdAt: { equals: val } }),
+            gt: (val: Date): Where => ({ createdAt: { gt: val } }),
+            gte: (val: Date): Where => ({ createdAt: { gte: val } }),
+            lt: (val: Date): Where => ({ createdAt: { lt: val } }),
+            lte: (val: Date): Where => ({ createdAt: { lte: val } }),
+        },
+    }),
+    sellerAccepted: createQueryProp({
+        deserialize: parseBoolean,
+        toOrderBy: (order: SortOrder): OrderBy => ({ sellerAccepted: order }),
+        toWhere: {
+            equals: (val: boolean): Where => ({ sellerAccepted: val }),
+        },
+    }),
+    buyerAccepted: createQueryProp({
+        deserialize: parseBoolean,
+        toOrderBy: (order: SortOrder): OrderBy => ({ buyerAccepted: order }),
+        toWhere: {
+            equals: (val: boolean): Where => ({ buyerAccepted: val }),
+        },
+    }),
 } as const;
 
 type GetAllTradesRequest = {
-    skip: Skip,
-    take: Take,
-    sort: Sort<SortKeyToOrderByMap, keyof SortKeyToOrderByMap, OrderBy>,
-    filters: Filters<FilterKeyToWhereMap, Where>,
+    skip?: number,
+    take: number,
+    sort: Array<OrderBy>,
+    filters?: Where,
 };
 
 type GetAllTradesResponse = Trade[];
@@ -74,7 +90,7 @@ export const getAllTrades: PublicFeature<GetAllTradesRequest, GetAllTradesRespon
     const trades = await ctx.prisma.trade.findMany({
         take: request.take,
         skip: request.skip,
-        orderBy: request.sort.map(([key, order]) => sortKeyToOrderByMap[key](order)),
+        orderBy: request.sort,
         where: request.filters,
     });
 
@@ -82,35 +98,30 @@ export const getAllTrades: PublicFeature<GetAllTradesRequest, GetAllTradesRespon
 };
 
 export const setupGetAllTradesRequest: SetupRequest<GetAllTradesRequest, {}> = (req) => {
-    const {
-        take: unparsedTake,
-        skip: unparsedSkip,
-        sort: unparsedSort,
-        ...unparsedFilters
-    } = req.query;
+    const { take, skip, sort, ...filters } = req.query;
 
-    const takeResult = parseTakeIfDefined(unparsedTake);
-    const skipResult = parseSkipIfDefined(unparsedSkip);
-    const sortResult = parseSortIfDefined(unparsedSort, sortKeyToOrderByMap);
-    const filtersResult = parseFiltersIfDefined(unparsedFilters, filterKeyToWhereMap);
+    const takeResult = parseIfDefined(take, parseNumber);
+    const skipResult = parseIfDefined(skip, parseNumber);
+    const sortResult = parseIfDefined(sort, (input) => parseSort(input, queryPropMap));
+    const filtersResult = parseIfDefined(filters, (input) => parseFilters(input, queryPropMap));
 
-    if (sortResult.isErr()) {
-        return err(sortResult.error);
-    }
     if (takeResult.isErr()) {
-        return err(takeResult.error);
+        return err(new ApiError(`Invalid 'take' query parameter. ${takeResult.error}.`, 400));
     }
     if (skipResult.isErr()) {
-        return err(skipResult.error);
+        return err(new ApiError(`Invalid 'skip' query parameter. ${skipResult.error}.`, 400));
+    }
+    if (sortResult.isErr()) {
+        return err(new ApiError(`Invalid 'sort' query parameter. ${sortResult.error}.`, 400));
     }
     if (filtersResult.isErr()) {
-        return err(filtersResult.error);
+        return err(new ApiError(`Invalid 'filters' query parameter. ${filtersResult.error}.`, 400));
     }
-    
+
     return ok({
         take: takeResult.value ?? DEFAULT_TAKE,
         skip: skipResult.value,
-        sort: sortResult.value ?? [["createdAt", "desc"]],
+        sort: sortResult.value ?? [{ createdAt: "desc" }],
         filters: filtersResult.value,
-    })
+    });
 }

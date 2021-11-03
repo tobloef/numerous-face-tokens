@@ -11,6 +11,7 @@ import AuthToken from "../../types/AuthToken";
 import { PublicFeature } from "../../types/feature";
 import { SetupRequest } from "../../utils/expressHandler";
 import generateId from "../../utils/generateId";
+import env from "../../utils/env";
 
 type SignupRequest = {
     username: string,
@@ -50,7 +51,7 @@ export const signup: PublicFeature<SignupRequest, SignupResponse> = async (
         user: newUser,
     };
 
-    const token = jwt.sign(authPayload, process.env.AUTH_SECRET!) as AuthToken;
+    const token = jwt.sign(authPayload, env.AUTH_SECRET!) as AuthToken;
 
     return ok(token);
 };

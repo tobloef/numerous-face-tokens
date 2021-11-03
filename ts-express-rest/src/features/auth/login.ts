@@ -11,6 +11,7 @@ import jwt from "jsonwebtoken";
 import AuthToken from "../../types/AuthToken";
 import AuthPayload from "../../types/AuthPayload";
 import { SetupRequest } from "../../utils/expressHandler";
+import env from "../../utils/env";
 
 type LoginRequest = {
     username: string,
@@ -45,7 +46,7 @@ export const login: PublicFeature<LoginRequest, LoginResponse> = async (
         user,
     };
 
-    const token = jwt.sign(authPayload, process.env.AUTH_SECRET!) as AuthToken;
+    const token = jwt.sign(authPayload, env.AUTH_SECRET!) as AuthToken;
 
     return ok(token)
 };

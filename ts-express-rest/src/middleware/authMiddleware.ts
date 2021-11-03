@@ -3,6 +3,7 @@ import express from "express";
 import jwt from "jsonwebtoken";
 import AuthPayload from "../types/AuthPayload";
 import deleteProp from "../utils/deleteProp";
+import env from "../utils/env";
 
 const authMiddleware = (prisma: PrismaClient) => (
     async (req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -23,7 +24,7 @@ const authMiddleware = (prisma: PrismaClient) => (
         let payload: AuthPayload;
         
         try {
-            payload = jwt.verify(unvalidatedAuthToken, process.env.AUTH_SECRET!) as AuthPayload;
+            payload = jwt.verify(unvalidatedAuthToken, env.AUTH_SECRET!) as AuthPayload;
         } catch (error) {
             res.status(401).json({ error: "Invalid auth token" })
             return;
