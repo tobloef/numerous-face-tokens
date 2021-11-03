@@ -5,8 +5,7 @@ import { PublicFeature } from "../../types/feature";
 import { DEFAULT_TAKE } from "../../utils/constants";
 import { SetupRequest } from "../../utils/expressHandler";
 import { identityResult } from "../../utils/identity";
-import { createQueryProp, parseDate, parseNumber, parseIfDefined, parseSort, parseFilters } from "../../utils/query";
-import { SortOrder } from "../../utils/request/sort";
+import { createQueryProp, parseDate, parseNumber, parseIfDefined, parseSort, parseFilters, SortOrder } from "../../utils/query";
 
 type OrderBy = Prisma.NftOrderByWithRelationInput;
 type Where = Prisma.NftWhereInput;

@@ -5,8 +5,7 @@ import { PublicFeature } from "../../types/feature";
 import { DEFAULT_TAKE } from "../../utils/constants";
 import { SetupRequest } from "../../utils/expressHandler";
 import { identityResult } from "../../utils/identity";
-import { createQueryProp, parseBoolean, parseDate, parseFilters, parseIfDefined, parseNumber, parseSort } from "../../utils/query";
-import { SortOrder } from "../../utils/request/sort";
+import { createQueryProp, parseBoolean, parseDate, parseFilters, parseIfDefined, parseNumber, parseSort, SortOrder } from "../../utils/query";
  
 type OrderBy = Prisma.TradeOrderByWithRelationInput;
 type Where = Prisma.TradeWhereInput;

@@ -1,7 +1,8 @@
 import { merge } from "lodash";
 import { Result, err, ok } from "neverthrow";
 import { is } from "typescript-is";
-import { SortOrder } from "./request/sort";
+
+export type SortOrder = "asc" | "desc";
 
 export type CreateQueryProperty<T, OrderBy, Where> = {
     toWhere?: Record<string, (value: T) => Where>,

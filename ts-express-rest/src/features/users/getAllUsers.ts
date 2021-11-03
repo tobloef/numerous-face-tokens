@@ -7,8 +7,7 @@ import { DEFAULT_TAKE } from "../../utils/constants";
 import deleteProp from "../../utils/deleteProp";
 import { SetupRequest } from "../../utils/expressHandler";
 import { identityResult } from "../../utils/identity";
-import { createQueryProp, parseNumber, parseDate, parseFilters, parseIfDefined, parseSort } from "../../utils/query";
-import { SortOrder } from "../../utils/request/sort";
+import { createQueryProp, parseNumber, parseDate, parseFilters, parseIfDefined, parseSort, SortOrder } from "../../utils/query";
 
 type OrderBy = Prisma.UserWithPasswordOrderByWithRelationInput;
 type Where = Prisma.UserWithPasswordWhereInput;
