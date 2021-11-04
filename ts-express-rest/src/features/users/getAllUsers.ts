@@ -12,47 +12,6 @@ import { createQueryProp, parseNumber, parseDate, parseFilters, parseIfDefined, 
 type OrderBy = Prisma.UserWithPasswordOrderByWithRelationInput;
 type Where = Prisma.UserWithPasswordWhereInput;
 
-const queryPropMap = {
-    username: createQueryProp({
-        deserialize: identityResult,
-        toOrderBy: (order: SortOrder): OrderBy => ({ username: order }),
-        toWhere: {
-            equals: (val: string): Where => ({ username: { equals: val } }),
-            contains: (val: string): Where => ({ username: { contains: val } }),
-        },
-    }),
-    createdAt: createQueryProp({
-        deserialize: parseDate,
-        toOrderBy: (order: SortOrder): OrderBy => ({ createdAt: order }),
-        toWhere: {
-            equals: (val: Date): Where => ({ createdAt: { equals: val } }),
-            gt: (val: Date): Where => ({ createdAt: { gt: val } }),
-            gte: (val: Date): Where => ({ createdAt: { gte: val } }),
-            lt: (val: Date): Where => ({ createdAt: { lt: val } }),
-            lte: (val: Date): Where => ({ createdAt: { lte: val } }),
-        },
-    }),
-    balance: createQueryProp({
-        deserialize: parseNumber,
-        toOrderBy: (order: SortOrder): OrderBy => ({ balance: order }),
-        toWhere: {
-            equals: (val: number): Where => ({ balance: { equals: val } }),
-            gt: (val: number): Where => ({ balance: { gt: val } }),
-            gte: (val: number): Where => ({ balance: { gte: val } }),
-            lt: (val: number): Where => ({ balance: { lt: val } }),
-            lte: (val: number): Where => ({ balance: { lte: val } }),
-        },
-    }),
-    ownedNftsCount: createQueryProp<number, OrderBy, Where>({
-        deserialize: parseNumber,
-        toOrderBy: (order: SortOrder): OrderBy => ({ ownedNfts: { _count: order } }),
-    }),
-    mintedNftsCount: createQueryProp<number, OrderBy, Where>({
-        deserialize: parseNumber,
-        toOrderBy: (order: SortOrder): OrderBy =>  ({ mintedNfts: { _count: order } }),
-    }),
-} as const;
-
 type GetAllUsersRequest = {
     skip?: number,
     take: number,
@@ -106,3 +65,44 @@ export const setupGetAllUsersRequest: SetupRequest<GetAllUsersRequest, {}> = (re
         filters: filtersResult.value,
     });
 }
+
+const queryPropMap = {
+    username: createQueryProp({
+        deserialize: identityResult,
+        toOrderBy: (order: SortOrder): OrderBy => ({ username: order }),
+        toWhere: {
+            equals: (val: string): Where => ({ username: { equals: val } }),
+            contains: (val: string): Where => ({ username: { contains: val } }),
+        },
+    }),
+    createdAt: createQueryProp({
+        deserialize: parseDate,
+        toOrderBy: (order: SortOrder): OrderBy => ({ createdAt: order }),
+        toWhere: {
+            equals: (val: Date): Where => ({ createdAt: { equals: val } }),
+            gt: (val: Date): Where => ({ createdAt: { gt: val } }),
+            gte: (val: Date): Where => ({ createdAt: { gte: val } }),
+            lt: (val: Date): Where => ({ createdAt: { lt: val } }),
+            lte: (val: Date): Where => ({ createdAt: { lte: val } }),
+        },
+    }),
+    balance: createQueryProp({
+        deserialize: parseNumber,
+        toOrderBy: (order: SortOrder): OrderBy => ({ balance: order }),
+        toWhere: {
+            equals: (val: number): Where => ({ balance: { equals: val } }),
+            gt: (val: number): Where => ({ balance: { gt: val } }),
+            gte: (val: number): Where => ({ balance: { gte: val } }),
+            lt: (val: number): Where => ({ balance: { lt: val } }),
+            lte: (val: number): Where => ({ balance: { lte: val } }),
+        },
+    }),
+    ownedNftsCount: createQueryProp<number, OrderBy, Where>({
+        deserialize: parseNumber,
+        toOrderBy: (order: SortOrder): OrderBy => ({ ownedNfts: { _count: order } }),
+    }),
+    mintedNftsCount: createQueryProp<number, OrderBy, Where>({
+        deserialize: parseNumber,
+        toOrderBy: (order: SortOrder): OrderBy =>  ({ mintedNfts: { _count: order } }),
+    }),
+} as const;

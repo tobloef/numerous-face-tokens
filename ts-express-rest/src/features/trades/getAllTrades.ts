@@ -10,6 +10,58 @@ import { createQueryProp, parseBoolean, parseDate, parseFilters, parseIfDefined,
 type OrderBy = Prisma.TradeOrderByWithRelationInput;
 type Where = Prisma.TradeWhereInput;
 
+type GetAllTradesRequest = {
+    skip?: number,
+    take: number,
+    sort: Array<OrderBy>,
+    filters?: Where,
+};
+
+type GetAllTradesResponse = Trade[];
+
+export const getAllTrades: PublicFeature<GetAllTradesRequest, GetAllTradesResponse> = async (
+    request,
+    ctx,
+) => {
+    const trades = await ctx.prisma.trade.findMany({
+        take: request.take,
+        skip: request.skip,
+        orderBy: request.sort,
+        where: request.filters,
+    });
+
+    return ok(trades);
+};
+
+export const setupGetAllTradesRequest: SetupRequest<GetAllTradesRequest, {}> = (req) => {
+    const { take, skip, sort, ...filters } = req.query;
+
+    const takeResult = parseIfDefined(take, parseNumber);
+    const skipResult = parseIfDefined(skip, parseNumber);
+    const sortResult = parseIfDefined(sort, (input) => parseSort(input, queryPropMap));
+    const filtersResult = parseIfDefined(filters, (input) => parseFilters(input, queryPropMap));
+
+    if (takeResult.isErr()) {
+        return err(new ApiError(`Invalid 'take' query parameter. ${takeResult.error}.`, 400));
+    }
+    if (skipResult.isErr()) {
+        return err(new ApiError(`Invalid 'skip' query parameter. ${skipResult.error}.`, 400));
+    }
+    if (sortResult.isErr()) {
+        return err(new ApiError(`Invalid 'sort' query parameter. ${sortResult.error}.`, 400));
+    }
+    if (filtersResult.isErr()) {
+        return err(new ApiError(`Invalid 'filters' query parameter. ${filtersResult.error}.`, 400));
+    }
+
+    return ok({
+        take: takeResult.value ?? DEFAULT_TAKE,
+        skip: skipResult.value,
+        sort: sortResult.value ?? [{ createdAt: "desc" }],
+        filters: filtersResult.value,
+    });
+}
+
 const queryPropMap = {
     nftSeed: createQueryProp({
         deserialize: identityResult,
@@ -72,55 +124,3 @@ const queryPropMap = {
         },
     }),
 } as const;
-
-type GetAllTradesRequest = {
-    skip?: number,
-    take: number,
-    sort: Array<OrderBy>,
-    filters?: Where,
-};
-
-type GetAllTradesResponse = Trade[];
-
-export const getAllTrades: PublicFeature<GetAllTradesRequest, GetAllTradesResponse> = async (
-    request,
-    ctx,
-) => {
-    const trades = await ctx.prisma.trade.findMany({
-        take: request.take,
-        skip: request.skip,
-        orderBy: request.sort,
-        where: request.filters,
-    });
-
-    return ok(trades);
-};
-
-export const setupGetAllTradesRequest: SetupRequest<GetAllTradesRequest, {}> = (req) => {
-    const { take, skip, sort, ...filters } = req.query;
-
-    const takeResult = parseIfDefined(take, parseNumber);
-    const skipResult = parseIfDefined(skip, parseNumber);
-    const sortResult = parseIfDefined(sort, (input) => parseSort(input, queryPropMap));
-    const filtersResult = parseIfDefined(filters, (input) => parseFilters(input, queryPropMap));
-
-    if (takeResult.isErr()) {
-        return err(new ApiError(`Invalid 'take' query parameter. ${takeResult.error}.`, 400));
-    }
-    if (skipResult.isErr()) {
-        return err(new ApiError(`Invalid 'skip' query parameter. ${skipResult.error}.`, 400));
-    }
-    if (sortResult.isErr()) {
-        return err(new ApiError(`Invalid 'sort' query parameter. ${sortResult.error}.`, 400));
-    }
-    if (filtersResult.isErr()) {
-        return err(new ApiError(`Invalid 'filters' query parameter. ${filtersResult.error}.`, 400));
-    }
-
-    return ok({
-        take: takeResult.value ?? DEFAULT_TAKE,
-        skip: skipResult.value,
-        sort: sortResult.value ?? [{ createdAt: "desc" }],
-        filters: filtersResult.value,
-    });
-}
