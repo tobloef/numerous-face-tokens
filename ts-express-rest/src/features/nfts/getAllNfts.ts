@@ -7,9 +7,6 @@ import { SetupRequest } from "../../utils/expressHandler";
 import { identityResult } from "../../utils/identity";
 import { createQueryProp, parseDate, parseNumber, parseIfDefined, parseSort, parseFilters, SortOrder } from "../../utils/query";
 
-type OrderBy = Prisma.NftOrderByWithRelationInput;
-type Where = Prisma.NftWhereInput;
-
 type GetAllNftsRequest = {
     skip?: number,
     take: number,
@@ -61,6 +58,9 @@ export const setupGetAllNftsRequest: SetupRequest<GetAllNftsRequest, {}> = (req)
         filters: filtersResult.value,
     });
 }
+
+type OrderBy = Prisma.NftOrderByWithRelationInput;
+type Where = Prisma.NftWhereInput;
 
 const queryPropMap = {
     seed: createQueryProp({

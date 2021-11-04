@@ -9,9 +9,6 @@ import { SetupRequest } from "../../utils/expressHandler";
 import { identityResult } from "../../utils/identity";
 import { createQueryProp, parseNumber, parseDate, parseFilters, parseIfDefined, parseSort, SortOrder } from "../../utils/query";
 
-type OrderBy = Prisma.UserWithPasswordOrderByWithRelationInput;
-type Where = Prisma.UserWithPasswordWhereInput;
-
 type GetAllUsersRequest = {
     skip?: number,
     take: number,
@@ -65,6 +62,9 @@ export const setupGetAllUsersRequest: SetupRequest<GetAllUsersRequest, {}> = (re
         filters: filtersResult.value,
     });
 }
+
+type OrderBy = Prisma.UserWithPasswordOrderByWithRelationInput;
+type Where = Prisma.UserWithPasswordWhereInput;
 
 const queryPropMap = {
     username: createQueryProp({

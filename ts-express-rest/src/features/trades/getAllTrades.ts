@@ -6,9 +6,6 @@ import { DEFAULT_TAKE } from "../../utils/constants";
 import { SetupRequest } from "../../utils/expressHandler";
 import { identityResult } from "../../utils/identity";
 import { createQueryProp, parseBoolean, parseDate, parseFilters, parseIfDefined, parseNumber, parseSort, SortOrder } from "../../utils/query";
- 
-type OrderBy = Prisma.TradeOrderByWithRelationInput;
-type Where = Prisma.TradeWhereInput;
 
 type GetAllTradesRequest = {
     skip?: number,
@@ -61,6 +58,9 @@ export const setupGetAllTradesRequest: SetupRequest<GetAllTradesRequest, {}> = (
         filters: filtersResult.value,
     });
 }
+
+type OrderBy = Prisma.TradeOrderByWithRelationInput;
+type Where = Prisma.TradeWhereInput;
 
 const queryPropMap = {
     nftSeed: createQueryProp({
