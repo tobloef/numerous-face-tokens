@@ -11,8 +11,6 @@ import usersRouter from "./routers/usersRouter";
 import { createRegisterRoute } from "./utils/expressHandler";
 import env from "./utils/env";
 
-
-
 const prismaClient = new PrismaClient();
 
 const registerRoute = createRegisterRoute(prismaClient);
