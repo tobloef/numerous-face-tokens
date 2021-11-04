@@ -128,3 +128,13 @@ export const parseFilters = <OrderBy, Where>(input: Record<string, any> | unknow
 
     return ok(where);
 }
+
+export const createToWhereMap = <Where, T>(
+    ops: string[],
+    getWhere: ((val: T, op: string) => Where),
+): Record<string, (val: T) => Where> => {
+    return ops.reduce((acc, op) => ({
+        ...acc,
+        [op]: (val: T) => getWhere(val, op)
+    }), {});
+}

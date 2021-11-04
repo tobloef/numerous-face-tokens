@@ -4,7 +4,7 @@ import ApiError from "../../ApiError";
 import { PublicFeature } from "../../types/feature";
 import { DEFAULT_TAKE } from "../../utils/constants";
 import { SetupRequest } from "../../utils/expressHandler";
-import { createQueryProp, parseBoolean, parseDate, parseFilters, parseIfDefined, parseNumber, parseSort, parseString, SortOrder } from "../../utils/query";
+import { createQueryProp, createToWhereMap, parseBoolean, parseDate, parseFilters, parseIfDefined, parseNumber, parseSort, parseString, SortOrder } from "../../utils/query";
 
 type GetAllTradesRequest = {
     skip?: number,
@@ -65,61 +65,57 @@ const queryPropMap = {
     nftSeed: createQueryProp({
         deserialize: parseString,
         toOrderBy: (order: SortOrder): OrderBy => ({ nft: { seed: order } }),
-        toWhere: {
-            equals: (val: string): Where => ({ nft: { seed: { equals: val } } }),
-            contains: (val: string): Where => ({ nft: { seed: { contains: val } } }),
-        },
+        toWhere: createToWhereMap(
+            ["equals", "contains"],
+            (val: string, op: string): Where => ({ nft: { seed: { [op]: val } } })
+        ),
     }),
     price: createQueryProp({
         deserialize: parseNumber,
         toOrderBy: (order: SortOrder): OrderBy => ({ price: order }),
-        toWhere: {
-            equals: (val: number): Where => ({ price: { equals: val } }),
-            gt: (val: number): Where => ({ price: { gt: val } }),
-            gte: (val: number): Where => ({ price: { gte: val } }),
-            lt: (val: number): Where => ({ price: { lt: val } }),
-            lte: (val: number): Where => ({ price: { lte: val } }),
-        },
+        toWhere: createToWhereMap(
+            ["equals", "gt", "gte", "lt", "lte"],
+            (val: number, op: string): Where => ({ price: { [op]: val } })
+        ),
     }),
     buyerUsername: createQueryProp({
         deserialize: parseString,
         toOrderBy: (order: SortOrder): OrderBy => ({ buyer: { username: order } }),
-        toWhere: {
-            equals: (val: string): Where => ({ buyer: { username: { equals: val} } }),
-            contains: (val: string): Where => ({ buyer: { username: { contains: val} } }),
-        },
+        toWhere: createToWhereMap(
+            ["equals", "contains"],
+            (val: string, op: string): Where => ({ buyer: { username: { [op]: val } } })
+        ),
     }),
     sellerUsername: createQueryProp({
         deserialize: parseString,
         toOrderBy: (order: SortOrder): OrderBy => ({ buyer: { username: order } }),
-        toWhere: {
-            equals: (val: string): Where => ({ seller: { username: { equals: val} } }),
-            contains: (val: string): Where => ({ seller: { username: { contains: val} } }),
-        },
+        toWhere: createToWhereMap(
+            ["equals", "contains"],
+            (val: string, op: string): Where => ({ seller: { username: { [op]: val } } })
+        ),
     }),
     createdAt: createQueryProp({
         deserialize: parseDate,
         toOrderBy: (order: SortOrder): OrderBy => ({ createdAt: order }),
-        toWhere: {
-            equals: (val: Date): Where => ({ createdAt: { equals: val } }),
-            gt: (val: Date): Where => ({ createdAt: { gt: val } }),
-            gte: (val: Date): Where => ({ createdAt: { gte: val } }),
-            lt: (val: Date): Where => ({ createdAt: { lt: val } }),
-            lte: (val: Date): Where => ({ createdAt: { lte: val } }),
-        },
+        toWhere: createToWhereMap(
+            ["equals", "gt", "gte", "lt", "lte"],
+            (val: Date, op: string): Where => ({ createdAt: { [op]: val } })
+        ),
     }),
     sellerAccepted: createQueryProp({
         deserialize: parseBoolean,
         toOrderBy: (order: SortOrder): OrderBy => ({ sellerAccepted: order }),
-        toWhere: {
-            equals: (val: boolean): Where => ({ sellerAccepted: val }),
-        },
+        toWhere: createToWhereMap(
+            ["equals"],
+            (val: boolean, op: string): Where => ({ sellerAccepted: { [op]: val } })
+        ),
     }),
     buyerAccepted: createQueryProp({
         deserialize: parseBoolean,
         toOrderBy: (order: SortOrder): OrderBy => ({ buyerAccepted: order }),
-        toWhere: {
-            equals: (val: boolean): Where => ({ buyerAccepted: val }),
-        },
+        toWhere: createToWhereMap(
+            ["equals"],
+            (val: boolean, op: string): Where => ({ buyerAccepted: { [op]: val } })
+        ),
     }),
 } as const;

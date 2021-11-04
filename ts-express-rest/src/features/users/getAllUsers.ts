@@ -6,7 +6,7 @@ import User from "../../types/User";
 import { DEFAULT_TAKE } from "../../utils/constants";
 import deleteProp from "../../utils/deleteProp";
 import { SetupRequest } from "../../utils/expressHandler";
-import { createQueryProp, parseNumber, parseDate, parseFilters, parseIfDefined, parseSort, SortOrder, parseString } from "../../utils/query";
+import { createQueryProp, parseNumber, parseDate, parseFilters, parseIfDefined, parseSort, SortOrder, parseString, createToWhereMap } from "../../utils/query";
 
 type GetAllUsersRequest = {
     skip?: number,
@@ -69,32 +69,26 @@ const queryPropMap = {
     username: createQueryProp({
         deserialize: parseString,
         toOrderBy: (order: SortOrder): OrderBy => ({ username: order }),
-        toWhere: {
-            equals: (val: string): Where => ({ username: { equals: val } }),
-            contains: (val: string): Where => ({ username: { contains: val } }),
-        },
+        toWhere: createToWhereMap(
+            ["equals", "contains"],
+            (val: string, op: string): Where => ({ username: { [op]: val } })
+        ),
     }),
     createdAt: createQueryProp({
         deserialize: parseDate,
         toOrderBy: (order: SortOrder): OrderBy => ({ createdAt: order }),
-        toWhere: {
-            equals: (val: Date): Where => ({ createdAt: { equals: val } }),
-            gt: (val: Date): Where => ({ createdAt: { gt: val } }),
-            gte: (val: Date): Where => ({ createdAt: { gte: val } }),
-            lt: (val: Date): Where => ({ createdAt: { lt: val } }),
-            lte: (val: Date): Where => ({ createdAt: { lte: val } }),
-        },
+        toWhere: createToWhereMap(
+            ["equals", "gt", "gte", "lt", "lte"],
+            (val: Date, op: string): Where => ({ createdAt: { [op]: val } })
+        ),
     }),
     balance: createQueryProp({
         deserialize: parseNumber,
         toOrderBy: (order: SortOrder): OrderBy => ({ balance: order }),
-        toWhere: {
-            equals: (val: number): Where => ({ balance: { equals: val } }),
-            gt: (val: number): Where => ({ balance: { gt: val } }),
-            gte: (val: number): Where => ({ balance: { gte: val } }),
-            lt: (val: number): Where => ({ balance: { lt: val } }),
-            lte: (val: number): Where => ({ balance: { lte: val } }),
-        },
+        toWhere: createToWhereMap(
+            ["equals", "gt", "gte", "lt", "lte"],
+            (val: number, op: string): Where => ({ balance: { [op]: val } })
+        ),
     }),
     ownedNftsCount: createQueryProp<number, OrderBy, Where>({
         deserialize: parseNumber,
