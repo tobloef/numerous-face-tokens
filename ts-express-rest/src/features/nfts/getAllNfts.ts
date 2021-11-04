@@ -4,8 +4,7 @@ import ApiError from "../../ApiError";
 import { PublicFeature } from "../../types/feature";
 import { DEFAULT_TAKE } from "../../utils/constants";
 import { SetupRequest } from "../../utils/expressHandler";
-import { identityResult } from "../../utils/identity";
-import { createQueryProp, parseDate, parseNumber, parseIfDefined, parseSort, parseFilters, SortOrder } from "../../utils/query";
+import { createQueryProp, parseDate, parseNumber, parseIfDefined, parseSort, parseFilters, SortOrder, parseString } from "../../utils/query";
 
 type GetAllNftsRequest = {
     skip?: number,
@@ -69,7 +68,7 @@ const queryPropMap = {
             contains: (value: string): Where => ({ seed: { contains: value } }),
         },
         toOrderBy: (order: SortOrder): OrderBy => ({ seed: order }),
-        deserialize: identityResult,
+        deserialize: parseString,
     }),
     title: createQueryProp({
         toWhere: {
@@ -77,7 +76,7 @@ const queryPropMap = {
             contains: (value: string): Where => ({ title: { contains: value } }),
         },
         toOrderBy: (order: SortOrder): OrderBy => ({ title: order }),
-        deserialize: identityResult,
+        deserialize: parseString,
     }),
     mintedAt: createQueryProp({
         toWhere: {
@@ -129,6 +128,6 @@ const queryPropMap = {
             contains: (val: string): Where => ({ owner: { username: { contains: val } } }),
         },
         toOrderBy: (order: SortOrder): OrderBy => ({ owner: { username: order } }),
-        deserialize: identityResult,
+        deserialize: parseString,
     }),
 } as const;

@@ -6,8 +6,7 @@ import User from "../../types/User";
 import { DEFAULT_TAKE } from "../../utils/constants";
 import deleteProp from "../../utils/deleteProp";
 import { SetupRequest } from "../../utils/expressHandler";
-import { identityResult } from "../../utils/identity";
-import { createQueryProp, parseNumber, parseDate, parseFilters, parseIfDefined, parseSort, SortOrder } from "../../utils/query";
+import { createQueryProp, parseNumber, parseDate, parseFilters, parseIfDefined, parseSort, SortOrder, parseString } from "../../utils/query";
 
 type GetAllUsersRequest = {
     skip?: number,
@@ -68,7 +67,7 @@ type Where = Prisma.UserWithPasswordWhereInput;
 
 const queryPropMap = {
     username: createQueryProp({
-        deserialize: identityResult,
+        deserialize: parseString,
         toOrderBy: (order: SortOrder): OrderBy => ({ username: order }),
         toWhere: {
             equals: (val: string): Where => ({ username: { equals: val } }),

@@ -4,8 +4,7 @@ import ApiError from "../../ApiError";
 import { PublicFeature } from "../../types/feature";
 import { DEFAULT_TAKE } from "../../utils/constants";
 import { SetupRequest } from "../../utils/expressHandler";
-import { identityResult } from "../../utils/identity";
-import { createQueryProp, parseBoolean, parseDate, parseFilters, parseIfDefined, parseNumber, parseSort, SortOrder } from "../../utils/query";
+import { createQueryProp, parseBoolean, parseDate, parseFilters, parseIfDefined, parseNumber, parseSort, parseString, SortOrder } from "../../utils/query";
 
 type GetAllTradesRequest = {
     skip?: number,
@@ -64,7 +63,7 @@ type Where = Prisma.TradeWhereInput;
 
 const queryPropMap = {
     nftSeed: createQueryProp({
-        deserialize: identityResult,
+        deserialize: parseString,
         toOrderBy: (order: SortOrder): OrderBy => ({ nft: { seed: order } }),
         toWhere: {
             equals: (val: string): Where => ({ nft: { seed: { equals: val } } }),
@@ -83,7 +82,7 @@ const queryPropMap = {
         },
     }),
     buyerUsername: createQueryProp({
-        deserialize: identityResult,
+        deserialize: parseString,
         toOrderBy: (order: SortOrder): OrderBy => ({ buyer: { username: order } }),
         toWhere: {
             equals: (val: string): Where => ({ buyer: { username: { equals: val} } }),
@@ -91,7 +90,7 @@ const queryPropMap = {
         },
     }),
     sellerUsername: createQueryProp({
-        deserialize: identityResult,
+        deserialize: parseString,
         toOrderBy: (order: SortOrder): OrderBy => ({ buyer: { username: order } }),
         toWhere: {
             equals: (val: string): Where => ({ seller: { username: { equals: val} } }),

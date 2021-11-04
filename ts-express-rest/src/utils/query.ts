@@ -32,6 +32,14 @@ export const parseDate = (input: string | unknown): Result<Date, string> => {
     return ok(new Date(Date.parse(input)));
 }
 
+export const parseString = (input: string | unknown): Result<string, string> => {
+    if (!is<string>(input)) {
+        return err(`'${input}' is not a valid string`);
+    }
+
+    return ok(input);
+}
+
 export const parseNumber = (input: string | unknown): Result<number, string> => {
     if (!is<string>(input) || Number.isNaN(Number(input))) {
         return err(`'${input}' is not a valid number`);
