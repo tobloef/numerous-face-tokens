@@ -1,5 +1,4 @@
 import { Nft, Trade, UserWithPassword } from "@prisma/client";
-import express from "express";
 import { is } from "typescript-is";
 import { err, ok } from "neverthrow";
 import { PrivateFeature, PublicFeature } from "../../types/feature";

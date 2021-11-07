@@ -6,6 +6,7 @@
     "start": "ts-node-dev --respawn --compiler ttypescript ./src/index.ts",
     "update-db": "prisma db push --accept-data-loss",
     "start-db": "cd .. && docker-compose --file ./postgres.docker.yml up",
+    "reset-db": "prisma migrate reset --force && yarn update-db",
     "compile": "ttsc --noEmit"
   },
   "dependencies": {

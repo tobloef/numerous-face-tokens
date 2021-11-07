@@ -19,9 +19,9 @@ model Nft {
   title           String
   trades          Trade[]           @relation("Trades")
   lastTradeId     String?           
-  lastTrade       Trade?            @relation("LastTrade", fields: [lastTradeId], references: [lastTradeOfNftId])
+  lastTrade       Trade?            @relation("LastTrade", fields: [lastTradeId], references: [id])
   highestTradeId  String?           
-  highestTrade    Trade?            @relation("HighestTrade", fields: [highestTradeId], references: [highestTradeOfNftId])
+  highestTrade    Trade?            @relation("HighestTrade", fields: [highestTradeId], references: [id])
 }
 
 model UserWithPassword {
@@ -49,8 +49,6 @@ model Trade {
   nftId                String
   nft                  Nft                @relation("Trades", fields: [nftId], references: [id])
   price                Int
-  lastTradeOfNftId     String?             @unique
   lastTradeOfNft       Nft?                @relation("LastTrade")
-  highestTradeOfNftId  String?             @unique
   highestTradeOfNft    Nft?                @relation("HighestTrade")
 }

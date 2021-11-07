@@ -94,12 +94,15 @@ export const acceptTrade: PrivateFeature<AcceptTradeRequest, AcceptTradeResponse
             nft: {
                 update: {
                     ownerId: trade.buyerId,
-                    highestTradeId: (trade.nft.highestTrade === null || trade.nft.highestTrade.price <= trade.price)
+                    lastTradeId: trade.id,
+                    highestTradeId: (
+                        trade.nft.highestTrade === null ||
+                        trade.nft.highestTrade.price <= trade.price
+                    )
                         ? trade.id
                         : undefined,
-                    lastTradeId: trade.id,
                 }
-            },
+            }
         }
     });
 
