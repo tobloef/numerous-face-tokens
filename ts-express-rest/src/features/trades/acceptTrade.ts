@@ -133,7 +133,7 @@ export const acceptTrade: PrivateFeature<AcceptTradeRequest, AcceptTradeResponse
             `[${trade.seller.username}](/users/${trade.seller.username}) sold ` +
             `["${trade.nft.seed}"](/nfts/${trade.nft.seed}) to ` + 
             `[${trade.buyer.username}](/users/${trade.buyer.username}) for ` +
-            `${trade.price}${CURRENCY_SYMBOL}.`
+            `${CURRENCY_SYMBOL}${trade.price}.`
         ) as Markdown
     })
 

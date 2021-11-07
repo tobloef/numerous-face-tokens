@@ -6,6 +6,7 @@ import { Nft, Trade, User } from "@prisma/client";
 import deleteProp from "../../utils/deleteProp";
 import { SetupRequest } from "../../utils/expressHandler";
 import generateId from "../../utils/generateId";
+import Markdown from "../../types/Markdown";
 
 type CreateNftRequest = {
     seed: string,
@@ -64,6 +65,15 @@ export const createNft: PrivateFeature<CreateNftRequest, CreateNftResponse> = as
         minter: deleteProp(nftWithUserPasswords.minter, "passwordHash"),
         owner: deleteProp(nftWithUserPasswords.owner, "passwordHash"),
     };
+
+    ctx.notify({
+        time: new Date(),
+        title: `NFT Minted` as Markdown,
+        description: (
+            `[${nft.minter.username}](/users/${nft.minter.username}) minted ` +
+            `["${nft.seed}"](/nfts/${nft.seed})`
+        ) as Markdown
+    })
 
     return ok(nft);
 };
