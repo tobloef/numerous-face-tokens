@@ -2,7 +2,8 @@ import dotenv from "dotenv";
 dotenv.config({ path: "../.env" });
 
 import express from "express";
-import expressWs from "express-ws";
+import http from "http";
+import WebSocket from "ws";
 import { PrismaClient } from "@prisma/client"
 import authMiddleware from "./middleware/authMiddleware";
 import authRouter from "./routers/authRouter";
@@ -17,11 +18,15 @@ import { createNofitier } from "./eventNotifier";
 const prismaClient = new PrismaClient();
 
 const app = express();
-const wsInstance = expressWs(app);
+const server = http.createServer(app);
+const wss = new WebSocket.Server({
+  path: "/log",
+  server,
+});
 
 const registerRoute = createRegisterRoute({
   prisma: prismaClient,
-  notify: createNofitier(wsInstance.getWss()),
+  notify: createNofitier(wss),
 });
 
 app.use(express.json());
@@ -34,8 +39,6 @@ app.use(nftsRouter(registerRoute));
 app.use(tradesRouter(registerRoute));
 app.use(usersRouter(registerRoute));
 
-app.ws("/log");
-
-app.listen(env.API_PORT, () => {
+server.listen(env.API_PORT, () => {
   console.info(`Started API on port ${env.API_PORT}.`);
 });
