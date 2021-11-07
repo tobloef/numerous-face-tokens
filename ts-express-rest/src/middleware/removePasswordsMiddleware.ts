@@ -1,7 +1,11 @@
 import express from "express";
 import { is } from "typescript-is";
 
-const removePropertiesRecursivelyFromObject = (input: object, keysToRemove: string[]): object => {
+const removePropertiesRecursively = (input: any, keysToRemove: string[]): any => {   
+    if (!is<object>(input)) {
+        return input;
+    }
+
     return Object.entries(input)
         .reduce((acc, [key, value]) => {
             if (keysToRemove.includes(key)) {
@@ -13,26 +17,6 @@ const removePropertiesRecursivelyFromObject = (input: object, keysToRemove: stri
                 [key]: removePropertiesRecursively(value, keysToRemove),
             }
         }, {});
-}
-
-const removePropertiesRecursively = (input: any, keysToRemove: string[]): any => {
-    let obj: object;
-    
-    if (is<string>(input)) {
-        try {
-            obj = JSON.parse(input);
-            const newObj = removePropertiesRecursivelyFromObject(obj, keysToRemove);
-            return JSON.stringify(newObj);
-        } catch (error) {
-            // Ignored
-        }
-    }
-    
-    if (is<object>(input)) {
-        return removePropertiesRecursivelyFromObject(input, keysToRemove);
-    }
-
-    return input;
 };
 
 export const removePropertiesRecursivelyMiddleware = (keysToRemove: string[]) => {
@@ -41,11 +25,11 @@ export const removePropertiesRecursivelyMiddleware = (keysToRemove: string[]) =>
         res: express.Response,
         next: express.NextFunction,
     ) => {
-        const oldSend = res.send;
-        res.send = (data) => {
+        const oldJson = res.json;
+        res.json = (data) => {
           const newData = removePropertiesRecursively(data, keysToRemove);
-          res.send = oldSend;
-          return res.send(newData);
+          res.json = oldJson;
+          return res.json(newData);
         }
         next();
     };
