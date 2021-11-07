@@ -106,6 +106,16 @@ export const acceptTrade: PrivateFeature<AcceptTradeRequest, AcceptTradeResponse
         }
     });
 
+    await ctx.prisma.trade.deleteMany({
+        where: {
+            id: trade.id,
+            OR: [
+                { buyerAccepted: false },
+                { sellerAccepted: false }
+            ]
+        }
+    })
+
     assert(updatedTradeWithPasswords.buyer !== null);
     assert(updatedTradeWithPasswords.seller !== null);
 

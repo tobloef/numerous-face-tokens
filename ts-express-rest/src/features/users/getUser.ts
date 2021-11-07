@@ -43,7 +43,7 @@ export const getUser: PublicFeature<GetUserRequest, GetUserResponse> = async (
     
     const userWithoutPassword = deleteProp(user, "passwordHash");
 
-    return ok(userWithoutPassword);
+    return ok(user as any);
 };
 
 export const setupGetUserRequest: SetupRequest<GetUserRequest, { username: string }> = (req) => {
