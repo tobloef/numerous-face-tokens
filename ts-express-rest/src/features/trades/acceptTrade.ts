@@ -2,8 +2,7 @@ import { err, ok } from "neverthrow";
 import ApiError from "../../ApiError";
 import { PrivateFeature } from "../../types/feature";
 import { SetupRequest } from "../../utils/expressHandler";
-import { Nft, Trade } from "@prisma/client";
-import User from "../../types/User";
+import { Nft, Trade, User } from "@prisma/client";
 import deleteProp from "../../utils/deleteProp";
 import assert from "assert";
 

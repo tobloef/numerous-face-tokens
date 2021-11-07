@@ -1,11 +1,8 @@
-import { Nft, Trade } from "@prisma/client";
-import express from "express";
+import { Nft, Trade, User } from "@prisma/client";
 import { err, ok } from "neverthrow";
-import { is } from "typescript-is";
 import ApiError from "../../ApiError";
 import { PublicFeature } from "../../types/feature";
 import deleteProp from "../../utils/deleteProp";
-import User from "../../types/User";
 import { SetupRequest } from "../../utils/expressHandler";
 
 type GetTradeRequest = {

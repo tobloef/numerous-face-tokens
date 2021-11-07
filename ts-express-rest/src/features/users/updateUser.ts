@@ -1,10 +1,8 @@
-import { Nft, Trade, UserWithPassword } from "@prisma/client";
+import { Nft, Trade, User } from "@prisma/client";
 import { is } from "typescript-is";
 import { err, ok } from "neverthrow";
-import { PrivateFeature, PublicFeature } from "../../types/feature";
+import { PrivateFeature } from "../../types/feature";
 import ApiError from "../../ApiError";
-import User from "../../types/User";
-import deleteProp from "../../utils/deleteProp";
 import bcrypt from "bcryptjs";
 import { SetupRequest } from "../../utils/expressHandler";
 
@@ -34,7 +32,7 @@ export const updateUser: PrivateFeature<UpdateUserRequest, UpdateUserResponse> =
         return err(new ApiError("Cannot update user other than yourself", 403));
     }
 
-    const existingUser = await ctx.prisma.userWithPassword.findUnique({
+    const existingUser = await ctx.prisma.user.findUnique({
         where: {
             username,
         }
@@ -44,7 +42,7 @@ export const updateUser: PrivateFeature<UpdateUserRequest, UpdateUserResponse> =
         return err(new ApiError("User not found", 404));
     }
 
-    const user = await ctx.prisma.userWithPassword.update({
+    const user = await ctx.prisma.user.update({
         where: {
             username,
         },
@@ -61,9 +59,7 @@ export const updateUser: PrivateFeature<UpdateUserRequest, UpdateUserResponse> =
         }
     });
 
-    const userWithoutPassword = deleteProp(user, "passwordHash");
-
-    return ok(userWithoutPassword);
+    return ok(user);
 };
 
 export const setupUpdateUserRequest: SetupRequest<UpdateUserRequest, { username: string }> = (req) => {

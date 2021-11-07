@@ -10,6 +10,7 @@ import tradesRouter from "./routers/tradesRouter";
 import usersRouter from "./routers/usersRouter";
 import { createRegisterRoute } from "./utils/expressHandler";
 import env from "./utils/env";
+import { removePropertiesRecursivelyMiddleware } from "./middleware/removePasswordsMiddleware";
 
 const prismaClient = new PrismaClient();
 
@@ -20,6 +21,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(authMiddleware(prismaClient));
+app.use(removePropertiesRecursivelyMiddleware(["passwordHash"]));
 
 app.use(authRouter(registerRoute));
 app.use(nftsRouter(registerRoute));

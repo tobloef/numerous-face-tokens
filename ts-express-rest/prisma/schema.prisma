@@ -11,10 +11,10 @@ datasource db {
 model Nft {
   id              String            @id
   minterId        String
-  minter          UserWithPassword  @relation("Minted", fields: [minterId], references: [id])
+  minter          User  @relation("Minted", fields: [minterId], references: [id])
   mintedAt        DateTime          @default(now())
   ownerId         String
-  owner           UserWithPassword  @relation("Owned", fields: [ownerId], references: [id])
+  owner           User  @relation("Owned", fields: [ownerId], references: [id])
   seed            String            @unique
   title           String
   trades          Trade[]           @relation("Trades")
@@ -24,7 +24,7 @@ model Nft {
   highestTrade    Trade?            @relation("HighestTrade", fields: [highestTradeId], references: [id])
 }
 
-model UserWithPassword {
+model User {
   id            String    @id
   createdAt     DateTime  @default(now())
   username      String    @unique
@@ -40,10 +40,10 @@ model Trade {
   id                   String             @id
   createdAt            DateTime           @default(now())
   sellerId             String
-  seller               UserWithPassword   @relation("Sold", fields: [sellerId], references: [id])
+  seller               User   @relation("Sold", fields: [sellerId], references: [id])
   sellerAccepted       Boolean            @default(false)
   buyerId              String?
-  buyer                UserWithPassword?  @relation("Bought", fields: [buyerId], references: [id])
+  buyer                User?  @relation("Bought", fields: [buyerId], references: [id])
   buyerAccepted        Boolean            @default(false)
   soldAt               DateTime?  
   nftId                String

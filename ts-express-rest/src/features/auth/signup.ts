@@ -1,5 +1,3 @@
-import { UserWithPassword } from "@prisma/client";
-import express from "express";
 import { is } from "typescript-is";
 import { err, ok } from "neverthrow";
 import ApiError from "../../ApiError";
@@ -26,7 +24,7 @@ export const signup: PublicFeature<SignupRequest, SignupResponse> = async (
 ) => {
     const username = request.username.toLowerCase();
 
-    const existingUser = await ctx.prisma.userWithPassword.findUnique({
+    const existingUser = await ctx.prisma.user.findUnique({
         where: {
             username,
         }
@@ -36,7 +34,7 @@ export const signup: PublicFeature<SignupRequest, SignupResponse> = async (
         return err(new ApiError("Username taken", 409));
     }
 
-    const newUserWithPassword: UserWithPassword = await ctx.prisma.userWithPassword.create({
+    const user = await ctx.prisma.user.create({
         data: {
             id: generateId(),
             username,
@@ -45,10 +43,10 @@ export const signup: PublicFeature<SignupRequest, SignupResponse> = async (
         }
     });
 
-    const newUser = deleteProp(newUserWithPassword, "passwordHash");
+    const userWithoutPassword = deleteProp(user, "passwordHash");
 
     const authPayload: AuthPayload = {
-        user: newUser,
+        user: userWithoutPassword,
     };
 
     const token = jwt.sign(authPayload, env.AUTH_SECRET!) as AuthToken;

@@ -1,10 +1,8 @@
-import express from "express";
 import { is } from "typescript-is";
 import { err, ok } from "neverthrow";
 import ApiError from "../../ApiError";
 import { PrivateFeature } from "../../types/feature";
-import { Nft, Trade } from "@prisma/client";
-import User from "../../types/User";
+import { Nft, Trade, User } from "@prisma/client";
 import deleteProp from "../../utils/deleteProp";
 import { SetupRequest } from "../../utils/expressHandler";
 import generateId from "../../utils/generateId";
@@ -36,7 +34,7 @@ export const createNft: PrivateFeature<CreateNftRequest, CreateNftResponse> = as
         return err(new ApiError("NFT with given seed already exists", 409));
     }
 
-    const user = await ctx.prisma.userWithPassword.findUnique({
+    const user = await ctx.prisma.user.findUnique({
         where: {
             id: ctx.user.id,
         }

@@ -1,4 +1,3 @@
-
 const ENV_VARS = [
     "API_PORT",
     "AUTH_SECRET",

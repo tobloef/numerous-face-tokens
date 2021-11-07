@@ -1,5 +1,4 @@
 import express from "express";
-import { createNft, setupCreateNftRequest } from "../features/nfts/createNft";
 import { getAllUsers, setupGetAllUsersRequest } from "../features/users/getAllUsers";
 import { getUser, setupGetUserRequest } from "../features/users/getUser";
 import { setupUpdateUserRequest, updateUser } from "../features/users/updateUser";

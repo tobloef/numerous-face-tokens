@@ -1,11 +1,9 @@
-import express, { request } from "express";
 import { is } from "typescript-is";
 import { err, ok } from "neverthrow";
 import ApiError from "../../ApiError";
 import { PrivateFeature, PublicFeature } from "../../types/feature";
 import { SetupRequest } from "../../utils/expressHandler";
-import { Nft, Trade } from "@prisma/client";
-import User from "../../types/User";
+import { Nft, Trade, User } from "@prisma/client";
 import deleteProp from "../../utils/deleteProp";
 import generateId from "../../utils/generateId";
 
@@ -39,25 +37,25 @@ export const createTrade: PrivateFeature<CreateTradeRequest, CreateTradeResponse
         return err(new ApiError("Cannot create trade with yourself", 400));
     }
 
-    const sellerWithPassword = await ctx.prisma.userWithPassword.findUnique({
+    const seller = await ctx.prisma.user.findUnique({
         where: {
             username: request.sellerUsername,
         }
     });
 
-    if (sellerWithPassword === null) {
+    if (seller === null) {
         return err(new ApiError("Seller not found", 404));
     }
 
-    let buyerUserWithPassword;
+    let buyer;
     if (request.buyerUsername !== null) {
-        buyerUserWithPassword = await ctx.prisma.userWithPassword.findUnique({
+        buyer = await ctx.prisma.user.findUnique({
             where: {
                 username: request.buyerUsername,
             }
         });
 
-        if (buyerUserWithPassword === null) {
+        if (buyer === null) {
             return err(new ApiError("Buyer not found", 404));
         }
     }
@@ -72,7 +70,7 @@ export const createTrade: PrivateFeature<CreateTradeRequest, CreateTradeResponse
         return err(new ApiError("NFT not found", 404));
     }
 
-    if (nft.ownerId !== sellerWithPassword.id) {
+    if (nft.ownerId !== seller.id) {
         return err(new ApiError("Seller does not own the NFT", 403));
     }
 
@@ -84,8 +82,8 @@ export const createTrade: PrivateFeature<CreateTradeRequest, CreateTradeResponse
         data: {
             id: generateId(),
             price: request.price,
-            sellerId: sellerWithPassword.id,
-            buyerId: buyerUserWithPassword?.id,
+            sellerId: seller.id,
+            buyerId: buyer?.id,
             nftId: nft.id,
             buyerAccepted: ctx.user.username === request.buyerUsername,
             sellerAccepted: ctx.user.username === request.sellerUsername

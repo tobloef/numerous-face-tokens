@@ -1,11 +1,8 @@
-import { Nft, Trade, UserWithPassword } from "@prisma/client";
-import express from "express";
+import { Nft, Trade, User } from "@prisma/client";
 import { err, ok } from "neverthrow";
 import { is } from "typescript-is";
 import ApiError from "../../ApiError";
 import { PublicFeature } from "../../types/feature";
-import User from "../../types/User";
-import deleteProp from "../../utils/deleteProp";
 import { SetupRequest } from "../../utils/expressHandler";
 
 type GetUserRequest = {
@@ -25,7 +22,7 @@ export const getUser: PublicFeature<GetUserRequest, GetUserResponse> = async (
     request,
     ctx,
 ) => {
-    const user = await ctx.prisma.userWithPassword.findUnique({
+    const user = await ctx.prisma.user.findUnique({
         where: {
             username: request.username,
         },
@@ -41,9 +38,7 @@ export const getUser: PublicFeature<GetUserRequest, GetUserResponse> = async (
         return err(new ApiError(`No user found with username '${request.username}'.`, 404));
     }
     
-    const userWithoutPassword = deleteProp(user, "passwordHash");
-
-    return ok(user as any);
+    return ok(user);
 };
 
 export const setupGetUserRequest: SetupRequest<GetUserRequest, { username: string }> = (req) => {

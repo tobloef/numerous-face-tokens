@@ -1,8 +1,7 @@
-import { PrismaClient } from ".prisma/client";
+import { PrismaClient } from "@prisma/client";
 import express from "express";
 import jwt from "jsonwebtoken";
 import AuthPayload from "../types/AuthPayload";
-import deleteProp from "../utils/deleteProp";
 import env from "../utils/env";
 
 const authMiddleware = (prisma: PrismaClient) => (
@@ -30,18 +29,16 @@ const authMiddleware = (prisma: PrismaClient) => (
             return;
         }
 
-        const userWithPassword = await prisma.userWithPassword.findUnique({
+        const user = await prisma.user.findUnique({
             where: {
                 id: payload.user.id,
             }
         });
 
-        if (userWithPassword === null) {
+        if (user === null) {
             res.status(401).json({ error: "User not found" })
             return;
         }
-
-        const user = deleteProp(userWithPassword, "passwordHash");
 
         req.user = user;
         next();

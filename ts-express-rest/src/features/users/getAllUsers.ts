@@ -1,10 +1,8 @@
-import { Prisma, UserWithPassword } from "@prisma/client";
+import { Prisma, User } from "@prisma/client";
 import { err, ok } from "neverthrow";
 import ApiError from "../../ApiError";
 import { PublicFeature } from "../../types/feature";
-import User from "../../types/User";
 import { DEFAULT_TAKE } from "../../utils/constants";
-import deleteProp from "../../utils/deleteProp";
 import { SetupRequest } from "../../utils/expressHandler";
 import { createQueryProp, parseNumber, parseDate, parseFilters, parseIfDefined, parseSort, SortOrder, parseString, createToWhereMap } from "../../utils/query";
 
@@ -21,14 +19,12 @@ export const getAllUsers: PublicFeature<GetAllUsersRequest, GetAllUsersResponse>
     request,
     ctx,
 ) => {
-    const userWithPasswords: UserWithPassword[] = await ctx.prisma.userWithPassword.findMany({
+    const users: User[] = await ctx.prisma.user.findMany({
         take: request.take,
         skip: request.skip,
         orderBy: request.sort,
         where: request.filters,
     });
-
-    const users: User[] = userWithPasswords.map((user) => deleteProp(user, "passwordHash"));
 
     return ok(users);
 };
@@ -62,8 +58,8 @@ export const setupGetAllUsersRequest: SetupRequest<GetAllUsersRequest, {}> = (re
     });
 }
 
-type OrderBy = Prisma.UserWithPasswordOrderByWithRelationInput;
-type Where = Prisma.UserWithPasswordWhereInput;
+type OrderBy = Prisma.UserOrderByWithRelationInput;
+type Where = Prisma.UserWhereInput;
 
 const queryPropMap = {
     username: createQueryProp({

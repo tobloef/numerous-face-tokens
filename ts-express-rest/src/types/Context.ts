@@ -1,5 +1,4 @@
-import { PrismaClient } from "@prisma/client";
-import User from "./User";
+import { PrismaClient, User } from "@prisma/client";
 
 type TransactionPrismaClient = Omit<PrismaClient,
     | '$connect'

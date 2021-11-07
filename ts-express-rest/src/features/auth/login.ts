@@ -1,11 +1,8 @@
-import { UserWithPassword } from "@prisma/client";
-import express from "express";
 import { is } from "typescript-is";
 import { err, ok } from "neverthrow";
 import ApiError from "../../ApiError";
 import { PublicFeature } from "../../types/feature";
 import deleteProp from "../../utils/deleteProp";
-import User from "../../types/User";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import AuthToken from "../../types/AuthToken";
@@ -26,24 +23,24 @@ export const login: PublicFeature<LoginRequest, LoginResponse> = async (
 ) => {
     const username = request.username.toLowerCase();
 
-    const userWithPassword = await ctx.prisma.userWithPassword.findUnique({
+    const user = await ctx.prisma.user.findUnique({
         where: {
             username,
         }
     });
 
-    if (userWithPassword === null) {
+    if (user === null) {
         return err(new ApiError("User not found", 404));
     }
 
-    if (!bcrypt.compareSync(request.password, userWithPassword.passwordHash)) {
+    if (!bcrypt.compareSync(request.password, user.passwordHash)) {
         return err(new ApiError("Wrong password", 401));
     }
 
-    const user = deleteProp(userWithPassword, "passwordHash");
+    const userWithoutPassword = deleteProp(user, "passwordHash");
 
     const authPayload: AuthPayload = {
-        user,
+        user: userWithoutPassword,
     };
 
     const token = jwt.sign(authPayload, env.AUTH_SECRET!) as AuthToken;

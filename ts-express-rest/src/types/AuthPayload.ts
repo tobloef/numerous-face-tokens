@@ -1,7 +1,8 @@
-import User from "./User";
+import { User } from "@prisma/client";
+import Never from "./Never";
 
 type AuthPayload = {
-    user: User,
+    user: Never<User, "passwordHash">,
 }
 
 export default AuthPayload;
