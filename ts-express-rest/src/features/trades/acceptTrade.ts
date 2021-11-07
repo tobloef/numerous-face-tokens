@@ -5,6 +5,8 @@ import { SetupRequest } from "../../utils/expressHandler";
 import { Nft, Trade, User } from "@prisma/client";
 import deleteProp from "../../utils/deleteProp";
 import assert from "assert";
+import Markdown from "../../types/Markdown";
+import { CURRENCY_SYMBOL } from "../../utils/constants";
 
 type AcceptTradeRequest = {
     id: string,
@@ -123,6 +125,17 @@ export const acceptTrade: PrivateFeature<AcceptTradeRequest, AcceptTradeResponse
         seller: deleteProp(updatedTradeWithPasswords.seller, "passwordHash"),
         buyer: deleteProp(updatedTradeWithPasswords.buyer, "passwordHash"),
     };
+
+    ctx.notify({
+        time: new Date(),
+        title: `NFT Sold` as Markdown,
+        description: (
+            `[${trade.seller.username}](/users/${trade.seller.username}) sold ` +
+            `["${trade.nft.seed}"](/nfts/${trade.nft.seed}) to ` + 
+            `[${trade.buyer.username}](/users/${trade.buyer.username}) for ` +
+            `${trade.price}${CURRENCY_SYMBOL}.`
+        ) as Markdown
+    })
 
     return ok(updatedTrade);
 };

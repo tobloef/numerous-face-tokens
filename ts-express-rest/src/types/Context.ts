@@ -1,4 +1,5 @@
 import { PrismaClient, User } from "@prisma/client";
+import { Notifier } from "../eventNotifier";
 
 type TransactionPrismaClient = Omit<PrismaClient,
     | '$connect'
@@ -10,6 +11,7 @@ type TransactionPrismaClient = Omit<PrismaClient,
 
 export type PublicContext = {
     prisma: TransactionPrismaClient,
+    notify: Notifier,
 };
 
 export type PrivateContext = PublicContext & {

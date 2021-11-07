@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import express from "express";
 import { err, Result } from "neverthrow";
 import ApiError from "../ApiError";
+import { PrivateContext, PublicContext } from "../types/Context";
 import { PrivateFeature, PublicFeature } from "../types/feature";
 import ParseRouteParameters from "../types/ParseRouteParameters";
 
@@ -36,7 +37,7 @@ export type ExpressHandler<Path> = (
   next: express.NextFunction,
 ) => Promise<void>;
 
-export const  createRegisterRoute = (prismaClient: PrismaClient) => {
+export const createRegisterRoute = (ctx: PublicContext & { prisma: PrismaClient }) => {
   return function registerRoute<Request, Response, Path extends string>(props: RegisterRouteProps<Request, Response, Path>) {
     const expressHandler: ExpressHandler<Path> = async (req, res, next) => {
       const requestResult = props.setupRequest(req);
@@ -49,24 +50,25 @@ export const  createRegisterRoute = (prismaClient: PrismaClient) => {
       let responseResult: Result<Response, ApiError>;
   
       try {
-        responseResult = await prismaClient.$transaction(async (transactionPrisma): Promise<Result<Response, ApiError>> => {                   
-          const publicContext = {
+        responseResult = await ctx.prisma.$transaction(async (transactionPrisma): Promise<Result<Response, ApiError>> => {                   
+          const newPublciContext: PublicContext = {
+            ...ctx,
             prisma: transactionPrisma,
-          };
+          }
           
           if (props.auth) {
             if (req.user === undefined) {
               return err(new ApiError("Unauthenticated", 403));
             }
   
-            const privateContext = {
-              ...publicContext,
+            const privateContext: PrivateContext = {
+              ...newPublciContext,
               user: req.user,
             };
             
             return props.feature(requestResult.value, privateContext);
           } else {
-            return props.feature(requestResult.value, publicContext);
+            return props.feature(requestResult.value, newPublciContext);
           }
         });
       } catch (error) {
