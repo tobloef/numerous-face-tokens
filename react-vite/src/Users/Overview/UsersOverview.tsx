@@ -1,52 +1,60 @@
-import React from "react";
-import {
-  Column,
-} from "react-table";
+import React, { useMemo } from "react";
 import Table from "../../Table";
-
-type Data = {
-  col1: string,
-  col2: string,
-};
+import Input from "../../Input";
+import { Column } from "react-table";
+import { OverviewUserDto } from "../../../../express-rest/src/features/users/getAllUsers"
+import { formatDate } from "../../utils/formatDate";
 
 const UsersOverview: React.FC<{}> = (props) => {
-  const data: Data[] = React.useMemo(
-    () => [
+  const columns: Column<OverviewUserDto>[] = useMemo(
+    (): Column<OverviewUserDto>[] => [
       {
-        col1: 'Hello',
-        col2: 'World',
+        accessor: "username",
+        Header: "Username",
       },
       {
-        col1: 'react-table',
-        col2: 'rocks',
+        accessor: "createdAt",
+        Header: "Creation Date",
+        Cell: ({ value }) => formatDate(value),
       },
       {
-        col1: 'whatever',
-        col2: 'you want',
+        accessor: "balance",
+        Header: "Balance",
+      },
+      {
+        accessor: "mintedNftsCount",
+        Header: "Minted NFTs #",
+      },
+      {
+        accessor: "ownedNftsCount",
+        Header: "Owned NFTs #",
       },
     ],
     []
   );
 
-  const columns: Column<Data>[] = React.useMemo(
-    () => [
+  const data: OverviewUserDto[] = useMemo(
+    (): OverviewUserDto[] => [
       {
-        Header: 'Column 1',
-        accessor: 'col1',
-      },
-      {
-        Header: 'Column 2',
-        accessor: 'col2',
+        username: "tobloef",
+        createdAt: new Date(),
+        balance: 12345,
+        mintedNftsCount: 67,
+        ownedNftsCount: 8,
       }
     ],
     []
-  )
+  );
 
   return (
-    <Table
-      columns={columns}
-      data={data}
-    />
+    <div>
+      <h1>Users</h1>
+      <Input />
+      <Table
+        columns={columns}
+        data={data}
+      />
+    </div>
   )
 };
 

@@ -6,14 +6,22 @@ import { DEFAULT_TAKE } from "../../utils/constants";
 import { SetupRequest } from "../../utils/expressHandler";
 import { createQueryProp, parseNumber, parseDate, parseFilters, parseIfDefined, parseSort, SortOrder, parseString, createToWhereMap } from "../../utils/query";
 
-type GetAllUsersRequest = {
+export type GetAllUsersRequest = {
     skip?: number,
     take: number,
     sort: Array<OrderBy>,
     filters?: Where,
 }
 
-type GetAllUsersResponse = User[];
+export type OverviewUserDto = {
+    username: string,
+    createdAt: Date,
+    balance: number,
+    ownedNftsCount: number,
+    mintedNftsCount: number,
+};
+
+export type GetAllUsersResponse = OverviewUserDto[];
 
 export const getAllUsers: PublicFeature<GetAllUsersRequest, GetAllUsersResponse> = async (
     request,
