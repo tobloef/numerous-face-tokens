@@ -1,4 +1,4 @@
-import MainRoutes from "./MainContent";
+import MainRoutes from "./MainRoutes";
 import Navbar from "./Navbar";
 
 const App = () => {

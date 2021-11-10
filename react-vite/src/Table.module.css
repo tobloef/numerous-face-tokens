@@ -1,0 +1,12 @@
+.table {
+    border: 1px solid black;
+}
+
+.headerCell {
+    border: 1px solid black;
+}
+
+.cell {
+    padding: 10px;
+    border: solid 1px black;
+}
