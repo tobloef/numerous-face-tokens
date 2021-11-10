@@ -1,12 +1,10 @@
-import LogDrawer from "./LogDrawer";
-import MainContent from "./MainContent";
+import MainRoutes from "./MainContent";
 import Navbar from "./Navbar";
 
 const App = () => {
   return <div>
     <Navbar />
-    <MainContent />
-    <LogDrawer />
+    <MainRoutes />
   </div>;
 }
 
