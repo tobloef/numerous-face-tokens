@@ -1,6 +1,7 @@
 import { merge } from "lodash";
 import { Result, err, ok } from "neverthrow";
 import { is } from "typescript-is";
+import SubType from "../types/SubType";
 
 export type SortOrder = "asc" | "desc";
 
@@ -10,13 +11,34 @@ export type CreateQueryProperty<T, OrderBy, Where> = {
     deserialize: (input: string) => Result<T, string>,
 };
 
+export type BaseQueryPropMap = Record<string, {
+    toWhere?: Record<string, Function>,
+    toOrderBy?: Function,
+    deserialize: Function
+}>
+
+export type Sort<QueryPropMap extends BaseQueryPropMap> = Array<{
+    [Key in keyof SubType<QueryPropMap, { toOrderBy: any }>]?: SortOrder
+}>;
+
+export type Filters<QueryPropMap extends BaseQueryPropMap> = {
+    [Key in keyof SubType<QueryPropMap, { toWhere: any }>]?: {
+        [InnerKey in keyof QueryPropMap[Key]["toWhere"]]?: (
+          Parameters<QueryPropMap[Key]["toWhere"][InnerKey]>[0]
+          )
+    }
+};
+
 export const createQueryProp = <T, OrderBy, Where>(props: {
     toWhere?: Record<string, (value: T) => Where>,
     toOrderBy?: (order: SortOrder) => OrderBy,
     deserialize: (input: string) => Result<T, string>,
 }): CreateQueryProperty<T, OrderBy, Where> => (props);
 
-export const parseIfDefined = <I, O, E>(input: I | undefined, fn: ((i: I) => Result<O, E>)): Result<O | undefined, E> => {
+export const parseIfDefined = <I, O, E>(
+  input: I | undefined,
+  fn: ((i: I) => Result<O, E>)
+): Result<O | undefined, E> => {
     if (input === undefined) {
         return ok(undefined);
     }
@@ -56,14 +78,17 @@ export const parseBoolean = (input: string | unknown): Result<boolean, string> =
     return ok(input === "true");
 };
 
-export const parseSort = <OrderBy, Where>(input: string | unknown, queryPropMap: Record<string, CreateQueryProperty<any, OrderBy, Where>>): Result<Array<OrderBy>, string> =>{
+export const parseSort = <QueryPropMap extends BaseQueryPropMap>(
+  input: string | unknown,
+  queryPropMap: QueryPropMap,
+): Result<Sort<QueryPropMap>, string> => {
     if (!is<string>(input) || !input.match(/([+-][a-z_]+,)*[+-][a-z_]+/)) {
         return err(`Invalid structure. Example structure: '?sort=+foo,-bar' to sort by 'foo' ascending and 'bar' descending.`);
     }
 
     const parts = input.split(",");
 
-    let sort: Array<OrderBy> = [];
+    let sort: Sort<QueryPropMap> = [];
 
     for (const part of parts) {
         const sign = part.slice(0, 1);
@@ -78,26 +103,30 @@ export const parseSort = <OrderBy, Where>(input: string | unknown, queryPropMap:
             return err(`Invalid key '${sortKey}' to sort on. Valid keys: ${validKeys.join(", ")}`);
         }
 
-        const orderBy: OrderBy = queryPropMap[sortKey].toOrderBy!(order);
-
-        sort.push(orderBy);
+        sort = [
+            ...sort,
+            { [sortKey]: order }
+        ] as Sort<QueryPropMap>;
     }
 
     return ok(sort);
 }
 
-export const parseFilters = <OrderBy, Where>(input: Record<string, any> | unknown, queryPropMap: Record<string, CreateQueryProperty<any, OrderBy, Where>>): Result<Where, string> =>{
+export const parseFilters = <QueryPropMap extends BaseQueryPropMap>(
+  input: Record<string, any> | unknown,
+  queryPropMap: QueryPropMap,
+): Result<Filters<QueryPropMap>, string> =>{
     if (!is<Record<string, any>>(input)) {
         return err(`Invalid structure. Example structure: '?foo[equals]=bar' to show entries where 'foo' equals 'bar'`);
     }
-    
-    let where: Where = {} as Where;
-    
+
+    let filters: Filters<QueryPropMap> = {};
+
     for (const filterKey in input) {
         const validKeys = Object.entries(queryPropMap)
             .filter(([_, queryProp]) => queryProp.toWhere !== undefined)
             .map(([key, _]) => key);
-        
+
         if (!validKeys.includes(filterKey)) {
             return err(`Invalid key '${filterKey}' to filter on. Valid keys: ${validKeys.join(", ")}`);
         }
@@ -122,19 +151,19 @@ export const parseFilters = <OrderBy, Where>(input: Record<string, any> | unknow
                 return err(`Invalid filter value '${inputOps[filterOp]}' for key '${filterKey}'. ${deserializedResult.error}.`);
             }
 
-            where = merge(where, queryPropMap[filterKey].toWhere![filterOp](deserializedResult.value));
+            filters = merge(filters, {[filterKey]: {[filterOp]: deserializedResult.value }});
         }
     }
 
-    return ok(where);
+    return ok(filters);
 }
 
-export const createToWhereMap = <Where, T>(
-    ops: string[],
+export const createToWhereMap = <Where, T, Ops extends readonly string[]>(
+    ops: Ops,
     getWhere: ((val: T, op: string) => Where),
-): Record<string, (val: T) => Where> => {
+): Record<Ops[number], (val: T) => Where> => {
     return ops.reduce((acc, op) => ({
         ...acc,
         [op]: (val: T) => getWhere(val, op)
-    }), {});
+    }), {} as Record<Ops[number], (val: T) => Where>);
 }

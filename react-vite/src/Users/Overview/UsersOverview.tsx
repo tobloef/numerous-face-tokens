@@ -2,10 +2,35 @@ import React, { useMemo } from "react";
 import Table from "../../Table";
 import Input from "../../Input";
 import { Column } from "react-table";
-import { OverviewUserDto } from "../../../../express-rest/src/features/users/getAllUsers"
+import {
+  GetAllUsersRequest,
+  GetAllUsersResponse,
+  OverviewUserDto,
+} from "../../../../express-rest/src/features/users/getAllUsers"
 import { formatDate } from "../../utils/formatDate";
+import {
+  useQuery,
+} from "react-query";
+
+const getUsersOverview = async (): Promise<GetAllUsersResponse> => {
+  return [];
+}
 
 const UsersOverview: React.FC<{}> = (props) => {
+  const test: GetAllUsersRequest = {
+    filters: {},
+    skip: 0,
+    sort: [{createdAt: "desc"}],
+    take: 10,
+  }
+
+  const {
+    isLoading,
+    isError,
+    data,
+    error,
+  } = useQuery("getAllUsers", getUsersOverview);
+
   const columns: Column<OverviewUserDto>[] = useMemo(
     (): Column<OverviewUserDto>[] => [
       {
@@ -33,18 +58,17 @@ const UsersOverview: React.FC<{}> = (props) => {
     []
   );
 
-  const data: OverviewUserDto[] = useMemo(
-    (): OverviewUserDto[] => [
-      {
-        username: "tobloef",
-        createdAt: new Date(),
-        balance: 12345,
-        mintedNftsCount: 67,
-        ownedNftsCount: 8,
-      }
-    ],
-    []
-  );
+  if (isLoading) {
+    return <span>Loading...</span>;
+  }
+
+  if (isError) {
+    return <span>Error</span>;
+  }
+
+  if (data === undefined || data.length === 0) {
+    return <span>No data</span>
+  }
 
   return (
     <div>

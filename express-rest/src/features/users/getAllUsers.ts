@@ -1,16 +1,30 @@
-import { Prisma, User } from "@prisma/client";
-import { err, ok } from "neverthrow";
+import { Prisma } from "@prisma/client";
+import {
+    err,
+    ok,
+} from "neverthrow";
 import ApiError from "../../ApiError";
 import { PublicFeature } from "../../types/feature";
 import { DEFAULT_TAKE } from "../../utils/constants";
 import { SetupRequest } from "../../utils/expressHandler";
-import { createQueryProp, parseNumber, parseDate, parseFilters, parseIfDefined, parseSort, SortOrder, parseString, createToWhereMap } from "../../utils/query";
+import {
+    parseNumber,
+    parseDate,
+    parseFilters,
+    parseIfDefined,
+    parseSort,
+    SortOrder,
+    parseString,
+    createToWhereMap,
+    Sort,
+    Filters,
+} from "../../utils/query";
 
 export type GetAllUsersRequest = {
     skip?: number,
     take: number,
-    sort: Array<OrderBy>,
-    filters?: Where,
+    sort: Sort<typeof queryPropMap>,
+    filters?: Filters<typeof queryPropMap>,
 }
 
 export type OverviewUserDto = {
@@ -27,14 +41,30 @@ export const getAllUsers: PublicFeature<GetAllUsersRequest, GetAllUsersResponse>
     request,
     ctx,
 ) => {
-    const users: User[] = await ctx.prisma.user.findMany({
+    const users = await ctx.prisma.user.findMany({
         take: request.take,
         skip: request.skip,
         orderBy: request.sort,
         where: request.filters,
+        include: {
+            _count: {
+                select: {
+                    mintedNfts: true,
+                    ownedNfts: true,
+                }
+            }
+        }
     });
 
-    return ok(users);
+    const userDtos: OverviewUserDto[] = users.map((user) => ({
+        username: user.username,
+        createdAt: user.createdAt,
+        balance: user.balance,
+        mintedNftsCount: user._count?.mintedNfts ?? 0,
+        ownedNftsCount: user._count?.ownedNfts ?? 0,
+    }));
+
+    return ok(userDtos);
 };
 
 export const setupGetAllUsersRequest: SetupRequest<GetAllUsersRequest, {}> = (req) => {
@@ -70,36 +100,36 @@ type OrderBy = Prisma.UserOrderByWithRelationInput;
 type Where = Prisma.UserWhereInput;
 
 const queryPropMap = {
-    username: createQueryProp({
+    username: {
         deserialize: parseString,
         toOrderBy: (order: SortOrder): OrderBy => ({ username: order }),
         toWhere: createToWhereMap(
-            ["equals", "contains"],
+            ["equals", "contains"] as const,
             (val: string, op: string): Where => ({ username: { [op]: val } })
         ),
-    }),
-    createdAt: createQueryProp({
+    },
+    createdAt: {
         deserialize: parseDate,
         toOrderBy: (order: SortOrder): OrderBy => ({ createdAt: order }),
         toWhere: createToWhereMap(
-            ["equals", "gt", "gte", "lt", "lte"],
+            ["equals", "gt", "gte", "lt", "lte"] as const,
             (val: Date, op: string): Where => ({ createdAt: { [op]: val } })
         ),
-    }),
-    balance: createQueryProp({
+    },
+    balance: {
         deserialize: parseNumber,
         toOrderBy: (order: SortOrder): OrderBy => ({ balance: order }),
         toWhere: createToWhereMap(
-            ["equals", "gt", "gte", "lt", "lte"],
+            ["equals", "gt", "gte", "lt", "lte"] as const,
             (val: number, op: string): Where => ({ balance: { [op]: val } })
         ),
-    }),
-    ownedNftsCount: createQueryProp<number, OrderBy, Where>({
+    },
+    ownedNftsCount: {
         deserialize: parseNumber,
         toOrderBy: (order: SortOrder): OrderBy => ({ ownedNfts: { _count: order } }),
-    }),
-    mintedNftsCount: createQueryProp<number, OrderBy, Where>({
+    },
+    mintedNftsCount: {
         deserialize: parseNumber,
         toOrderBy: (order: SortOrder): OrderBy =>  ({ mintedNfts: { _count: order } }),
-    }),
+    },
 } as const;
