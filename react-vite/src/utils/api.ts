@@ -55,26 +55,29 @@ export const makeRequest = async <Req, Res>(
   const checkResponse = async (
     response: Response,
   ): Promise<Res> => {
-    let body;
-    try {
-      body = await response.json();
-    } catch (error) {
-      // TODO
-      throw new BaseError({
-        message: "",
-        userFacing: false,
-        innerError: error as Error,
-      });
-    }
     if (!response.ok) {
-      // TODO
+      let body;
+
+      try {
+        body = await response.json();
+      } catch (e) {
+        // Ignored
+      }
+
+      if (body?.error != null) {
+        throw new BaseError({
+          message: body?.error,
+          userFacing: true,
+        });
+      }
+
       throw new BaseError({
-        message: "",
-        userFacing: false,
+        message: response.statusText ?? "An error occurred",
+        userFacing: true,
       });
     }
 
-    return body;
+    return await response.json();
   };
 
   let response;

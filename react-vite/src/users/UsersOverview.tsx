@@ -26,7 +26,7 @@ const UsersOverview: React.FC<{}> = (props) => {
     isError,
     data,
     error,
-  } = useQuery(["getAllUsers", page], () => getAllUsers({
+  } = useQuery<GetAllUsersResponse, Error>(["getAllUsers", page], () => getAllUsers({
     take: PAGE_SIZE,
     skip: (page - 1) * PAGE_SIZE,
     sort: [{createdAt: "desc"}],
@@ -65,10 +65,8 @@ const UsersOverview: React.FC<{}> = (props) => {
   }
 
   if (isError) {
-    return <span>Error</span>;
+    return <span>{error?.message ?? "Error fetching data"}</span>;
   }
-
-  console.debug("data", data)
 
   if (data === undefined || data.length === 0) {
     return <span>No data</span>

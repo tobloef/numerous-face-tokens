@@ -38,12 +38,16 @@ export type ExpressHandler<Path> = (
 ) => Promise<void>;
 
 export const createRegisterRoute = (ctx: PublicContext & { prisma: PrismaClient }) => {
-  return function registerRoute<Request, Response, Path extends string>(props: RegisterRouteProps<Request, Response, Path>) {
+  return function registerRoute<Request, Response, Path extends string>(
+    props: RegisterRouteProps<Request, Response, Path>,
+  ) {
     const expressHandler: ExpressHandler<Path> = async (req, res, next) => {
       const requestResult = props.setupRequest(req);
 
       if (requestResult.isErr()) {
-        res.status(requestResult.error.statusCode).json({ error: requestResult.error.message });
+        res.status(requestResult.error.statusCode).json({
+          error: requestResult.error.message
+        });
         return;
       }
 
