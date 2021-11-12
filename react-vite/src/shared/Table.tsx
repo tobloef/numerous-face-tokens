@@ -6,7 +6,7 @@ import {
 } from "react-table";
 
 const Table = <T extends object,>(props: {
-  data: T[],
+  data: T[] | undefined,
   columns: Column<T>[],
 }): ReactElement => {
   const {
@@ -17,7 +17,7 @@ const Table = <T extends object,>(props: {
     prepareRow,
   } = useTable({
     columns: props.columns,
-    data: props.data,
+    data: props.data ?? [],
   })
 
   return (
@@ -40,7 +40,7 @@ const Table = <T extends object,>(props: {
       ))}
       </thead>
       <tbody {...getTableBodyProps()}>
-      {rows.map(row => {
+      {rows.length > 0 && rows.map(row => {
         prepareRow(row)
         return (
           <tr {...row.getRowProps()}>
@@ -57,6 +57,15 @@ const Table = <T extends object,>(props: {
           </tr>
         )
       })}
+      {rows.length === 0 && (
+        <tr>
+          <td colSpan={props.columns.length}>
+            <div className={classes.noDataWrapper}>
+              No data
+            </div>
+          </td>
+        </tr>
+      )}
       </tbody>
     </table>
   )

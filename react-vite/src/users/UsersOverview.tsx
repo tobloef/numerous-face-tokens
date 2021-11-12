@@ -50,11 +50,11 @@ const UsersOverview: React.FC<{}> = (props) => {
       },
       {
         accessor: "mintedNftsCount",
-        Header: "Minted NFTs #",
+        Header: "Minted NFTs",
       },
       {
         accessor: "ownedNftsCount",
-        Header: "Owned NFTs #",
+        Header: "Owned NFTs",
       },
     ],
     []
@@ -66,10 +66,6 @@ const UsersOverview: React.FC<{}> = (props) => {
 
   if (isError) {
     return <span>{error?.message ?? "Error fetching data"}</span>;
-  }
-
-  if (data === undefined || data.length === 0) {
-    return <span>No data</span>
   }
 
   return (
