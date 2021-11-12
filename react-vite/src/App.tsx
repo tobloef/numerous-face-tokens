@@ -1,5 +1,5 @@
-import MainRoutes from "./MainRoutes";
-import Navbar from "./Navbar";
+import MainRoutes from "./shared/MainRoutes";
+import Navbar from "./shared/Navbar";
 
 const App = () => {
   return <div>

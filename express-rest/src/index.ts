@@ -14,6 +14,7 @@ import { createRegisterRoute } from "./utils/expressHandler";
 import env from "./utils/env";
 import { removePropertiesRecursivelyMiddleware } from "./middleware/removePasswordsMiddleware";
 import { createNofitier } from "./eventNotifier";
+import cors from "cors";
 
 const prismaClient = new PrismaClient();
 
@@ -29,6 +30,7 @@ const registerRoute = createRegisterRoute({
   notify: createNofitier(wss),
 });
 
+app.use(cors())
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(authMiddleware(prismaClient));

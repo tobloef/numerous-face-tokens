@@ -2,15 +2,15 @@ import {
     Route,
     Routes,
 } from "react-router-dom";
-import Dashboard from "./Dashboard/Dashboard";
-import UsersOverview from "./Users/Overview/UsersOverview";
-import UserDetails from "./Users/Details/UserDetails";
-import NftsOverview from "./Nfts/Overview/NftsOverview";
-import Register from "./Auth/Register/Register";
-import TradesOverview from "./Trades/Overview/TradesOverview";
-import TradeDetails from "./Trades/Details/TradeDetails";
-import NftDetails from "./Nfts/Details/NftDetails";
-import Login from "./Auth/Login/Login";
+import Dashboard from "../dashboard/Dashboard";
+import UsersOverview from "../users/UsersOverview";
+import UserDetails from "../users/UserDetails";
+import NftsOverview from "../nfts/NftsOverview";
+import Register from "../auth/Register";
+import TradesOverview from "../trades/TradesOverview";
+import TradeDetails from "../trades/TradeDetails";
+import NftDetails from "../nfts/NftDetails";
+import Login from "../auth/Login";
 
 const MainRoutes = ({}) => {
     return <div>

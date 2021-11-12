@@ -1,22 +1,26 @@
 import express from "express";
 import { is } from "typescript-is";
 
-const removePropertiesRecursively = (input: any, keysToRemove: string[]): any => {   
-    if (!is<object>(input)) {
-        return input;
-    }
+const removePropertiesRecursively = (input: any, keysToRemove: string[]): any => {
+  if (input != null && input.constructor === Array) {
+    return input.map((i) => removePropertiesRecursively(i, keysToRemove));
+  }
 
+  if (input != null && input.constructor === Object) {
     return Object.entries(input)
-        .reduce((acc, [key, value]) => {
-            if (keysToRemove.includes(key)) {
-                return acc;
-            }
+      .reduce((acc, [key, value]) => {
+        if (keysToRemove.includes(key)) {
+          return acc;
+        }
 
-            return {
-                ...acc,
-                [key]: removePropertiesRecursively(value, keysToRemove),
-            }
-        }, {});
+        return {
+          ...acc,
+          [key]: removePropertiesRecursively(value, keysToRemove),
+        }
+      }, {});
+  }
+
+  return input;
 };
 
 export const removePropertiesRecursivelyMiddleware = (keysToRemove: string[]) => {

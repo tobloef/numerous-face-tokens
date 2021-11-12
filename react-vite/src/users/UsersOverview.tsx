@@ -1,35 +1,37 @@
-import React, { useMemo } from "react";
-import Table from "../../Table";
-import Input from "../../Input";
+import React, {
+  useMemo,
+  useState,
+} from "react";
+import Table from "../shared/Table";
+import Input from "../shared/Input";
 import { Column } from "react-table";
 import {
   GetAllUsersRequest,
   GetAllUsersResponse,
   OverviewUserDto,
-} from "../../../../express-rest/src/features/users/getAllUsers"
-import { formatDate } from "../../utils/formatDate";
+} from "../../../express-rest/src/features/users/getAllUsers"
+import { formatDate } from "../utils/formatDate";
 import {
   useQuery,
 } from "react-query";
-
-const getUsersOverview = async (): Promise<GetAllUsersResponse> => {
-  return [];
-}
+import { getAllUsers } from "../utils/api";
 
 const UsersOverview: React.FC<{}> = (props) => {
-  const test: GetAllUsersRequest = {
-    filters: {},
-    skip: 0,
-    sort: [{createdAt: "desc"}],
-    take: 10,
-  }
+  const PAGE_SIZE = 10;
+
+  const [page, setPage] = useState(1);
 
   const {
     isLoading,
     isError,
     data,
     error,
-  } = useQuery("getAllUsers", getUsersOverview);
+  } = useQuery(["getAllUsers", page], () => getAllUsers({
+    take: PAGE_SIZE,
+    skip: (page - 1) * PAGE_SIZE,
+    sort: [{createdAt: "desc"}],
+    filters: {}
+  }));
 
   const columns: Column<OverviewUserDto>[] = useMemo(
     (): Column<OverviewUserDto>[] => [
@@ -65,6 +67,8 @@ const UsersOverview: React.FC<{}> = (props) => {
   if (isError) {
     return <span>Error</span>;
   }
+
+  console.debug("data", data)
 
   if (data === undefined || data.length === 0) {
     return <span>No data</span>

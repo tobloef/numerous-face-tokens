@@ -1,10 +1,13 @@
-import {
-  err,
-  Result,
-} from "neverthrow";
 import qs from "qs";
+import BaseError from "./BaseError";
+import { getLocalAuthToken } from "./localStorage";
+import {
+  GetAllUsersRequest,
+  GetAllUsersResponse,
+} from "../../../express-rest/src/features/users/getAllUsers";
+import { SortOrder } from "../../../express-rest/src/utils/query";
 
-const BASE_URL = process.env.REACT_APP_API_URL;
+const BASE_URL = "http://localhost:3010";
 
 const trimLeadingSlash = (str: string): string => str.replace(/^\//, "");
 
@@ -36,7 +39,7 @@ export const makeRequest = async <Req, Res>(
   };
 
   const authToken = getLocalAuthToken();
-  if (authToken !== null) {
+  if (authToken != undefined) {
     headers = {
       ...headers,
       "Authorization": `Bearer ${authToken}`,
@@ -56,13 +59,18 @@ export const makeRequest = async <Req, Res>(
     try {
       body = await response.json();
     } catch (error) {
+      // TODO
       throw new BaseError({
-        // TODO
+        message: "",
+        userFacing: false,
+        innerError: error as Error,
       });
     }
     if (!response.ok) {
+      // TODO
       throw new BaseError({
-        // TODO
+        message: "",
+        userFacing: false,
       });
     }
 
@@ -76,9 +84,33 @@ export const makeRequest = async <Req, Res>(
     throw new BaseError({
       message: "Could not connect to the server",
       userFacing: true,
-      innerError: error,
+      innerError: error as Error,
     })
   }
 
   return checkResponse(response);
 };
+
+/* -------------------------------------------------- */
+
+type SerializeSort<Obj extends object> = {
+  [Key in keyof Obj]: Key extends "sort" ? string : Obj[Key]
+}
+
+const serializeSort = (sort: Array<Record<string, SortOrder>>): string => {
+  return sort.map((sortObj) => {
+    const [key, order] = Object.entries(sortObj)[0];
+    return `${order === "asc" ? "+" : "-"}${key}`;
+  }).join(",");
+};
+
+export const getAllUsers = async (request: GetAllUsersRequest): Promise<GetAllUsersResponse> => {
+  return makeRequest<SerializeSort<GetAllUsersRequest>, GetAllUsersResponse>(
+    "GET",
+    "/users",
+    {
+      ...request,
+      sort: serializeSort(request.sort),
+    }
+  );
+}

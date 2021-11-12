@@ -10,7 +10,7 @@ export type SetupRequest<Request, Params extends object> = (
   req: express.Request<Params>,
 ) => Result<Request, ApiError>;
 
-export type RegisterRouteProps<Request, Response, Path extends string> = 
+export type RegisterRouteProps<Request, Response, Path extends string> =
   {
     router: express.Router,
     method: "get" | "post" | "patch" | "delete"
@@ -46,42 +46,44 @@ export const createRegisterRoute = (ctx: PublicContext & { prisma: PrismaClient 
         res.status(requestResult.error.statusCode).json({ error: requestResult.error.message });
         return;
       }
-  
+
       let responseResult: Result<Response, ApiError>;
-  
+
       try {
-        responseResult = await ctx.prisma.$transaction(async (transactionPrisma): Promise<Result<Response, ApiError>> => {                   
-          const newPublciContext: PublicContext = {
-            ...ctx,
-            prisma: transactionPrisma,
-          }
-          
-          if (props.auth) {
-            if (req.user === undefined) {
-              return err(new ApiError("Unauthenticated", 403));
+        responseResult = await ctx.prisma.$transaction(
+          async (transactionPrisma): Promise<Result<Response, ApiError>> => {
+            const newPublicContext: PublicContext = {
+              ...ctx,
+              prisma: transactionPrisma,
             }
-  
-            const privateContext: PrivateContext = {
-              ...newPublciContext,
-              user: req.user,
-            };
-            
-            return props.feature(requestResult.value, privateContext);
-          } else {
-            return props.feature(requestResult.value, newPublciContext);
+
+            if (props.auth) {
+              if (req.user === undefined) {
+                return err(new ApiError("Unauthenticated", 403));
+              }
+
+              const privateContext: PrivateContext = {
+                ...newPublicContext,
+                user: req.user,
+              };
+
+              return props.feature(requestResult.value, privateContext);
+            } else {
+              return props.feature(requestResult.value, newPublicContext);
+            }
           }
-        });
+        );
       } catch (error) {
         next(error);
         return;
       }
-  
+
       if (responseResult.isErr()) {
         res.status(responseResult.error.statusCode).json({ error: responseResult.error.message })
         return;
       }
-  
-      res.status(200).json(responseResult.value);
+
+      res.status(200).json([]);
     };
 
     props.router[props.method](props.path, expressHandler);
