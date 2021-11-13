@@ -26,12 +26,15 @@ const UsersOverview: React.FC<{}> = (props) => {
     isError,
     data,
     error,
-  } = useQuery<GetAllUsersResponse, Error>(["getAllUsers", page], () => getAllUsers({
-    take: PAGE_SIZE,
-    skip: (page - 1) * PAGE_SIZE,
-    sort: [{createdAt: "desc"}],
-    filters: {}
-  }));
+  } = useQuery<GetAllUsersResponse, Error>(
+    ["getAllUsers", page],
+    () => getAllUsers({
+      take: PAGE_SIZE,
+      skip: (page - 1) * PAGE_SIZE,
+      sort: [{createdAt: "desc"}],
+      filters: {}
+    }),
+  );
 
   const columns: Column<OverviewUserDto>[] = useMemo(
     (): Column<OverviewUserDto>[] => [
