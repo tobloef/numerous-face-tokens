@@ -5,12 +5,6 @@ import SubType from "../types/SubType";
 
 export type SortOrder = "asc" | "desc";
 
-export type CreateQueryProperty<T, OrderBy, Where> = {
-    toWhere?: Record<string, (value: T) => Where>,
-    toOrderBy?: (order: SortOrder) => OrderBy,
-    deserialize: (input: string) => Result<T, string>,
-};
-
 export type BaseQueryPropMap = Record<string, {
     toWhere?: Record<string, Function>,
     toOrderBy?: Function,
@@ -28,12 +22,6 @@ export type Filters<QueryPropMap extends BaseQueryPropMap> = {
           )
     }
 };
-
-export const createQueryProp = <T, OrderBy, Where>(props: {
-    toWhere?: Record<string, (value: T) => Where>,
-    toOrderBy?: (order: SortOrder) => OrderBy,
-    deserialize: (input: string) => Result<T, string>,
-}): CreateQueryProperty<T, OrderBy, Where> => (props);
 
 export const parseIfDefined = <I, O, E>(
   input: I | undefined,

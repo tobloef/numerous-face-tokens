@@ -74,8 +74,22 @@ const UsersOverview: React.FC<{}> = (props) => {
       <Input />
       <Table
         columns={columns}
-        data={data}
+        data={data?.users}
       />
+      <div>
+        <button
+          onClick={() => setPage((curPage) => curPage - 1)}
+          disabled={page === 1}
+        >
+          Previous
+        </button>
+        <button
+          onClick={() => setPage((curPage) => curPage + 1)}
+          disabled={data == null || data.totalCount <= page * PAGE_SIZE}
+        >
+          Next
+        </button>
+      </div>
     </div>
   )
 };

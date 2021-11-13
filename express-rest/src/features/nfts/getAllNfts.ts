@@ -4,13 +4,24 @@ import ApiError from "../../ApiError";
 import { PublicFeature } from "../../types/feature";
 import { DEFAULT_TAKE } from "../../utils/constants";
 import { SetupRequest } from "../../utils/expressHandler";
-import { createQueryProp, parseDate, parseNumber, parseIfDefined, parseSort, parseFilters, SortOrder, parseString, createToWhereMap } from "../../utils/query";
+import {
+    parseDate,
+    parseNumber,
+    parseIfDefined,
+    parseSort,
+    parseFilters,
+    SortOrder,
+    parseString,
+    createToWhereMap,
+    Sort,
+    Filters,
+} from "../../utils/query";
 
 type GetAllNftsRequest = {
     skip?: number,
     take: number,
-    sort: Array<OrderBy>,
-    filters?: Where,
+    sort: Sort<typeof queryPropMap>,
+    filters?: Filters<typeof queryPropMap>,
 };
 
 type GetAllNftsResponse = Nft[];
@@ -62,60 +73,60 @@ type OrderBy = Prisma.NftOrderByWithRelationInput;
 type Where = Prisma.NftWhereInput;
 
 const queryPropMap = {
-    seed: createQueryProp({
+    seed: {
         deserialize: parseString,
         toOrderBy: (order: SortOrder): OrderBy => ({ seed: order }),
         toWhere: createToWhereMap(
             ["equals", "contains"],
             (val: string, op: string): Where => ({ seed: { [op]: val } })
         ),
-    }),
-    title: createQueryProp({
+    },
+    title: {
         deserialize: parseString,
         toOrderBy: (order: SortOrder): OrderBy => ({ title: order }),
         toWhere: createToWhereMap(
             ["equals", "contains"],
             (val: string, op: string): Where => ({ title: { [op]: val } })
         ),
-    }),
-    mintedAt: createQueryProp({
+    },
+    mintedAt: {
         deserialize: parseDate,
         toOrderBy: (order: SortOrder): OrderBy => ({ mintedAt: order }),
         toWhere: createToWhereMap(
             ["equals", "gt", "gte", "lt", "lte"],
             (val: Date, op: string): Where => ({ mintedAt: { [op]: val } })
         ),
-    }),
-    lastSellPrice: createQueryProp({
+    },
+    lastSellPrice: {
         deserialize: parseNumber,
         toOrderBy: (order: SortOrder): OrderBy => ({ lastTrade: { price: order } }),
         toWhere: createToWhereMap(
             ["equals", "gt", "gte", "lt", "lte"],
             (val: number, op: string): Where => ({ lastTrade: { price: { [op]: val } } })
         ),
-    }),
-    lastSoldAt: createQueryProp({
+    },
+    lastSoldAt: {
         deserialize: parseDate,
         toOrderBy: (order: SortOrder): OrderBy => ({ lastTrade: { soldAt: order } }),
         toWhere: createToWhereMap(
             ["equals", "gt", "gte", "lt", "lte"],
             (val: Date, op: string): Where => ({ lastTrade: { soldAt: { [op]: val } } })
         ),
-    }),
-    highestSellPrice: createQueryProp({
+    },
+    highestSellPrice: {
         deserialize: parseNumber,
         toOrderBy: (order: SortOrder): OrderBy => ({ highestTrade: { price: order } }),
         toWhere: createToWhereMap(
             ["equals", "gt", "gte", "lt", "lte"],
             (val: number, op: string): Where => ({ highestTrade: { price: { [op]: val } } })
         ),
-    }),
-    ownerUsername: createQueryProp({
+    },
+    ownerUsername: {
         deserialize: parseString,
         toOrderBy: (order: SortOrder): OrderBy => ({ owner: { username: order } }),
         toWhere: createToWhereMap(
             ["equals", "gt", "gte", "lt", "lte"],
             (val: string, op: string): Where => ({ owner: { username: { [op]: val } } })
         ),
-    }),
+    },
 } as const;

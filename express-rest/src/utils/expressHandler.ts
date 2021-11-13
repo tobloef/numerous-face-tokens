@@ -87,7 +87,7 @@ export const createRegisterRoute = (ctx: PublicContext & { prisma: PrismaClient 
         return;
       }
 
-      res.status(200).json([]);
+      res.status(200).json(responseResult.value);
     };
 
     props.router[props.method](props.path, expressHandler);

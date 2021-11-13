@@ -35,7 +35,10 @@ export type OverviewUserDto = {
     mintedNftsCount: number,
 };
 
-export type GetAllUsersResponse = OverviewUserDto[];
+export type GetAllUsersResponse = {
+    users: OverviewUserDto[],
+    totalCount: number,
+};
 
 export const getAllUsers: PublicFeature<GetAllUsersRequest, GetAllUsersResponse> = async (
     request,
@@ -64,7 +67,14 @@ export const getAllUsers: PublicFeature<GetAllUsersRequest, GetAllUsersResponse>
         ownedNftsCount: user._count?.ownedNfts ?? 0,
     }));
 
-    return ok(userDtos);
+    const totalCount: number = await ctx.prisma.user.count({
+        where: request.filters,
+    });
+
+    return ok({
+        users: userDtos,
+        totalCount,
+    });
 };
 
 export const setupGetAllUsersRequest: SetupRequest<GetAllUsersRequest, {}> = (req) => {

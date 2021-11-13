@@ -5,7 +5,10 @@ import {
   GetAllUsersRequest,
   GetAllUsersResponse,
 } from "../../../express-rest/src/features/users/getAllUsers";
-import { SortOrder } from "../../../express-rest/src/utils/query";
+import {
+  parseDate,
+  SortOrder,
+} from "../../../express-rest/src/utils/query";
 
 const BASE_URL = "http://localhost:3010";
 
@@ -18,11 +21,11 @@ type HttpMethod =
   | "PATCH"
   | "DELETE";
 
-export const makeRequest = async <Req, Res>(
+export const makeRequest = async <Req extends object, Res>(
   method: HttpMethod,
   path: string,
-  request: Req,
-): Promise<Res> => {
+  request: SerializeSort<Req>,
+): Promise<Serialized<Res>> => {
   const canHaveBody = (
     method === "POST" ||
     method === "PUT" ||
@@ -54,7 +57,7 @@ export const makeRequest = async <Req, Res>(
 
   const checkResponse = async (
     response: Response,
-  ): Promise<Res> => {
+  ): Promise<Serialized<Res>> => {
     if (!response.ok) {
       let body;
 
@@ -94,8 +97,6 @@ export const makeRequest = async <Req, Res>(
   return checkResponse(response);
 };
 
-/* -------------------------------------------------- */
-
 type SerializeSort<Obj extends object> = {
   [Key in keyof Obj]: Key extends "sort" ? string : Obj[Key]
 }
@@ -107,8 +108,23 @@ const serializeSort = (sort: Array<Record<string, SortOrder>>): string => {
   }).join(",");
 };
 
+type Serialized<T> =
+  T extends Array<any>
+    ? Array<Serialized<T[0]>>
+    : (
+      T extends object
+        ? { [Key in keyof T]: (
+          T[Key] extends Date
+            ? string
+            : Serialized<T[Key]>
+        ) }
+        : T
+      );
+
+/* -------------------------------------------------- */
+
 export const getAllUsers = async (request: GetAllUsersRequest): Promise<GetAllUsersResponse> => {
-  return makeRequest<SerializeSort<GetAllUsersRequest>, GetAllUsersResponse>(
+  const response = await makeRequest<GetAllUsersRequest, GetAllUsersResponse>(
     "GET",
     "/users",
     {
@@ -116,4 +132,12 @@ export const getAllUsers = async (request: GetAllUsersRequest): Promise<GetAllUs
       sort: serializeSort(request.sort),
     }
   );
+
+  return {
+    ...response,
+    users: response.users.map((user) => ({
+      ...user,
+      createdAt: new Date(Date.parse(user.createdAt)),
+    }))
+  }
 }
