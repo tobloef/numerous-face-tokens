@@ -1,15 +1,28 @@
-.table {
-    border: 1px solid black;
+thead {
+    background-color: hsl(0, 0%, 93%);
 }
 
-.headerCell {
-    padding: 10px;
-    border: 1px solid black;
+table {
+    border-collapse: collapse;
 }
 
-.cell {
+table, td, th {
+    border: 1px solid hsl(0, 0%, 80%);
+}
+
+th {
+    user-select: none;
     padding: 10px;
-    border: solid 1px black;
+}
+
+th.sortable:hover {
+    background-color: hsl(0, 0%, 90%);
+    cursor: pointer;
+}
+
+tr.clickable:hover {
+    background-color: hsl(0, 0%, 97%);
+    cursor: pointer;
 }
 
 .noDataWrapper {
@@ -17,4 +30,24 @@
     padding: 10px;
     align-items: center;
     justify-content: center;
+}
+
+.sortArrow {
+    width: 1em;
+    display: inline-block;
+    margin-left: 0.25em;
+}
+
+.headerText {
+    margin-left: 1.25em;
+}
+
+table a {
+    text-decoration: none;
+    color: inherit;
+}
+
+td > div,
+td > a > div {
+    padding: 8px 10px;
 }

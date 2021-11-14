@@ -7,6 +7,7 @@ import {
   QueryClient,
   QueryClientProvider,
 } from "react-query";
+import "./index.css"
 
 const queryClient = new QueryClient();
 

@@ -16,6 +16,7 @@ import {
     parseString,
     QuerySorts,
     SortOrder,
+    filtersToWhere,
 } from "../../utils/query";
 
 type GetAllTradesRequest = {
@@ -34,8 +35,8 @@ export const getAllTrades: PublicFeature<GetAllTradesRequest, GetAllTradesRespon
     const trades = await ctx.prisma.trade.findMany({
         take: request.take,
         skip: request.skip,
-        orderBy: request.sorts,
-        where: request.filters,
+        orderBy: request.sorts.map(([key, order]) => queryPropMap[key].toOrderBy(order)),
+        where: filtersToWhere<typeof queryPropMap, Where>(request.filters ?? {}, queryPropMap),
     });
 
     return ok(trades);
@@ -65,7 +66,7 @@ export const setupGetAllTradesRequest: SetupRequest<GetAllTradesRequest, {}> = (
     return ok({
         take: takeResult.value ?? DEFAULT_TAKE,
         skip: skipResult.value,
-        sorts: sortResult.value ?? [{ createdAt: "desc" }],
+        sorts: sortResult.value ?? [["createdAt", "desc" ]],
         filters: filtersResult.value,
     });
 }

@@ -15,6 +15,7 @@ import {
     createToWhereMap,
     QuerySorts,
     QueryFilters,
+    filtersToWhere,
 } from "../../utils/query";
 
 type GetAllNftsRequest = {
@@ -33,8 +34,8 @@ export const getAllNfts: PublicFeature<GetAllNftsRequest, GetAllNftsResponse> = 
     const nfts = await ctx.prisma.nft.findMany({
         take: request.take,
         skip: request.skip,
-        orderBy: request.sorts,
-        where: request.filters,
+        orderBy: request.sorts.map(([key, order]) => queryPropMap[key].toOrderBy(order)),
+        where: filtersToWhere<typeof queryPropMap, Where>(request.filters ?? {}, queryPropMap),
     });
 
     return ok(nfts);
@@ -64,7 +65,7 @@ export const setupGetAllNftsRequest: SetupRequest<GetAllNftsRequest, {}> = (req)
     return ok({
         take: takeResult.value ?? DEFAULT_TAKE,
         skip: skipResult.value,
-        sorts: sortResult.value ?? [{ mintedAt: "desc" }],
+        sorts: sortResult.value ?? [["mintedAt", "desc"]],
         filters: filtersResult.value,
     });
 }
