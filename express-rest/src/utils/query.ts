@@ -11,11 +11,13 @@ export type BaseQueryPropMap = Record<string, {
     deserialize: Function
 }>
 
-export type Sort<QueryPropMap extends BaseQueryPropMap> = Array<{
+export type Sorts<T extends object> = Array<Partial<Record<keyof T, SortOrder>>>;
+
+export type QuerySorts<QueryPropMap extends BaseQueryPropMap> = Array<{
     [Key in keyof SubType<QueryPropMap, { toOrderBy: any }>]?: SortOrder
 }>;
 
-export type Filters<QueryPropMap extends BaseQueryPropMap> = {
+export type QueryFilters<QueryPropMap extends BaseQueryPropMap> = {
     [Key in keyof SubType<QueryPropMap, { toWhere: any }>]?: {
         [InnerKey in keyof QueryPropMap[Key]["toWhere"]]?: (
           Parameters<QueryPropMap[Key]["toWhere"][InnerKey]>[0]
@@ -69,14 +71,14 @@ export const parseBoolean = (input: string | unknown): Result<boolean, string> =
 export const parseSort = <QueryPropMap extends BaseQueryPropMap>(
   input: string | unknown,
   queryPropMap: QueryPropMap,
-): Result<Sort<QueryPropMap>, string> => {
+): Result<QuerySorts<QueryPropMap>, string> => {
     if (!is<string>(input) || !input.match(/([+-][a-z_]+,)*[+-][a-z_]+/)) {
-        return err(`Invalid structure. Example structure: '?sort=+foo,-bar' to sort by 'foo' ascending and 'bar' descending.`);
+        return err(`Invalid structure. Example structure: '?sorts=+foo,-bar' to sort by 'foo' ascending and 'bar' descending.`);
     }
 
     const parts = input.split(",");
 
-    let sort: Sort<QueryPropMap> = [];
+    let sorts: QuerySorts<QueryPropMap> = [];
 
     for (const part of parts) {
         const sign = part.slice(0, 1);
@@ -91,24 +93,24 @@ export const parseSort = <QueryPropMap extends BaseQueryPropMap>(
             return err(`Invalid key '${sortKey}' to sort on. Valid keys: ${validKeys.join(", ")}`);
         }
 
-        sort = [
-            ...sort,
+        sorts = [
+            ...sorts,
             { [sortKey]: order }
-        ] as Sort<QueryPropMap>;
+        ] as QuerySorts<QueryPropMap>;
     }
 
-    return ok(sort);
+    return ok(sorts);
 }
 
 export const parseFilters = <QueryPropMap extends BaseQueryPropMap>(
   input: Record<string, any> | unknown,
   queryPropMap: QueryPropMap,
-): Result<Filters<QueryPropMap>, string> =>{
+): Result<QueryFilters<QueryPropMap>, string> =>{
     if (!is<Record<string, any>>(input)) {
         return err(`Invalid structure. Example structure: '?foo[equals]=bar' to show entries where 'foo' equals 'bar'`);
     }
 
-    let filters: Filters<QueryPropMap> = {};
+    let filters: QueryFilters<QueryPropMap> = {};
 
     for (const filterKey in input) {
         const validKeys = Object.entries(queryPropMap)

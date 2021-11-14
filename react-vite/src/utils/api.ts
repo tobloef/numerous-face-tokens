@@ -8,7 +8,9 @@ import {
 import {
   parseDate,
   SortOrder,
+  Sorts,
 } from "../../../express-rest/src/utils/query";
+import deleteProp from "../../../express-rest/src/utils/deleteProp";
 
 const BASE_URL = "http://localhost:3010";
 
@@ -24,7 +26,7 @@ type HttpMethod =
 export const makeRequest = async <Req extends object, Res>(
   method: HttpMethod,
   path: string,
-  request: SerializeSort<Req>,
+  request: SerializeFilters<SerializeSorts<Req>>,
 ): Promise<Serialized<Res>> => {
   const canHaveBody = (
     method === "POST" ||
@@ -97,12 +99,16 @@ export const makeRequest = async <Req extends object, Res>(
   return checkResponse(response);
 };
 
-type SerializeSort<Obj extends object> = {
-  [Key in keyof Obj]: Key extends "sort" ? string : Obj[Key]
+type SerializeSorts<Obj extends object> = {
+  [Key in keyof Obj]: Key extends "sorts" ? string : Obj[Key]
 }
 
-const serializeSort = (sort: Array<Record<string, SortOrder>>): string => {
-  return sort.map((sortObj) => {
+type SerializeFilters<Req extends object> = Req extends { filters?: object }
+  ? Omit<Req, "filters"> & Req["filters"]
+  : Req;
+
+const serializeSort = <T extends object>(sorts: Sorts<T>): string => {
+  return sorts.map((sortObj) => {
     const [key, order] = Object.entries(sortObj)[0];
     return `${order === "asc" ? "+" : "-"}${key}`;
   }).join(",");
@@ -110,7 +116,7 @@ const serializeSort = (sort: Array<Record<string, SortOrder>>): string => {
 
 type Serialized<T> =
   T extends Array<any>
-    ? Array<Serialized<T[0]>>
+    ? Array<Serialized<T[number]>>
     : (
       T extends object
         ? { [Key in keyof T]: (
@@ -127,10 +133,11 @@ export const getAllUsers = async (request: GetAllUsersRequest): Promise<GetAllUs
   const response = await makeRequest<GetAllUsersRequest, GetAllUsersResponse>(
     "GET",
     "/users",
-    {
+    deleteProp({
       ...request,
-      sort: serializeSort(request.sort),
-    }
+      sorts: serializeSort(request.sorts),
+      ...request.filters,
+    }, "filters"),
   );
 
   return {

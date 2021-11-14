@@ -2,11 +2,9 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import Table from "../shared/Table";
+import Table, { Column } from "../shared/Table";
 import Input from "../shared/Input";
-import { Column } from "react-table";
 import {
-  GetAllUsersRequest,
   GetAllUsersResponse,
   OverviewUserDto,
 } from "../../../express-rest/src/features/users/getAllUsers"
@@ -15,11 +13,23 @@ import {
   useQuery,
 } from "react-query";
 import { getAllUsers } from "../utils/api";
+import {
+  Sorts,
+} from "../../../express-rest/src/utils/query";
+import Sort from "../types/Sort";
+
+const sortToSorts = <T extends object>(sort: Sort<T>): Sorts<T> => {
+  return [
+    { [sort[0]]: sort[1] } as Sorts<T>[number],
+  ];
+}
 
 const UsersOverview: React.FC<{}> = (props) => {
   const PAGE_SIZE = 10;
 
   const [page, setPage] = useState(1);
+  const [sort, setSort] = useState<Sort<OverviewUserDto>>(["createdAt", "desc"]);
+  const [usernameFilter, setUsernameFilter] = useState<string>("");
 
   const {
     isLoading,
@@ -27,58 +37,71 @@ const UsersOverview: React.FC<{}> = (props) => {
     data,
     error,
   } = useQuery<GetAllUsersResponse, Error>(
-    ["getAllUsers", page],
+    ["getAllUsers", page, sort, usernameFilter],
     () => getAllUsers({
       take: PAGE_SIZE,
       skip: (page - 1) * PAGE_SIZE,
-      sort: [{createdAt: "desc"}],
-      filters: {}
+      sorts: sortToSorts(sort),
+      filters: {
+        username: {
+          contains: usernameFilter,
+        }
+      }
     }),
+    {
+      retry: false
+    }
   );
 
-  const columns: Column<OverviewUserDto>[] = useMemo(
+  const columns = useMemo(
     (): Column<OverviewUserDto>[] => [
       {
-        accessor: "username",
-        Header: "Username",
+        key: "username",
+        header: "Username",
       },
       {
-        accessor: "createdAt",
-        Header: "Creation Date",
-        Cell: ({ value }) => formatDate(value),
+        key: "createdAt",
+        header: "Creation Date",
+        cell: (value) => formatDate(value),
       },
       {
-        accessor: "balance",
-        Header: "Balance",
+        key: "balance",
+        header: "Balance",
       },
       {
-        accessor: "mintedNftsCount",
-        Header: "Minted NFTs",
+        key: "mintedNftsCount",
+        header: "Minted NFTs",
       },
       {
-        accessor: "ownedNftsCount",
-        Header: "Owned NFTs",
+        key: "ownedNftsCount",
+        header: "Owned NFTs",
       },
     ],
     []
   );
 
-  if (isLoading) {
-    return <span>Loading...</span>;
-  }
-
-  if (isError) {
-    return <span>{error?.message ?? "Error fetching data"}</span>;
-  }
-
   return (
     <div>
       <h1>Users</h1>
-      <Input />
-      <Table
-        columns={columns}
-        data={data?.users}
+      <Input
+        onChange={setUsernameFilter}
+        value={usernameFilter}
       />
+      {isLoading && (
+        <span>Loading...</span>
+      )}
+      {isError && (
+        <span>{error?.message ?? "Error fetching data"}</span>
+      )}
+      {!isError && !isLoading && (
+        <Table
+          columns={columns}
+          data={data?.users}
+          onSort={setSort}
+          sort={sort}
+          dataKey={"username"}
+        />
+      )}
       <div>
         <button
           onClick={() => setPage((curPage) => curPage - 1)}

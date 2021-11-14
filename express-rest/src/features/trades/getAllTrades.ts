@@ -6,7 +6,7 @@ import { DEFAULT_TAKE } from "../../utils/constants";
 import { SetupRequest } from "../../utils/expressHandler";
 import {
     createToWhereMap,
-    Filters,
+    QueryFilters,
     parseBoolean,
     parseDate,
     parseFilters,
@@ -14,15 +14,15 @@ import {
     parseNumber,
     parseSort,
     parseString,
-    Sort,
+    QuerySorts,
     SortOrder,
 } from "../../utils/query";
 
 type GetAllTradesRequest = {
     skip?: number,
     take: number,
-    sort: Sort<typeof queryPropMap>,
-    filters?: Filters<typeof queryPropMap>,
+    sorts: QuerySorts<typeof queryPropMap>,
+    filters?: QueryFilters<typeof queryPropMap>,
 };
 
 type GetAllTradesResponse = Trade[];
@@ -34,7 +34,7 @@ export const getAllTrades: PublicFeature<GetAllTradesRequest, GetAllTradesRespon
     const trades = await ctx.prisma.trade.findMany({
         take: request.take,
         skip: request.skip,
-        orderBy: request.sort,
+        orderBy: request.sorts,
         where: request.filters,
     });
 
@@ -42,11 +42,11 @@ export const getAllTrades: PublicFeature<GetAllTradesRequest, GetAllTradesRespon
 };
 
 export const setupGetAllTradesRequest: SetupRequest<GetAllTradesRequest, {}> = (req) => {
-    const { take, skip, sort, ...filters } = req.query;
+    const { take, skip, sorts, ...filters } = req.query;
 
     const takeResult = parseIfDefined(take, parseNumber);
     const skipResult = parseIfDefined(skip, parseNumber);
-    const sortResult = parseIfDefined(sort, (input) => parseSort(input, queryPropMap));
+    const sortResult = parseIfDefined(sorts, (input) => parseSort(input, queryPropMap));
     const filtersResult = parseIfDefined(filters, (input) => parseFilters(input, queryPropMap));
 
     if (takeResult.isErr()) {
@@ -56,7 +56,7 @@ export const setupGetAllTradesRequest: SetupRequest<GetAllTradesRequest, {}> = (
         return err(new ApiError(`Invalid 'skip' query parameter. ${skipResult.error}.`, 400));
     }
     if (sortResult.isErr()) {
-        return err(new ApiError(`Invalid 'sort' query parameter. ${sortResult.error}.`, 400));
+        return err(new ApiError(`Invalid 'sorts' query parameter. ${sortResult.error}.`, 400));
     }
     if (filtersResult.isErr()) {
         return err(new ApiError(`Invalid 'filters' query parameter. ${filtersResult.error}.`, 400));
@@ -65,7 +65,7 @@ export const setupGetAllTradesRequest: SetupRequest<GetAllTradesRequest, {}> = (
     return ok({
         take: takeResult.value ?? DEFAULT_TAKE,
         skip: skipResult.value,
-        sort: sortResult.value ?? [{ createdAt: "desc" }],
+        sorts: sortResult.value ?? [{ createdAt: "desc" }],
         filters: filtersResult.value,
     });
 }

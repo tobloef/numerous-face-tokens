@@ -16,15 +16,15 @@ import {
     SortOrder,
     parseString,
     createToWhereMap,
-    Sort,
-    Filters,
+    QuerySorts,
+    QueryFilters,
 } from "../../utils/query";
 
 export type GetAllUsersRequest = {
     skip?: number,
     take: number,
-    sort: Sort<typeof queryPropMap>,
-    filters?: Filters<typeof queryPropMap>,
+    sorts: QuerySorts<typeof queryPropMap>,
+    filters?: QueryFilters<typeof queryPropMap>,
 }
 
 export type OverviewUserDto = {
@@ -47,7 +47,7 @@ export const getAllUsers: PublicFeature<GetAllUsersRequest, GetAllUsersResponse>
     const users = await ctx.prisma.user.findMany({
         take: request.take,
         skip: request.skip,
-        orderBy: request.sort,
+        orderBy: request.sorts,
         where: request.filters,
         include: {
             _count: {
@@ -78,11 +78,11 @@ export const getAllUsers: PublicFeature<GetAllUsersRequest, GetAllUsersResponse>
 };
 
 export const setupGetAllUsersRequest: SetupRequest<GetAllUsersRequest, {}> = (req) => {
-    const { take, skip, sort, ...filters } = req.query;
+    const { take, skip, sorts, ...filters } = req.query;
 
     const takeResult = parseIfDefined(take, parseNumber);
     const skipResult = parseIfDefined(skip, parseNumber);
-    const sortResult = parseIfDefined(sort, (input) => parseSort(input, queryPropMap));
+    const sortResult = parseIfDefined(sorts, (input) => parseSort(input, queryPropMap));
     const filtersResult = parseIfDefined(filters, (input) => parseFilters(input, queryPropMap));
 
     if (takeResult.isErr()) {
@@ -92,7 +92,7 @@ export const setupGetAllUsersRequest: SetupRequest<GetAllUsersRequest, {}> = (re
         return err(new ApiError(`Invalid 'skip' query parameter. ${skipResult.error}.`, 400));
     }
     if (sortResult.isErr()) {
-        return err(new ApiError(`Invalid 'sort' query parameter. ${sortResult.error}.`, 400));
+        return err(new ApiError(`Invalid 'sorts' query parameter. ${sortResult.error}.`, 400));
     }
     if (filtersResult.isErr()) {
         return err(new ApiError(`Invalid 'filters' query parameter. ${filtersResult.error}.`, 400));
@@ -101,7 +101,7 @@ export const setupGetAllUsersRequest: SetupRequest<GetAllUsersRequest, {}> = (re
     return ok({
         take: takeResult.value ?? DEFAULT_TAKE,
         skip: skipResult.value,
-        sort: sortResult.value ?? [{ createdAt: "desc" }],
+        sorts: sortResult.value ?? [{ createdAt: "desc" }],
         filters: filtersResult.value,
     });
 }

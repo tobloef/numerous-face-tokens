@@ -13,15 +13,15 @@ import {
     SortOrder,
     parseString,
     createToWhereMap,
-    Sort,
-    Filters,
+    QuerySorts,
+    QueryFilters,
 } from "../../utils/query";
 
 type GetAllNftsRequest = {
     skip?: number,
     take: number,
-    sort: Sort<typeof queryPropMap>,
-    filters?: Filters<typeof queryPropMap>,
+    sorts: QuerySorts<typeof queryPropMap>,
+    filters?: QueryFilters<typeof queryPropMap>,
 };
 
 type GetAllNftsResponse = Nft[];
@@ -33,7 +33,7 @@ export const getAllNfts: PublicFeature<GetAllNftsRequest, GetAllNftsResponse> = 
     const nfts = await ctx.prisma.nft.findMany({
         take: request.take,
         skip: request.skip,
-        orderBy: request.sort,
+        orderBy: request.sorts,
         where: request.filters,
     });
 
@@ -41,11 +41,11 @@ export const getAllNfts: PublicFeature<GetAllNftsRequest, GetAllNftsResponse> = 
 };
 
 export const setupGetAllNftsRequest: SetupRequest<GetAllNftsRequest, {}> = (req) => {
-    const { take, skip, sort, ...filters } = req.query;
+    const { take, skip, sorts, ...filters } = req.query;
 
     const takeResult = parseIfDefined(take, parseNumber);
     const skipResult = parseIfDefined(skip, parseNumber);
-    const sortResult = parseIfDefined(sort, (input) => parseSort(input, queryPropMap));
+    const sortResult = parseIfDefined(sorts, (input) => parseSort(input, queryPropMap));
     const filtersResult = parseIfDefined(filters, (input) => parseFilters(input, queryPropMap));
 
     if (takeResult.isErr()) {
@@ -55,7 +55,7 @@ export const setupGetAllNftsRequest: SetupRequest<GetAllNftsRequest, {}> = (req)
         return err(new ApiError(`Invalid 'skip' query parameter. ${skipResult.error}.`, 400));
     }
     if (sortResult.isErr()) {
-        return err(new ApiError(`Invalid 'sort' query parameter. ${sortResult.error}.`, 400));
+        return err(new ApiError(`Invalid 'sorts' query parameter. ${sortResult.error}.`, 400));
     }
     if (filtersResult.isErr()) {
         return err(new ApiError(`Invalid 'filters' query parameter. ${filtersResult.error}.`, 400));
@@ -64,7 +64,7 @@ export const setupGetAllNftsRequest: SetupRequest<GetAllNftsRequest, {}> = (req)
     return ok({
         take: takeResult.value ?? DEFAULT_TAKE,
         skip: skipResult.value,
-        sort: sortResult.value ?? [{ mintedAt: "desc" }],
+        sorts: sortResult.value ?? [{ mintedAt: "desc" }],
         filters: filtersResult.value,
     });
 }

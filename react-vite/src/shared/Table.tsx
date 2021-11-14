@@ -1,63 +1,77 @@
-import React, { ReactElement } from "react";
+import React, {
+  ReactElement,
+  ReactNode,
+} from "react";
 import classes from "./Table.module.css";
-import {
-  Column,
-  useTable,
-} from "react-table";
+import { SortOrder } from "../../../express-rest/src/utils/query";
+import Sort from "../types/Sort";
+
+type ColumnInner<T, Key extends keyof T> = Key extends any ? {
+  key: Key,
+  header: ReactNode,
+  cell?: (value: T[Key], obj: T) => ReactNode,
+} : never;
+
+export type Column<T> = ColumnInner<T, keyof T>;
 
 const Table = <T extends object,>(props: {
   data: T[] | undefined,
   columns: Column<T>[],
+  onSort: (sort: Sort<T>) => void,
+  sort: [keyof T, SortOrder],
+  dataKey: keyof T,
 }): ReactElement => {
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    rows,
-    prepareRow,
-  } = useTable({
-    columns: props.columns,
-    data: props.data ?? [],
-  })
-
   return (
     <table
-      {...getTableProps()}
       className={classes.table}
     >
       <thead>
-      {headerGroups.map(headerGroup => (
-        <tr {...headerGroup.getHeaderGroupProps()}>
-          {headerGroup.headers.map(column => (
-            <th
-              {...column.getHeaderProps()}
-              className={classes.headerCell}
-            >
-              {column.render('Header')}
-            </th>
-          ))}
+        <tr>
+          {props.columns.map((column) => {
+            const key = column.key as keyof T;
+
+            return (
+              <th
+                key={`header-${String(column.key)}`}
+                className={classes.headerCell}
+                onClick={() => {
+                  if (props.sort[0] === key && props.sort[1] === "desc") {
+                    props.onSort([key, "asc"]);
+                  } else {
+                    props.onSort([key, "desc"]);
+                  }
+                }}
+              >
+                {column.header}
+                {props.sort[0] === key && (
+                  props.sort[1] === "asc" ? "▼" : "▲"
+                )}
+              </th>
+            );
+          })}
         </tr>
-      ))}
       </thead>
-      <tbody {...getTableBodyProps()}>
-      {rows.length > 0 && rows.map(row => {
-        prepareRow(row)
-        return (
-          <tr {...row.getRowProps()}>
-            {row.cells.map(cell => {
+      <tbody>
+      {props.data !== undefined && props.data.length > 0 && props.data.map((row) => (
+          <tr key={`row-${row[props.dataKey]}`}>
+            {props.columns.map((column) => {
+              const columnKey = column.key as keyof T;
               return (
                 <td
-                  {...cell.getCellProps()}
+                  key={`${row[props.dataKey]}-${columnKey}`}
                   className={classes.cell}
                 >
-                  {cell.render('Cell')}
+                  {
+                    column.cell !== undefined
+                      ? (column.cell as (value: T[typeof columnKey], obj: T) => ReactNode)(row[columnKey], row)
+                      : row[columnKey]
+                  }
                 </td>
-              )
+              );
             })}
           </tr>
-        )
-      })}
-      {rows.length === 0 && (
+        ))}
+      {props.data === undefined || props.data.length === 0 && (
         <tr>
           <td colSpan={props.columns.length}>
             <div className={classes.noDataWrapper}>
