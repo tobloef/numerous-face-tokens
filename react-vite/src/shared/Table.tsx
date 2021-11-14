@@ -19,7 +19,7 @@ const Table = <T extends object,>(props: {
   columns: Column<T>[],
   onSort: (sort: Sort<T>) => void,
   sort: [keyof T, SortOrder],
-  dataKey: keyof T,
+  keyProp: keyof T,
 }): ReactElement => {
   return (
     <table
@@ -53,12 +53,12 @@ const Table = <T extends object,>(props: {
       </thead>
       <tbody>
       {props.data !== undefined && props.data.length > 0 && props.data.map((row) => (
-          <tr key={`row-${row[props.dataKey]}`}>
+          <tr key={`row-${row[props.keyProp]}`}>
             {props.columns.map((column) => {
               const columnKey = column.key as keyof T;
               return (
                 <td
-                  key={`${row[props.dataKey]}-${columnKey}`}
+                  key={`${row[props.keyProp]}-${columnKey}`}
                   className={classes.cell}
                 >
                   {

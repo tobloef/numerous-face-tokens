@@ -11,11 +11,12 @@ export type BaseQueryPropMap = Record<string, {
     deserialize: Function
 }>
 
-export type Sorts<T extends object> = Array<Partial<Record<keyof T, SortOrder>>>;
+export type Sorts<T extends object> = Array<[keyof T, SortOrder]>;
 
-export type QuerySorts<QueryPropMap extends BaseQueryPropMap> = Array<{
-    [Key in keyof SubType<QueryPropMap, { toOrderBy: any }>]?: SortOrder
-}>;
+export type QuerySorts<QueryPropMap extends BaseQueryPropMap> = Array<[
+    keyof SubType<QueryPropMap, { toOrderBy: any }>,
+    SortOrder,
+]>;
 
 export type QueryFilters<QueryPropMap extends BaseQueryPropMap> = {
     [Key in keyof SubType<QueryPropMap, { toWhere: any }>]?: {
@@ -93,10 +94,7 @@ export const parseSort = <QueryPropMap extends BaseQueryPropMap>(
             return err(`Invalid key '${sortKey}' to sort on. Valid keys: ${validKeys.join(", ")}`);
         }
 
-        sorts = [
-            ...sorts,
-            { [sortKey]: order }
-        ] as QuerySorts<QueryPropMap>;
+        sorts.push([sortKey, order] as QuerySorts<QueryPropMap>[number]);
     }
 
     return ok(sorts);
@@ -156,4 +154,31 @@ export const createToWhereMap = <Where, T, Ops extends readonly string[]>(
         ...acc,
         [op]: (val: T) => getWhere(val, op)
     }), {} as Record<Ops[number], (val: T) => Where>);
+}
+
+export const filtersToWhere = <QueryPropMap extends BaseQueryPropMap, Where>(
+  filters: QueryFilters<QueryPropMap>,
+  queryPropMap: QueryPropMap,
+): Where => {
+    return Object.entries(queryPropMap).reduce((acc, [key, value]) => {
+        const toWhereMap = value.toWhere;
+        if (toWhereMap === undefined) {
+            return acc;
+        }
+
+        const filterKey = key as keyof typeof filters;
+        if (filters?.[filterKey] === undefined) {
+            return acc;
+        }
+
+        return merge(
+          acc,
+          Object.entries(toWhereMap).reduce(
+            (acc, [opKey, toWhere]) => (
+              merge(acc, toWhere(filters[filterKey]?.[opKey as keyof typeof filters[keyof typeof filters]]))
+            ),
+            {},
+          ),
+        );
+    }, {} as Where);
 }

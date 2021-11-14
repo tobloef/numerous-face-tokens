@@ -27,7 +27,7 @@ export const makeRequest = async <Req extends object, Res>(
   method: HttpMethod,
   path: string,
   request: SerializeFilters<SerializeSorts<Req>>,
-): Promise<Serialized<Res>> => {
+): Promise<SerializeDates<Res>> => {
   const canHaveBody = (
     method === "POST" ||
     method === "PUT" ||
@@ -59,7 +59,7 @@ export const makeRequest = async <Req extends object, Res>(
 
   const checkResponse = async (
     response: Response,
-  ): Promise<Serialized<Res>> => {
+  ): Promise<SerializeDates<Res>> => {
     if (!response.ok) {
       let body;
 
@@ -99,6 +99,19 @@ export const makeRequest = async <Req extends object, Res>(
   return checkResponse(response);
 };
 
+type SerializeDates<T> =
+  T extends Array<any>
+    ? Array<SerializeDates<T[number]>>
+    : (
+      T extends object
+        ? { [Key in keyof T]: (
+          T[Key] extends Date
+            ? string
+            : SerializeDates<T[Key]>
+          ) }
+        : T
+      );
+
 type SerializeSorts<Obj extends object> = {
   [Key in keyof Obj]: Key extends "sorts" ? string : Obj[Key]
 }
@@ -108,24 +121,10 @@ type SerializeFilters<Req extends object> = Req extends { filters?: object }
   : Req;
 
 const serializeSort = <T extends object>(sorts: Sorts<T>): string => {
-  return sorts.map((sortObj) => {
-    const [key, order] = Object.entries(sortObj)[0];
-    return `${order === "asc" ? "+" : "-"}${key}`;
-  }).join(",");
+  return sorts
+    .map(([key, order]) => `${order === "asc" ? "+" : "-"}${key}`)
+    .join(",");
 };
-
-type Serialized<T> =
-  T extends Array<any>
-    ? Array<Serialized<T[number]>>
-    : (
-      T extends object
-        ? { [Key in keyof T]: (
-          T[Key] extends Date
-            ? string
-            : Serialized<T[Key]>
-        ) }
-        : T
-      );
 
 /* -------------------------------------------------- */
 

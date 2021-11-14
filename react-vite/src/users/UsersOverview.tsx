@@ -18,12 +18,6 @@ import {
 } from "../../../express-rest/src/utils/query";
 import Sort from "../types/Sort";
 
-const sortToSorts = <T extends object>(sort: Sort<T>): Sorts<T> => {
-  return [
-    { [sort[0]]: sort[1] } as Sorts<T>[number],
-  ];
-}
-
 const UsersOverview: React.FC<{}> = (props) => {
   const PAGE_SIZE = 10;
 
@@ -41,7 +35,7 @@ const UsersOverview: React.FC<{}> = (props) => {
     () => getAllUsers({
       take: PAGE_SIZE,
       skip: (page - 1) * PAGE_SIZE,
-      sorts: sortToSorts(sort),
+      sorts: [sort],
       filters: {
         username: {
           contains: usernameFilter,
@@ -86,6 +80,7 @@ const UsersOverview: React.FC<{}> = (props) => {
       <Input
         onChange={setUsernameFilter}
         value={usernameFilter}
+        placeholder={"Search"}
       />
       {isLoading && (
         <span>Loading...</span>
@@ -99,7 +94,7 @@ const UsersOverview: React.FC<{}> = (props) => {
           data={data?.users}
           onSort={setSort}
           sort={sort}
-          dataKey={"username"}
+          keyProp={"username"}
         />
       )}
       <div>
