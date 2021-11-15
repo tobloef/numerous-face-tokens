@@ -33,7 +33,9 @@
 * I really really like having full type-safety. Once the proper types has been set up, the code writes itself.
 * I found it hard to create a consise type-safe way to do filter query parameters in a general way. Boiler plate, boiler plate and more boiler plate. It ended up being like a DSL on top of express, with very little transferable knowledge.
 * Having to write this stuff for every single project would be a huge pain. It's the validation, both from a type POV and a user input POV that is annoying to write, especially when the two should match, with minimal boilerplate.
-* Endpoints for each frontend page VS query parameters to include relations (like GraphQL lol) VS always send all the data. 
+* Endpoints for each frontend page VS query parameters to include relations (like GraphQL lol) VS always send all the data.
+* Why the heck isn't `Object.entries`, type safe, that's a major annoyance, especially when combining with `.reduce()`.
+* While it's nice when the TypeScript puzzle soft of "clicks" into place, it's probably not until I do some maintenance that I really feel the comparison with JS, where refactoring feels risky. Maybe I should add a refactoring task after I've finished, to test see how it feels?
 
 ## Prisma
 * I'm not sure I like creating schema files instead of decorating domain models.
