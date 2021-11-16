@@ -1,0 +1,59 @@
+.navbar {
+    display: flex;
+    background-color: hsl(271, 94%, 19%);
+    align-items: center;
+    padding: 10px 10px 10px 0;
+}
+
+.left {
+    flex: 1;
+}
+
+.left,
+.right {
+    display: flex;
+}
+
+.navbar a {
+    text-align: center;
+    font-weight: 500;
+    font-size: 1.3em;
+    color: hsl(0, 0%, 80%);
+    text-decoration: none;
+}
+
+.navbar a:hover {
+    color: hsl(0, 0%, 95%);
+}
+
+.navbar a span {
+    margin-left: 5px;
+}
+
+.navbar a:hover span {
+    text-decoration: underline;
+}
+
+.navbar a div {
+    padding: 5px 25px;
+}
+
+.navbar a:global(.active) div {
+    color: hsl(0, 0%, 90%);
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 5px;
+}
+
+.navbar h1 {
+    margin: 0 20px 0 0;
+    padding-left: 20px;
+    padding-right: 20px;
+    border-right: 1px solid rgba(255, 255, 255, 0.5);
+    font-weight: bold;
+}
+
+.navbar h1 a {
+    color: hsl(0, 0%, 100%);
+    font-size: 0.8em;
+    text-align: center;
+}
