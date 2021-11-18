@@ -25,11 +25,13 @@ tr.clickable:hover {
     cursor: pointer;
 }
 
-.noDataWrapper {
+.textRowWrapper {
     display: flex;
     padding: 10px;
     align-items: center;
     justify-content: center;
+    min-height: 200px;
+    font-size: 1.2em;
 }
 
 .sortArrow {

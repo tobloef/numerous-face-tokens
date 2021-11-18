@@ -25,6 +25,7 @@ const Table = <T extends object,>(props: {
   keyProp: keyof T,
   className?: string,
   getRowUrl?: (clickedRow: T) => string,
+  loading?: boolean,
 }): ReactElement => {
   return (
     <table
@@ -61,7 +62,32 @@ const Table = <T extends object,>(props: {
         </tr>
       </thead>
       <tbody>
-      {props.data !== undefined && props.data.length > 0 && props.data.map((row) => (
+      {(() => {
+        if (props.loading) {
+          return (
+            <tr>
+              <td colSpan={props.columns.length}>
+                <div className={classes.textRowWrapper}>
+                  Loading...
+                </div>
+              </td>
+            </tr>
+          )
+        }
+
+        if (props.data === undefined || props.data.length === 0) {
+          return (
+            <tr>
+              <td colSpan={props.columns.length}>
+                <div className={classes.textRowWrapper}>
+                  No data
+                </div>
+              </td>
+            </tr>
+          )
+        }
+
+        return props.data.map((row) => (
           <tr
             key={`row-${row[props.keyProp]}`}
             className={classNames({
@@ -72,8 +98,8 @@ const Table = <T extends object,>(props: {
               const columnKey = column.key as keyof T;
 
               const cell = column.cell !== undefined
-                  ? (column.cell as (value: T[typeof columnKey], obj: T) => ReactNode)(row[columnKey], row)
-                  : row[columnKey];
+                ? (column.cell as (value: T[typeof columnKey], obj: T) => ReactNode)(row[columnKey], row)
+                : row[columnKey];
 
               {
                 column.cell !== undefined
@@ -93,32 +119,21 @@ const Table = <T extends object,>(props: {
                     </Link>
                   </td>
                 );
-              } else {
-                return (
-                  <td
-                    key={`${row[props.keyProp]}-${columnKey}`}
-                  >
-                    <div>
-                      {cell}
-                    </div>
-                  </td>
-                );
               }
 
-
+              return (
+                <td
+                  key={`${row[props.keyProp]}-${columnKey}`}
+                >
+                  <div>
+                    {cell}
+                  </div>
+                </td>
+              );
             })}
           </tr>
-        )
-      )}
-      {props.data === undefined || props.data.length === 0 && (
-        <tr>
-          <td colSpan={props.columns.length}>
-            <div className={classes.noDataWrapper}>
-              No data
-            </div>
-          </td>
-        </tr>
-      )}
+        ));
+      })()}
       </tbody>
     </table>
   )
