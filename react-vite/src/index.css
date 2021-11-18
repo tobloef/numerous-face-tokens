@@ -2,3 +2,9 @@ body {
     font-family: sans-serif;
     margin: 0;
 }
+
+button {
+    font-size: 0.9em;
+    min-height: 1.75em;
+    min-width: 5.5em;
+}

@@ -65,6 +65,11 @@ td > a > div {
     margin-top: 20px;
 }
 
+.pagesWrapper > span {
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
 .pagesWrapper > *:not(:last-child) {
     margin-right: 10px;
 }

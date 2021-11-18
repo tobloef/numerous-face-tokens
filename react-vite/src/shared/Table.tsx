@@ -58,10 +58,10 @@ const Table = <T extends object,>(
                   [classes.sortable]: column.sortable ?? true,
                 })}
                 onClick={() => {
-                  if (props.sort[0] === key && props.sort[1] === "desc") {
-                    props.onSort([key, "asc"]);
-                  } else {
+                  if (props.sort[0] === key && props.sort[1] === "asc") {
                     props.onSort([key, "desc"]);
+                  } else {
+                    props.onSort([key, "asc"]);
                   }
                 }}
               >
