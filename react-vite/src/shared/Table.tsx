@@ -26,6 +26,7 @@ const Table = <T extends object,>(props: {
   className?: string,
   getRowUrl?: (clickedRow: T) => string,
   loading?: boolean,
+  error?: string,
 }): ReactElement => {
   return (
     <table
@@ -69,6 +70,18 @@ const Table = <T extends object,>(props: {
               <td colSpan={props.columns.length}>
                 <div className={classes.textRowWrapper}>
                   Loading...
+                </div>
+              </td>
+            </tr>
+          )
+        }
+
+        if (props.error !== undefined) {
+          return (
+            <tr>
+              <td colSpan={props.columns.length}>
+                <div className={classes.textRowWrapper}>
+                  {props.error}
                 </div>
               </td>
             </tr>

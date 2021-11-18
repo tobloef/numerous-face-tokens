@@ -83,23 +83,17 @@ const UsersOverview: React.FC<{}> = (props) => {
         placeholder={"Search"}
         className={classes.searchInput}
       />
-      {isLoading && (
-        <span>Loading...</span>
-      )}
-      {isError && (
-        <span>{error?.message ?? "Error fetching data"}</span>
-      )}
-      {!isError && !isLoading && (
-        <Table
-          columns={columns}
-          data={data?.users}
-          onSort={setSort}
-          sort={sort}
-          keyProp={"username"}
-          className={classes.table}
-          getRowUrl={(user) => `./${user.username}`}
-        />
-      )}
+      <Table
+        columns={columns}
+        data={data?.users}
+        onSort={setSort}
+        sort={sort}
+        keyProp={"username"}
+        className={classes.table}
+        getRowUrl={(user) => `./${user.username}`}
+        loading={isLoading}
+        error={isError ? error?.message ?? "Error fetching data" : undefined}
+      />
       <div className={classes.pagesWrapper}>
         <button
           onClick={() => setPage((curPage) => curPage - 1)}
