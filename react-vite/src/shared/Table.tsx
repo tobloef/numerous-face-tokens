@@ -17,20 +17,34 @@ type ColumnInner<T, Key extends keyof T> = Key extends any ? {
 
 export type Column<T> = ColumnInner<T, keyof T>;
 
-const Table = <T extends object,>(props: {
-  data: T[] | undefined,
-  columns: Column<T>[],
-  onSort: (sort: Sort<T>) => void,
-  sort: [keyof T, SortOrder],
-  keyProp: keyof T,
-  className?: string,
-  getRowUrl?: (clickedRow: T) => string,
-  loading?: boolean,
-  error?: string,
-}): ReactElement => {
+const Table = <T extends object,>(
+  props:
+    & {
+      data: T[] | undefined,
+      columns: Column<T>[],
+      onSort: (sort: Sort<T>) => void,
+      sort: [keyof T, SortOrder],
+      keyProp: keyof T,
+      className?: string,
+      getRowUrl?: (clickedRow: T) => string,
+      loading?: boolean,
+      error?: string,
+    }
+    & (
+      | {page: undefined}
+      | {page: number, onPageChange: (newPage: number) => void}
+    )
+    & (
+      | {totalElements: undefined}
+      | {totalElements: number, pageSize: number}
+    )
+): ReactElement => {
   return (
+    <div
+      className={classNames(classes.tableWrapper, props.className)}
+    >
     <table
-      className={classNames(classes.table, props.className)}
+      className={classes.table}
     >
       <thead>
         <tr>
@@ -149,6 +163,33 @@ const Table = <T extends object,>(props: {
       })()}
       </tbody>
     </table>
+      {props.page !== undefined && (
+        <div className={classes.pagesWrapper}>
+          <button
+            onClick={() => props.onPageChange(props.page - 1)}
+            disabled={props.page === 1}
+          >
+            Previous
+          </button>
+          <span>
+            {
+              props.totalElements != null
+                ? `Page ${props.page} / ${Math.max(Math.ceil(props.totalElements / props.pageSize), 1)}`
+                : `Page ${props.page}`
+            }
+          </span>
+          <button
+            onClick={() => props.onPageChange(props.page + 1)}
+            disabled={(
+              props.totalElements !== undefined &&
+              props.totalElements <= props.page * props.pageSize
+            )}
+          >
+            Next
+          </button>
+        </div>
+      )}
+    </div>
   )
 };
 

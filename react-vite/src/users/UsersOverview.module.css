@@ -3,23 +3,6 @@
     flex-direction: column;
 }
 
-.pagesWrapper {
-    display: flex;
-    justify-content: center;
-}
-
-.pagesWrapper > *:not(:last-child) {
-    margin-right: 10px;
-}
-
-.pagesWrapper > button {
-    width: 70px;
-}
-
 .searchInput {
     margin-bottom: 15px;
-}
-
-.table {
-    margin-bottom: 20px;
 }

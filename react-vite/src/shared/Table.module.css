@@ -1,5 +1,6 @@
-thead {
-    background-color: hsl(0, 0%, 93%);
+.tableWrapper {
+    display: flex;
+    flex-direction: column;
 }
 
 table {
@@ -8,6 +9,10 @@ table {
 
 table, td, th {
     border: 1px solid hsl(0, 0%, 80%);
+}
+
+thead {
+    background-color: hsl(0, 0%, 93%);
 }
 
 th {
@@ -52,4 +57,18 @@ table a {
 td > div,
 td > a > div {
     padding: 8px 10px;
+}
+
+.pagesWrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.pagesWrapper > *:not(:last-child) {
+    margin-right: 10px;
+}
+
+.pagesWrapper > button {
+    width: 70px;
 }

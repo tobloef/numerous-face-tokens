@@ -15,7 +15,6 @@ import {
 import { getAllUsers } from "../utils/api";
 import Sort from "../types/Sort";
 import classes from "./UsersOverview.module.css";
-import { useNavigate } from "react-router-dom";
 
 const UsersOverview: React.FC<{}> = (props) => {
   const PAGE_SIZE = 10;
@@ -23,7 +22,6 @@ const UsersOverview: React.FC<{}> = (props) => {
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState<Sort<OverviewUserDto>>(["createdAt", "desc"]);
   const [usernameFilter, setUsernameFilter] = useState<string>("");
-  const navigate = useNavigate();
 
   const {
     isLoading,
@@ -93,26 +91,11 @@ const UsersOverview: React.FC<{}> = (props) => {
         getRowUrl={(user) => `./${user.username}`}
         loading={isLoading}
         error={isError ? error?.message ?? "Error fetching data" : undefined}
+        page={page}
+        onPageChange={setPage}
+        pageSize={PAGE_SIZE}
+        totalElements={data?.totalCount}
       />
-      <div className={classes.pagesWrapper}>
-        <button
-          onClick={() => setPage((curPage) => curPage - 1)}
-          disabled={page === 1}
-        >
-          Previous
-        </button>
-        <span>
-          {data?.totalCount != null && (
-            `Page ${page} / ${Math.max(Math.ceil(data.totalCount / PAGE_SIZE), 1)}`
-          )}
-        </span>
-        <button
-          onClick={() => setPage((curPage) => curPage + 1)}
-          disabled={data == null || data.totalCount <= page * PAGE_SIZE}
-        >
-          Next
-        </button>
-      </div>
     </div>
   )
 };
