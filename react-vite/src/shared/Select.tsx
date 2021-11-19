@@ -1,12 +1,12 @@
 import React from "react";
 import styles from "./Select.module.css";
 
-export type Options<T extends string | number | readonly string[]> = {
+export type Options<T> = {
   value: T,
   label: string,
 }[];
 
-const Select = <T extends string | number | readonly string[]>(props: {
+const Select = <T extends string | number>(props: {
   options: Options<T>,
   onChange: (newValue: T) => void,
   value: T,
@@ -18,7 +18,12 @@ const Select = <T extends string | number | readonly string[]>(props: {
       className={styles.select}
     >
       {props.options.map((option) => (
-        <option value={option.value}>{option.label}</option>
+        <option
+          key={String(option.value)}
+          value={option.value}
+        >
+          {option.label}
+        </option>
       ))}
     </select>
   )

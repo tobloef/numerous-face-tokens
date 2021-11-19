@@ -88,9 +88,9 @@ const UsersOverview: React.FC<{}> = (props) => {
         sort={sort}
         keyProp={"username"}
         className={styles.table}
-        getRowUrl={(user) => `./${user.username}`}
+        getRowUrl={(user) => `/users/${user.username}`}
         loading={isLoading}
-        error={isError ? error?.message ?? "Error fetching data" : undefined}
+        error={isError ? error?.message ?? "Error fetching users" : undefined}
         page={page}
         onPageChange={setPage}
         pageSize={PAGE_SIZE}

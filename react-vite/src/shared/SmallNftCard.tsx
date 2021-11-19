@@ -7,9 +7,16 @@ const SmallNftCard = (props: {
   ownerUsername: string,
   mintedAt: Date,
   highestTradePrice?: number,
+  to?: string,
 }) => {
   return (
-    null
+    <div style={{
+      border: "1px solid black",
+      width: 100,
+      height: 100,
+    }}>
+
+    </div>
   )
 };
 

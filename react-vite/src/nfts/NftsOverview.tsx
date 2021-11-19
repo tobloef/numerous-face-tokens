@@ -1,4 +1,7 @@
-import React, { useState } from "react";
+import React, {
+  useEffect,
+  useState,
+} from "react";
 import Input from "../shared/Input";
 import Select, { Options } from "../shared/Select";
 import SmallNftCard from "../shared/SmallNftCard";
@@ -10,6 +13,7 @@ import { useQuery } from "react-query";
 import { getAllNfts } from "../utils/api";
 import Sort from "../types/Sort";
 import styles from "./NFtsOverview.module.css";
+import Grid from "../shared/Grid";
 
 const sortOptions: Options<Sort<OverviewNftDTO>> = [
   {
@@ -99,32 +103,25 @@ const NftsOverview: React.FC<{}> = (props) => {
           </div>
         )}
       </div>
-      <div className={styles.nftListWrapper}>
-        <div className={styles.nftListHeader}>
-          <h2>NFTs</h2>
-          <div className={styles.sortByWrapper}>
-            <span>Sort by</span>
-            <Select
-              options={sortOptions}
-              value={sort}
-              onChange={setSort}
-            />
-          </div>
-        </div>
-        <div className={styles.nftList}>
-          {data?.nfts === undefined && (
-            <span>No data</span>
-          )}
-          {data?.nfts.map((nft: OverviewNftDTO) => (
-            <SmallNftCard
-              seed={nft.seed}
-              title={nft.title}
-              ownerUsername={nft.ownerUsername}
-              mintedAt={nft.mintedAt}
-            />
-          ))}
-        </div>
-      </div>
+      <Grid
+        title={"NFTs"}
+        sort={sort}
+        onSortChange={setSort}
+        sortOptions={sortOptions}
+        items={data?.nfts}
+        loading={isLoading}
+        error={isError ? error?.message ?? "Error fetching NFTs" : undefined}
+        keyProp={"seed"}
+        renderItem={(nft: OverviewNftDTO) => (
+          <SmallNftCard
+            seed={nft.seed}
+            title={nft.title}
+            ownerUsername={nft.ownerUsername}
+            mintedAt={nft.mintedAt}
+            to={`/nfts/${nft.seed}`}
+          />
+        )}
+      />
     </div>
   );
 };

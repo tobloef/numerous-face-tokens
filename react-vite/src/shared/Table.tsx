@@ -17,27 +17,36 @@ type ColumnInner<T, Key extends keyof T> = Key extends any ? {
 
 export type Column<T> = ColumnInner<T, keyof T>;
 
-const Table = <T extends object,>(
-  props:
-    & {
-      data: T[] | undefined,
-      columns: Column<T>[],
-      onSort: (sort: Sort<T>) => void,
-      sort: [keyof T, SortOrder],
-      keyProp: keyof T,
-      className?: string,
-      getRowUrl?: (clickedRow: T) => string,
-      loading?: boolean,
-      error?: string,
+const Table = <T extends object,>(props:
+  & {
+    data: T[] | undefined,
+    columns: Column<T>[],
+    onSort: (sort: Sort<T>) => void,
+    sort: [keyof T, SortOrder],
+    keyProp: keyof T,
+    className?: string,
+    getRowUrl?: (clickedRow: T) => string,
+    loading?: boolean,
+    error?: string,
+  }
+  & (
+    | {
+      page: undefined
     }
-    & (
-      | {page: undefined}
-      | {page: number, onPageChange: (newPage: number) => void}
-    )
-    & (
-      | {totalElements: undefined}
-      | {totalElements: number, pageSize: number}
-    )
+    | {
+      page: number,
+      onPageChange: (newPage: number) => void
+    }
+  )
+  & (
+    | {
+      totalElements: undefined
+    }
+    | {
+      totalElements: number,
+      pageSize: number
+    }
+  )
 ): ReactElement => {
   return (
     <div
