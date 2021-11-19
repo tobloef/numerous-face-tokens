@@ -18,14 +18,25 @@ import {
     filtersToWhere,
 } from "../../utils/query";
 
-type GetAllNftsRequest = {
+export type GetAllNftsRequest = {
     skip?: number,
     take: number,
     sorts: QuerySorts<typeof queryPropMap>,
     filters?: QueryFilters<typeof queryPropMap>,
 };
 
-type GetAllNftsResponse = Nft[];
+export type OverviewNftDTO = {
+    seed: string
+    title: string
+    mintedAt: Date
+    ownerUsername: string
+    highestSellPrice?: number
+};
+
+export type GetAllNftsResponse = {
+    nfts: OverviewNftDTO[],
+    totalCount: number,
+};
 
 export const getAllNfts: PublicFeature<GetAllNftsRequest, GetAllNftsResponse> = async (
     request,
@@ -36,9 +47,30 @@ export const getAllNfts: PublicFeature<GetAllNftsRequest, GetAllNftsResponse> = 
         skip: request.skip,
         orderBy: request.sorts.map(([key, order]) => queryPropMap[key].toOrderBy(order)),
         where: filtersToWhere<typeof queryPropMap, Where>(request.filters ?? {}, queryPropMap),
+        include: {
+            minter: true,
+            owner: true,
+            highestTrade: true,
+        }
     });
 
-    return ok(nfts);
+    const nftDtos = nfts.map((nft) => ({
+        seed: nft.seed,
+        title: nft.title,
+        minterUsername: nft.minter.username,
+        mintedAt: nft.mintedAt,
+        ownerUsername: nft.owner.username,
+        highestTradePrice: nft.highestTrade?.price,
+    }));
+
+    const totalCount: number = await ctx.prisma.nft.count({
+        where: request.filters,
+    });
+
+    return ok({
+        nfts: nftDtos,
+        totalCount
+    });
 };
 
 export const setupGetAllNftsRequest: SetupRequest<GetAllNftsRequest, {}> = (req) => {

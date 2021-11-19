@@ -11,11 +11,11 @@ import TradesOverview from "../trades/TradesOverview";
 import TradeDetails from "../trades/TradeDetails";
 import NftDetails from "../nfts/NftDetails";
 import Login from "../auth/Login";
-import classes from "./MainRoutes.module.css";
+import styles from "./MainRoutes.module.css";
 
 const MainRoutes = ({}) => (
-  <div className={classes.mainWrapper}>
-      <div className={classes.mainContent}>
+  <div className={styles.mainWrapper}>
+      <div className={styles.mainContent}>
           <Routes>
               <Route path="/">
                   <Route index element={<Dashboard/>}/>

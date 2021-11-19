@@ -1,6 +1,6 @@
 import React from "react";
 import classNames from "classnames";
-import classes from "./Input.module.css";
+import styles from "./Input.module.css";
 
 const Input: React.FC<{
   onChange: (newValue: string) => void,
@@ -13,7 +13,7 @@ const Input: React.FC<{
       onChange={(e) => props.onChange(e.target.value)}
       value={props.value}
       placeholder={props.placeholder}
-      className={classNames(props.className, classes.input)}
+      className={classNames(props.className, styles.input)}
     />
   );
 };

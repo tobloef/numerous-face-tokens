@@ -14,7 +14,7 @@ import {
 } from "react-query";
 import { getAllUsers } from "../utils/api";
 import Sort from "../types/Sort";
-import classes from "./UsersOverview.module.css";
+import styles from "./UsersOverview.module.css";
 
 const UsersOverview: React.FC<{}> = (props) => {
   const PAGE_SIZE = 10;
@@ -73,13 +73,13 @@ const UsersOverview: React.FC<{}> = (props) => {
   );
 
   return (
-    <div className={classes.usersOverview}>
+    <div className={styles.usersOverview}>
       <h1>Users</h1>
       <Input
         onChange={setUsernameFilter}
         value={usernameFilter}
         placeholder={"Search"}
-        className={classes.searchInput}
+        className={styles.searchInput}
       />
       <Table
         columns={columns}
@@ -87,7 +87,7 @@ const UsersOverview: React.FC<{}> = (props) => {
         onSort={setSort}
         sort={sort}
         keyProp={"username"}
-        className={classes.table}
+        className={styles.table}
         getRowUrl={(user) => `./${user.username}`}
         loading={isLoading}
         error={isError ? error?.message ?? "Error fetching data" : undefined}

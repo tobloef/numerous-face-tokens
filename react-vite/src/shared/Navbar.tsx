@@ -1,4 +1,4 @@
-import classes from "./Navbar.module.css";
+import styles from "./Navbar.module.css";
 import {
   Link,
   NavLink,
@@ -21,8 +21,8 @@ const Navbar = ({}) => {
   };
 
   return (
-    <div className={classes.navbar}>
-      <div className={classes.left}>
+    <div className={styles.navbar}>
+      <div className={styles.left}>
         <h1>
           <Link to="/">
             Numerous Face Tokens
@@ -38,7 +38,7 @@ const Navbar = ({}) => {
           <div><FontAwesomeIcon icon={faScaleBalanced} /> <span>Trades</span></div>
         </NavLink>
       </div>
-      <div className={classes.right}>
+      <div className={styles.right}>
         {loggedInUser !== undefined && (
           <>
             <NavLink to={`/users/${loggedInUser.username}`} end>

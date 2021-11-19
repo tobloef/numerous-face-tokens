@@ -2,7 +2,7 @@ import React, {
   ReactElement,
   ReactNode,
 } from "react";
-import classes from "./Table.module.css";
+import styles from "./Table.module.css";
 import { SortOrder } from "../../../express-rest/src/utils/query";
 import Sort from "../types/Sort";
 import classNames from "classnames";
@@ -41,10 +41,10 @@ const Table = <T extends object,>(
 ): ReactElement => {
   return (
     <div
-      className={classNames(classes.tableWrapper, props.className)}
+      className={classNames(styles.tableWrapper, props.className)}
     >
     <table
-      className={classes.table}
+      className={styles.table}
     >
       <thead>
         <tr>
@@ -55,7 +55,7 @@ const Table = <T extends object,>(
               <th
                 key={`header-${String(column.key)}`}
                 className={classNames({
-                  [classes.sortable]: column.sortable ?? true,
+                  [styles.sortable]: column.sortable ?? true,
                 })}
                 onClick={() => {
                   if (props.sort[0] === key && props.sort[1] === "asc") {
@@ -65,8 +65,8 @@ const Table = <T extends object,>(
                   }
                 }}
               >
-                <span className={classes.headerText}>{column.header}</span>
-                <span className={classes.sortArrow}>
+                <span className={styles.headerText}>{column.header}</span>
+                <span className={styles.sortArrow}>
                   {props.sort[0] === key && (
                     props.sort[1] === "asc" ? "▼" : "▲"
                   )}
@@ -82,7 +82,7 @@ const Table = <T extends object,>(
           return (
             <tr>
               <td colSpan={props.columns.length}>
-                <div className={classes.textRowWrapper}>
+                <div className={styles.textRowWrapper}>
                   Loading...
                 </div>
               </td>
@@ -94,7 +94,7 @@ const Table = <T extends object,>(
           return (
             <tr>
               <td colSpan={props.columns.length}>
-                <div className={classes.textRowWrapper}>
+                <div className={styles.textRowWrapper}>
                   {props.error}
                 </div>
               </td>
@@ -106,7 +106,7 @@ const Table = <T extends object,>(
           return (
             <tr>
               <td colSpan={props.columns.length}>
-                <div className={classes.textRowWrapper}>
+                <div className={styles.textRowWrapper}>
                   No data
                 </div>
               </td>
@@ -118,7 +118,7 @@ const Table = <T extends object,>(
           <tr
             key={`row-${row[props.keyProp]}`}
             className={classNames({
-              [classes.clickable]: props.getRowUrl !== undefined,
+              [styles.clickable]: props.getRowUrl !== undefined,
             })}
           >
             {props.columns.map((column) => {
@@ -164,7 +164,7 @@ const Table = <T extends object,>(
       </tbody>
     </table>
       {props.page !== undefined && (
-        <div className={classes.pagesWrapper}>
+        <div className={styles.pagesWrapper}>
           <button
             onClick={() => props.onPageChange(props.page - 1)}
             disabled={props.page === 1}

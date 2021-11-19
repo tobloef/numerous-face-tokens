@@ -11,6 +11,10 @@ import {
   Sorts,
 } from "../../../express-rest/src/utils/query";
 import deleteProp from "../../../express-rest/src/utils/deleteProp";
+import {
+  GetAllNftsRequest,
+  GetAllNftsResponse,
+} from "../../../express-rest/src/features/nfts/getAllNfts";
 
 const BASE_URL = "http://localhost:3010";
 
@@ -144,6 +148,26 @@ export const getAllUsers = async (request: GetAllUsersRequest): Promise<GetAllUs
     users: response.users.map((user) => ({
       ...user,
       createdAt: new Date(Date.parse(user.createdAt)),
+    }))
+  }
+}
+
+export const getAllNfts = async (request: GetAllNftsRequest): Promise<GetAllNftsResponse> => {
+  const response = await makeRequest<GetAllNftsRequest, GetAllNftsResponse>(
+    "GET",
+    "/nfts",
+    deleteProp({
+      ...request,
+      sorts: serializeSort(request.sorts),
+      ...request.filters,
+    }, "filters"),
+  );
+
+  return {
+    ...response,
+    nfts: response.nfts.map((nft) => ({
+      ...nft,
+      mintedAt: new Date(Date.parse(nft.mintedAt)),
     }))
   }
 }
