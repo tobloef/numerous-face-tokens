@@ -40,7 +40,7 @@ const Grid = <
     <div className={styles.gridWrapper}>
       <div className={styles.header}>
         {props.title !== undefined && (
-          <h2>NFTs</h2>
+          <h2>{props.title}</h2>
         )}
         {(
           serializedSort !== undefined &&

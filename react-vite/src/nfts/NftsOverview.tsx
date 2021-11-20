@@ -3,7 +3,7 @@ import React, {
 } from "react";
 import Input from "../shared/Input";
 import { Options } from "../shared/Select";
-import SmallNftCard from "../shared/SmallNftCard";
+import SmallNftCard from "./SmallNftCard";
 import {
   GetAllNftsResponse,
   OverviewNftDTO,
@@ -129,7 +129,7 @@ const NftsOverview: React.FC<{}> = (props) => {
         )}
       </div>
       <Grid
-        title={"NFTs"}
+        title={"All NFTs"}
         sort={sort}
         onSortChange={setSort}
         sortOptions={sortOptions}
