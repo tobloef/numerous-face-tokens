@@ -1,0 +1,31 @@
+.smallNftCard {
+    border: 1px solid hsl(0, 0%, 80%);
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    border-radius: 5px;
+    background: white;
+}
+
+.smallNftCard > img {
+    margin-bottom: 10px;
+    border: 1px solid hsl(0, 0%, 80%);
+    height: 100px;
+    width: 100px;
+}
+
+.smallNftCard:hover {
+    background: hsl(0, 0%, 96%);
+    cursor: pointer;
+}
+
+.seed {
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.link {
+    text-decoration: none;
+    color: inherit;
+}

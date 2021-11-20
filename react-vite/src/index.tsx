@@ -9,7 +9,17 @@ import {
 } from "react-query";
 import "./index.css"
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      refetchOnWindowFocus: false,
+    },
+    mutations: {
+      retry: false,
+    }
+  }
+});
 
 ReactDOM.render(
   <React.StrictMode>

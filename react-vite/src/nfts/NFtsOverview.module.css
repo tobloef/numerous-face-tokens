@@ -1,0 +1,38 @@
+.nftsOverview {
+    display: flex;
+    flex-direction: column;
+}
+
+.mintNftWrapper {
+    margin-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    border-radius: 5px;
+    background: white;
+    border: 1px solid hsl(0, 0%, 80%);
+    padding: 20px;
+}
+
+.mintNftTitle {
+    margin: 0px 0px 20px 0px;
+}
+
+.mintNftInputWrapper {
+    margin-bottom: 10px;
+}
+
+.mintNftInputWrapper input {
+    margin-right: 5px;
+}
+
+.mintSuccess {
+    margin-top: 10px;
+}
+
+.loadMoreWrapper {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+}

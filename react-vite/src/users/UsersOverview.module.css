@@ -3,6 +3,10 @@
     flex-direction: column;
 }
 
+.usersOverview > h1 {
+    margin: 0px 0px 20px 0px;
+}
+
 .searchInput {
     margin-bottom: 15px;
 }

@@ -1,0 +1,18 @@
+.pagesWrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.pagesWrapper > span {
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.pagesWrapper > *:not(:last-child) {
+    margin-right: 10px;
+}
+
+.pagesWrapper > button {
+    width: 70px;
+}

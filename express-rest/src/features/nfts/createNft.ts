@@ -8,12 +8,11 @@ import { SetupRequest } from "../../utils/expressHandler";
 import generateId from "../../utils/generateId";
 import Markdown from "../../types/Markdown";
 
-type CreateNftRequest = {
+export type CreateNftRequest = {
     seed: string,
-    title: string,
 };
 
-type CreateNftResponse = 
+export type CreateNftResponse =
     & Nft
     & {
         minter: User;
@@ -32,7 +31,7 @@ export const createNft: PrivateFeature<CreateNftRequest, CreateNftResponse> = as
     });
 
     if (existingNft !== null) {
-        return err(new ApiError("NFT with given seed already exists", 409));
+        return err(new ApiError("An NFT with that seed already exists", 409));
     }
 
     const user = await ctx.prisma.user.findUnique({
@@ -49,7 +48,6 @@ export const createNft: PrivateFeature<CreateNftRequest, CreateNftResponse> = as
         data: {
             id: generateId(),
             seed: request.seed,
-            title: request.title,
             minterId: user.id,
             ownerId: user.id,
         },
@@ -82,6 +80,6 @@ export const setupCreateNftRequest: SetupRequest<CreateNftRequest, {}> = (req) =
     if (!is<CreateNftRequest>(req.body)) {
         return err(new ApiError("Invalid NFT", 400));
     }
-    
+
     return ok(req.body);
 }

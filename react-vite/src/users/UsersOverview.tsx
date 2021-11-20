@@ -12,7 +12,7 @@ import { formatDate } from "../utils/formatDate";
 import {
   useQuery,
 } from "react-query";
-import { getAllUsers } from "../utils/api";
+import * as api from "../utils/api";
 import Sort from "../types/Sort";
 import styles from "./UsersOverview.module.css";
 
@@ -30,7 +30,7 @@ const UsersOverview: React.FC<{}> = (props) => {
     error,
   } = useQuery<GetAllUsersResponse, Error>(
     ["getAllUsers", page, sort, usernameFilter],
-    () => getAllUsers({
+    () => api.getAllUsers({
       take: PAGE_SIZE,
       skip: (page - 1) * PAGE_SIZE,
       sorts: [sort],

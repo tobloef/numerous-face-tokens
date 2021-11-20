@@ -27,7 +27,6 @@ export type GetAllNftsRequest = {
 
 export type OverviewNftDTO = {
     seed: string
-    title: string
     mintedAt: Date
     ownerUsername: string
     highestSellPrice?: number
@@ -56,7 +55,6 @@ export const getAllNfts: PublicFeature<GetAllNftsRequest, GetAllNftsResponse> = 
 
     const nftDtos = nfts.map((nft) => ({
         seed: nft.seed,
-        title: nft.title,
         minterUsername: nft.minter.username,
         mintedAt: nft.mintedAt,
         ownerUsername: nft.owner.username,
@@ -112,14 +110,6 @@ const queryPropMap = {
         toWhere: createToWhereMap(
             ["equals", "contains"],
             (val: string, op: string): Where => ({ seed: { [op]: val } })
-        ),
-    },
-    title: {
-        deserialize: parseString,
-        toOrderBy: (order: SortOrder): OrderBy => ({ title: order }),
-        toWhere: createToWhereMap(
-            ["equals", "contains"],
-            (val: string, op: string): Where => ({ title: { [op]: val } })
         ),
     },
     mintedAt: {

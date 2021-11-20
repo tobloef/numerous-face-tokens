@@ -1,7 +1,10 @@
 import Select, { Options } from "./Select";
 import React, { useMemo } from "react";
-import styles from "./Table.module.css";
+import styles from "./Grid.module.css";
 import Sort from "../types/Sort";
+import Pagination, {
+  PageProps,
+} from "./Pagination";
 
 const Grid = <
   T,
@@ -18,6 +21,7 @@ const Grid = <
     onSortChange?: (newSort: S) => void,
     sortOptions?: Options<S>,
   }
+  & PageProps
 ) => {
   const serializedSortOptions: Options<string> | undefined = useMemo(() => {
     return props.sortOptions?.map((option) => ({
@@ -81,6 +85,14 @@ const Grid = <
           return props.items.map(props.renderItem);
         })()}
       </div>
+      {props.page && (
+        <Pagination
+          page={props.page}
+          pageSize={props.pageSize}
+          totalElements={props.totalElements}
+          onPageChange={props.onPageChange}
+        />
+      )}
     </div>
   )
 }

@@ -5,6 +5,7 @@
 
 table {
     border-collapse: collapse;
+    background: white;
 }
 
 table, td, th {
@@ -12,7 +13,7 @@ table, td, th {
 }
 
 thead {
-    background-color: hsl(0, 0%, 93%);
+    background: hsl(0, 0%, 90%);
 }
 
 th {
@@ -21,12 +22,12 @@ th {
 }
 
 th.sortable:hover {
-    background-color: hsl(0, 0%, 90%);
+    background: hsl(0, 0%, 85%);
     cursor: pointer;
 }
 
 tr.clickable:hover {
-    background-color: hsl(0, 0%, 97%);
+    background: hsl(0, 0%, 96%);
     cursor: pointer;
 }
 
@@ -59,21 +60,3 @@ td > a > div {
     padding: 8px 10px;
 }
 
-.pagesWrapper {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-}
-
-.pagesWrapper > span {
-    margin-top: auto;
-    margin-bottom: auto;
-}
-
-.pagesWrapper > *:not(:last-child) {
-    margin-right: 10px;
-}
-
-.pagesWrapper > button {
-    width: 70px;
-}

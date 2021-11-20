@@ -16,11 +16,10 @@ model Nft {
   ownerId         String
   owner           User  @relation("Owned", fields: [ownerId], references: [id])
   seed            String            @unique
-  title           String
   trades          Trade[]           @relation("Trades")
-  lastTradeId     String?           
+  lastTradeId     String?
   lastTrade       Trade?            @relation("LastTrade", fields: [lastTradeId], references: [id])
-  highestTradeId  String?           
+  highestTradeId  String?
   highestTrade    Trade?            @relation("HighestTrade", fields: [highestTradeId], references: [id])
 }
 
@@ -45,7 +44,7 @@ model Trade {
   buyerId              String?
   buyer                User?  @relation("Bought", fields: [buyerId], references: [id])
   buyerAccepted        Boolean            @default(false)
-  soldAt               DateTime?  
+  soldAt               DateTime?
   nftId                String
   nft                  Nft                @relation("Trades", fields: [nftId], references: [id])
   price                Int

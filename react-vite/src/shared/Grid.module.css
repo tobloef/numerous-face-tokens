@@ -1,0 +1,38 @@
+.gridWrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 5px;
+}
+
+.header h2 {
+    margin: 0;
+    flex: 1;
+}
+
+.sortByWrapper > span {
+    margin-right: 5px;
+    font-weight: bold;
+}
+
+.gridTextWrapper {
+    display: flex;
+    padding: 10px;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    font-size: 1.2em;
+}
+
+.grid {
+    display: flex;
+    flex-direction: row;
+    padding: 10px 0px;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}

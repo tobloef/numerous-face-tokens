@@ -6,8 +6,6 @@ import {
   GetAllUsersResponse,
 } from "../../../express-rest/src/features/users/getAllUsers";
 import {
-  parseDate,
-  SortOrder,
   Sorts,
 } from "../../../express-rest/src/utils/query";
 import deleteProp from "../../../express-rest/src/utils/deleteProp";
@@ -15,6 +13,10 @@ import {
   GetAllNftsRequest,
   GetAllNftsResponse,
 } from "../../../express-rest/src/features/nfts/getAllNfts";
+import {
+  CreateNftRequest,
+  CreateNftResponse,
+} from "../../../express-rest/src/features/nfts/createNft";
 
 const BASE_URL = "http://localhost:3010";
 
@@ -111,7 +113,11 @@ type SerializeDates<T> =
         ? { [Key in keyof T]: (
           T[Key] extends Date
             ? string
-            : SerializeDates<T[Key]>
+            : (
+              T[Key] extends (Date | null)
+                ? (string | null)
+                : SerializeDates<T[Key]>
+            )
           ) }
         : T
       );
@@ -170,4 +176,30 @@ export const getAllNfts = async (request: GetAllNftsRequest): Promise<GetAllNfts
       mintedAt: new Date(Date.parse(nft.mintedAt)),
     }))
   }
+}
+
+export const mintNft = async (request: CreateNftRequest): Promise<CreateNftResponse> => {
+  const response = await makeRequest<CreateNftRequest, CreateNftResponse>(
+    "POST",
+    "/nfts",
+    request,
+  )
+
+  return {
+    ...response,
+    mintedAt: new Date(Date.parse(response.mintedAt)),
+    minter: {
+      ...response.minter,
+      createdAt: new Date(Date.parse(response.minter.createdAt)),
+    },
+    owner: {
+      ...response.owner,
+      createdAt: new Date(Date.parse(response.owner.createdAt)),
+    },
+    trades: response.trades.map((trade) => ({
+      ...trade,
+      createdAt: new Date(Date.parse(trade.createdAt)),
+      soldAt: trade.soldAt != null ? new Date(Date.parse(trade.soldAt)) : null,
+    }))
+  };
 }
