@@ -129,7 +129,7 @@ const NftsOverview: React.FC<{}> = (props) => {
         )}
       </div>
       <Grid
-        title={"All NFTs"}
+        title="All NFTs"
         sort={sort}
         onSortChange={setSort}
         sortOptions={sortOptions}

@@ -47,9 +47,21 @@ export const getAllNfts: PublicFeature<GetAllNftsRequest, GetAllNftsResponse> = 
         orderBy: request.sorts.map(([key, order]) => queryPropMap[key].toOrderBy(order)),
         where: filtersToWhere<typeof queryPropMap, Where>(request.filters ?? {}, queryPropMap),
         include: {
-            minter: true,
-            owner: true,
-            highestTrade: true,
+            minter: {
+                select: {
+                    username: true,
+                }
+            },
+            owner: {
+                select: {
+                    username: true,
+                }
+            },
+            highestTrade: {
+                select: {
+                    price: true,
+                }
+            },
         }
     });
 

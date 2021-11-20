@@ -19,14 +19,31 @@ import {
     filtersToWhere,
 } from "../../utils/query";
 
-type GetAllTradesRequest = {
+export type GetAllTradesRequest = {
     skip?: number,
     take: number,
     sorts: QuerySorts<typeof queryPropMap>,
     filters?: QueryFilters<typeof queryPropMap>,
 };
 
-type GetAllTradesResponse = Trade[];
+export type OverviewTradeDto = {
+    id: string,
+    createdAt: Date,
+    sellerUsername: string,
+    sellerAccepted: boolean,
+    buyerUsername: string | null,
+    buyerAccepted: boolean,
+    soldAt: Date | null,
+    nftSeed: string,
+    price: number,
+    isCompleted: boolean,
+    isPublic: boolean,
+};
+
+export type GetAllTradesResponse = {
+    totalCount: number,
+    trades: OverviewTradeDto[],
+};
 
 export const getAllTrades: PublicFeature<GetAllTradesRequest, GetAllTradesResponse> = async (
     request,
@@ -37,9 +54,47 @@ export const getAllTrades: PublicFeature<GetAllTradesRequest, GetAllTradesRespon
         skip: request.skip,
         orderBy: request.sorts.map(([key, order]) => queryPropMap[key].toOrderBy(order)),
         where: filtersToWhere<typeof queryPropMap, Where>(request.filters ?? {}, queryPropMap),
+        include: {
+            nft: {
+                select: {
+                    seed: true,
+                }
+            },
+            buyer: {
+                select: {
+                    username: true,
+                }
+            },
+            seller: {
+                select: {
+                    username: true,
+                }
+            }
+        }
     });
 
-    return ok(trades);
+    const tradeDtos = trades.map((trade): OverviewTradeDto => ({
+        id: trade.id,
+        createdAt: trade.createdAt,
+        nftSeed: trade.nft.seed,
+        price: trade.price,
+        sellerAccepted: trade.sellerAccepted,
+        sellerUsername: trade.seller.username,
+        buyerAccepted: trade.buyerAccepted,
+        buyerUsername: trade.buyer?.username ?? null,
+        soldAt: trade.soldAt,
+        isCompleted: trade.soldAt !== null,
+        isPublic: trade.buyer !== null,
+    }));
+
+    const totalCount: number = await ctx.prisma.trade.count({
+        where: request.filters,
+    });
+
+    return ok({
+        trades: tradeDtos,
+        totalCount
+    });
 };
 
 export const setupGetAllTradesRequest: SetupRequest<GetAllTradesRequest, {}> = (req) => {

@@ -1,0 +1,73 @@
+.trade {
+    display: flex;
+    flex-direction: row;
+    border: 1px solid hsl(0, 0%, 80%);
+    border-radius: 10px;
+    background: white;
+    padding: 15px;
+    justify-content: space-around;
+}
+
+.trade.completed {
+    background: hsla(120, 100%, 50%, 0.1);
+}
+
+.participants {
+    font-size: 1.1em;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-right: 30px;
+}
+
+.nftCard {
+    margin-right: 15px;
+}
+
+.participantsArrow {
+    font-size: 1.3em;
+    margin: 10px 0px;
+}
+
+.participant > span {
+    margin-right: 10px;
+    margin-left: 20px;
+    font-weight: bold;
+}
+
+.participantWrapper {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.tempName {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-right: 15px;
+}
+
+.tempName > .actions > button:not(:last-child) {
+    margin-bottom: 10px;
+}
+
+.actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.priceWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.price {
+    font-weight: bold;
+    font-size: 1.5em;
+}
