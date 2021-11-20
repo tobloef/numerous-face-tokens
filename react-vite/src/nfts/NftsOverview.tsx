@@ -22,7 +22,7 @@ import {
   CreateNftResponse,
 } from "../../../express-rest/src/features/nfts/createNft";
 
-const sortOptions: Options<Sort<OverviewNftDTO>> = [
+const SORT_OPTIONS: Options<Sort<OverviewNftDTO>> = [
   {
     label: "Newest first",
     value: ["mintedAt", "desc"],
@@ -123,7 +123,6 @@ const NftsOverview: React.FC<{}> = (props) => {
             <SmallNftCard
               seed={mintNftData.seed}
               ownerUsername={mintNftData.owner.username}
-              mintedAt={mintNftData.mintedAt}
             />
           </>
         )}
@@ -132,7 +131,7 @@ const NftsOverview: React.FC<{}> = (props) => {
         title="All NFTs"
         sort={sort}
         onSortChange={setSort}
-        sortOptions={sortOptions}
+        sortOptions={SORT_OPTIONS}
         items={nftsData?.nfts}
         loading={isNftsLoading}
         error={isNftsError ? nftsError?.message ?? "Error fetching NFTs" : undefined}
@@ -145,7 +144,6 @@ const NftsOverview: React.FC<{}> = (props) => {
           <SmallNftCard
             seed={nft.seed}
             ownerUsername={nft.ownerUsername}
-            mintedAt={nft.mintedAt}
             to={`/nfts/${nft.seed}`}
           />
         )}

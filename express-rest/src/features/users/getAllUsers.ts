@@ -20,7 +20,6 @@ import {
     QueryFilters,
     filtersToWhere,
 } from "../../utils/query";
-import { merge } from "lodash";
 
 export type GetAllUsersRequest = {
     skip?: number,
@@ -46,11 +45,14 @@ export const getAllUsers: PublicFeature<GetAllUsersRequest, GetAllUsersResponse>
     request,
     ctx,
 ) => {
+    const where = filtersToWhere<typeof queryPropMap, Where>(request.filters ?? {}, queryPropMap);
+    const orderBy = request.sorts.map(([key, order]) => queryPropMap[key].toOrderBy(order));
+
     const users = await ctx.prisma.user.findMany({
         take: request.take,
         skip: request.skip,
-        orderBy: request.sorts.map(([key, order]) => queryPropMap[key].toOrderBy(order)),
-        where: filtersToWhere<typeof queryPropMap, Where>(request.filters ?? {}, queryPropMap),
+        orderBy,
+        where,
         include: {
             _count: {
                 select: {
@@ -70,7 +72,7 @@ export const getAllUsers: PublicFeature<GetAllUsersRequest, GetAllUsersResponse>
     }));
 
     const totalCount: number = await ctx.prisma.user.count({
-        where: request.filters,
+        where,
     });
 
     return ok({

@@ -17,6 +17,7 @@ import {
     QuerySorts,
     SortOrder,
     filtersToWhere,
+    parseStringOrNull,
 } from "../../utils/query";
 
 export type GetAllTradesRequest = {
@@ -49,11 +50,14 @@ export const getAllTrades: PublicFeature<GetAllTradesRequest, GetAllTradesRespon
     request,
     ctx,
 ) => {
+    const where = filtersToWhere<typeof queryPropMap, Where>(request.filters ?? {}, queryPropMap);
+    const orderBy = request.sorts.map(([key, order]) => queryPropMap[key].toOrderBy(order));
+
     const trades = await ctx.prisma.trade.findMany({
         take: request.take,
         skip: request.skip,
-        orderBy: request.sorts.map(([key, order]) => queryPropMap[key].toOrderBy(order)),
-        where: filtersToWhere<typeof queryPropMap, Where>(request.filters ?? {}, queryPropMap),
+        orderBy,
+        where,
         include: {
             nft: {
                 select: {
@@ -88,7 +92,7 @@ export const getAllTrades: PublicFeature<GetAllTradesRequest, GetAllTradesRespon
     }));
 
     const totalCount: number = await ctx.prisma.trade.count({
-        where: request.filters,
+        where,
     });
 
     return ok({
@@ -147,19 +151,36 @@ const queryPropMap = {
         ),
     },
     buyerUsername: {
-        deserialize: parseString,
+        deserialize: parseStringOrNull,
         toOrderBy: (order: SortOrder): OrderBy => ({ buyer: { username: order } }),
         toWhere: createToWhereMap(
             ["equals", "contains"] as const,
-            (val: string, op: string): Where => ({ buyer: { username: { [op]: val } } })
+            (val: string | null, op: string): Where => {
+                if (val === null) {
+                    return ({buyer: null})
+                }
+                return ({buyer: {username: {[op]: val}}});
+            }
         ),
     },
     sellerUsername: {
         deserialize: parseString,
         toOrderBy: (order: SortOrder): OrderBy => ({ buyer: { username: order } }),
         toWhere: createToWhereMap(
-            ["equals", "contains"] as const,
-            (val: string, op: string): Where => ({ seller: { username: { [op]: val } } })
+          ["equals", "contains"] as const,
+          (val: string, op: string): Where => ({ seller: { username: { [op]: val } } })
+        ),
+    },
+    participantUsername: {
+        deserialize: parseString,
+        toWhere: createToWhereMap(
+          ["equals"] as const,
+          (val: string, op: string): Where => ({
+              OR: [
+                  { seller: { username: { [op]: val } } },
+                  { buyer: { username: { [op]: val } } },
+              ]
+          })
         ),
     },
     createdAt: {

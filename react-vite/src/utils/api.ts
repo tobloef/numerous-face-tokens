@@ -17,6 +17,18 @@ import {
   CreateNftRequest,
   CreateNftResponse,
 } from "../../../express-rest/src/features/nfts/createNft";
+import {
+  GetAllTradesRequest,
+  GetAllTradesResponse,
+} from "../../../express-rest/src/features/trades/getAllTrades";
+import {
+  AcceptTradeRequest,
+  AcceptTradeResponse,
+} from "../../../express-rest/src/features/trades/acceptTrade";
+import {
+  DeleteTradeRequest,
+  DeleteTradeResponse,
+} from "../../../express-rest/src/features/trades/deleteTrade";
 
 const BASE_URL = "http://localhost:3010";
 
@@ -203,3 +215,37 @@ export const mintNft = async (request: CreateNftRequest): Promise<CreateNftRespo
     }))
   };
 }
+
+export const getAllTrades = async (request: GetAllTradesRequest): Promise<GetAllTradesResponse> => {
+  const response = await makeRequest<GetAllTradesRequest, GetAllTradesResponse>(
+    "GET",
+    "/trades",
+    deleteProp({
+      ...request,
+      sorts: serializeSort(request.sorts),
+      ...request.filters,
+    }, "filters"),
+  );
+
+  return response;
+};
+
+export const acceptTrade = async (request: AcceptTradeRequest): Promise<AcceptTradeResponse> => {
+  const response = await makeRequest<AcceptTradeRequest, AcceptTradeResponse>(
+    "POST",
+    `/trades/${request.id}`,
+    request,
+  );
+
+  return response;
+};
+
+export const declineTrade = async (request: DeleteTradeRequest): Promise<DeleteTradeResponse> => {
+  const response = await makeRequest<DeleteTradeRequest, DeleteTradeResponse>(
+    "DELETE",
+    `/trades/${request.id}`,
+    request,
+  );
+
+  return response;
+};

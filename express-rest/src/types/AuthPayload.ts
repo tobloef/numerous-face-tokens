@@ -2,7 +2,7 @@ import { User } from "@prisma/client";
 import Never from "./Never";
 
 type AuthPayload = {
-    user: Never<User, "passwordHash">,
+    user: Omit<User, "passwordHash">,
 }
 
 export default AuthPayload;

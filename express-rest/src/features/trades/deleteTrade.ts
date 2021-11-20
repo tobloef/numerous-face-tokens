@@ -4,11 +4,11 @@ import { PrivateFeature } from "../../types/feature";
 import { SetupRequest } from "../../utils/expressHandler";
 import { SUCCESS, Success } from "../../types/Success";
 
-type DeleteTradeRequest = {
+export type DeleteTradeRequest = {
     id: string,
 };
 
-type DeleteTradeResponse = Success;
+export type DeleteTradeResponse = Success;
 
 export const deleteTrade: PrivateFeature<DeleteTradeRequest, DeleteTradeResponse> = async (
     request,
@@ -30,7 +30,7 @@ export const deleteTrade: PrivateFeature<DeleteTradeRequest, DeleteTradeResponse
     ) {
         return err(new ApiError("Cannot delete trade you are not participating in", 403));
     }
-    
+
     await ctx.prisma.trade.delete({
         where: {
             id: request.id

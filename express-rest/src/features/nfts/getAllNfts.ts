@@ -41,11 +41,14 @@ export const getAllNfts: PublicFeature<GetAllNftsRequest, GetAllNftsResponse> = 
     request,
     ctx,
 ) => {
+    const where = filtersToWhere<typeof queryPropMap, Where>(request.filters ?? {}, queryPropMap);
+    const orderBy = request.sorts.map(([key, order]) => queryPropMap[key].toOrderBy(order));
+
     const nfts = await ctx.prisma.nft.findMany({
         take: request.take,
         skip: request.skip,
-        orderBy: request.sorts.map(([key, order]) => queryPropMap[key].toOrderBy(order)),
-        where: filtersToWhere<typeof queryPropMap, Where>(request.filters ?? {}, queryPropMap),
+        orderBy,
+        where,
         include: {
             minter: {
                 select: {
@@ -74,7 +77,7 @@ export const getAllNfts: PublicFeature<GetAllNftsRequest, GetAllNftsResponse> = 
     }));
 
     const totalCount: number = await ctx.prisma.nft.count({
-        where: request.filters,
+        where,
     });
 
     return ok({

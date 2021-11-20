@@ -53,6 +53,18 @@ export const parseString = (input: string | unknown): Result<string, string> => 
     return ok(input);
 }
 
+export const parseStringOrNull = (input: string | unknown): Result<string | null, string> => {
+    if (!is<string>(input)) {
+        return err(`'${input}' is not a valid string`);
+    }
+
+    if (input === "") {
+        return ok(null);
+    }
+
+    return ok(input);
+}
+
 export const parseNumber = (input: string | unknown): Result<number, string> => {
     if (!is<string>(input) || Number.isNaN(Number(input))) {
         return err(`'${input}' is not a valid number`);

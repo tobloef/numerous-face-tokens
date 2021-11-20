@@ -8,11 +8,11 @@ import assert from "assert";
 import Markdown from "../../types/Markdown";
 import { CURRENCY_SYMBOL } from "../../utils/constants";
 
-type AcceptTradeRequest = {
+export type AcceptTradeRequest = {
     id: string,
 };
 
-type AcceptTradeResponse = 
+export type AcceptTradeResponse =
     & Trade
     & {
         nft: Nft;
@@ -131,7 +131,7 @@ export const acceptTrade: PrivateFeature<AcceptTradeRequest, AcceptTradeResponse
         title: `NFT Sold` as Markdown,
         description: (
             `[${trade.seller.username}](/users/${trade.seller.username}) sold ` +
-            `["${trade.nft.seed}"](/nfts/${trade.nft.seed}) to ` + 
+            `["${trade.nft.seed}"](/nfts/${trade.nft.seed}) to ` +
             `[${trade.buyer.username}](/users/${trade.buyer.username}) for ` +
             `${CURRENCY_SYMBOL}${trade.price}.`
         ) as Markdown
