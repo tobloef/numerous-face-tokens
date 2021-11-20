@@ -13,7 +13,8 @@ table, td, th {
 }
 
 thead {
-    background: hsl(0, 0%, 90%);
+    background: hsl(270, 95%, 20%);
+    color: white;
 }
 
 th {
@@ -22,7 +23,7 @@ th {
 }
 
 th.sortable:hover {
-    background: hsl(0, 0%, 85%);
+    background: rgba(255, 255, 255, 0.15);
     cursor: pointer;
 }
 

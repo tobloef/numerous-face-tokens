@@ -117,14 +117,14 @@ const NftsOverview: React.FC<{}> = (props) => {
         )}
         {mintNftData != null && (
           <>
+            <span className={styles.mintSuccess}>
+              Successfully minted NFT!
+            </span>
             <SmallNftCard
               seed={mintNftData.seed}
               ownerUsername={mintNftData.owner.username}
               mintedAt={mintNftData.mintedAt}
             />
-            <span className={styles.mintSuccess!}>
-              Successfully minted NFT!
-            </span>
           </>
         )}
       </div>
