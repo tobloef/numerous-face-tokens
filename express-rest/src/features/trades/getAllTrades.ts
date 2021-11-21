@@ -14,17 +14,21 @@ import {
     parseNumber,
     parseSort,
     parseString,
-    QuerySorts,
+    QuerySort,
     SortOrder,
     filtersToWhere,
     parseStringOrNull,
 } from "../../utils/query";
 
+export type GetAllTradesSort = QuerySort<typeof queryPropMap>;
+
+export type GetAllTradesFilters = QueryFilters<typeof queryPropMap>;
+
 export type GetAllTradesRequest = {
     skip?: number,
     take: number,
-    sorts: QuerySorts<typeof queryPropMap>,
-    filters?: QueryFilters<typeof queryPropMap>,
+    sorts: GetAllTradesSort[],
+    filters?: GetAllTradesFilters,
 };
 
 export type OverviewTradeDto = {
@@ -88,7 +92,7 @@ export const getAllTrades: PublicFeature<GetAllTradesRequest, GetAllTradesRespon
         buyerUsername: trade.buyer?.username ?? null,
         soldAt: trade.soldAt,
         isCompleted: trade.soldAt !== null,
-        isPublic: trade.buyer !== null,
+        isPublic: trade.buyer === null,
     }));
 
     const totalCount: number = await ctx.prisma.trade.count({
@@ -203,8 +207,31 @@ const queryPropMap = {
         deserialize: parseBoolean,
         toOrderBy: (order: SortOrder): OrderBy => ({ buyerAccepted: order }),
         toWhere: createToWhereMap(
-            ["equals"] as const,
-            (val: boolean, op: string): Where => ({ buyerAccepted: { [op]: val } })
+          ["equals"] as const,
+          (val: boolean, op: string): Where => ({ buyerAccepted: { [op]: val } })
+        ),
+    },
+    isCompleted: {
+        deserialize: parseBoolean,
+        toWhere: createToWhereMap(
+          ["equals"] as const,
+          (val: boolean, op: string): Where => {
+              if (val) {
+                  return ({
+                      AND: [
+                          {buyerAccepted: {[op]: true}},
+                          {sellerAccepted: {[op]: true}},
+                      ],
+                  });
+              } else {
+                  return ({
+                      OR: [
+                          {buyerAccepted: {[op]: false}},
+                          {sellerAccepted: {[op]: false}},
+                      ],
+                  });
+              }
+          }
         ),
     },
 } as const;

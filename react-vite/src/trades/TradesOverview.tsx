@@ -4,6 +4,7 @@ import React, {
 } from "react";
 import {
   GetAllTradesResponse,
+  GetAllTradesSort,
   OverviewTradeDto,
 } from "../../../express-rest/src/features/trades/getAllTrades";
 import Trade from "../shared/Trade";
@@ -15,7 +16,6 @@ import {
   useQueryClient,
 } from "react-query";
 import * as api from "../utils/api";
-import Sort from "../types/Sort";
 import {
   AcceptTradeRequest,
   AcceptTradeResponse,
@@ -31,14 +31,14 @@ const MY_TRADES_PAGE_SIZE = 10;
 
 const PUBLIC_TRADES_PAGE_SIZE = 10;
 
-const TRADE_SORT_OPTIONS: Options<Sort<OverviewTradeDto>> = [
+const TRADE_SORT_OPTIONS: Options<GetAllTradesSort> = [
   {
     label: "Newest first",
-    value: ["createdAt", "asc"],
+    value: ["createdAt", "desc"],
   },
   {
     label: "Oldest first",
-    value: ["createdAt", "desc"],
+    value: ["createdAt", "asc"],
   },
   {
     label: "Highest price first",
@@ -51,12 +51,14 @@ const TRADE_SORT_OPTIONS: Options<Sort<OverviewTradeDto>> = [
 ];
 
 const TradesOverview: React.FC<{}> = (props) => {
-  const [myTradesSort, setMyTradesSort] = useState<Sort<OverviewTradeDto>>(["createdAt", "desc"]);
+  const [myTradesSort, setMyTradesSort] = useState<GetAllTradesSort>(["createdAt", "desc"]);
   const [myTradesPage, setMyTradesPage] = useState(1);
-  const [publicTradesSort, setPublicTradesSort] = useState<Sort<OverviewTradeDto>>(["createdAt", "desc"]);
+  const [publicTradesSort, setPublicTradesSort] = useState<GetAllTradesSort>(["createdAt", "desc"]);
   const [publicTradesPage, setPublicTradesPage] = useState(1);
 
   const queryClient = useQueryClient();
+
+  const user = getLocalAuthPayload()?.user;
 
   const {
     isLoading: isMyTradesLoading,
@@ -71,10 +73,13 @@ const TradesOverview: React.FC<{}> = (props) => {
       sorts: [myTradesSort],
       filters: {
         participantUsername: {
-          equals: getLocalAuthPayload().user.username
+          equals: user?.username,
         },
       }
     }),
+    {
+      enabled: user !== undefined,
+    }
   );
 
   const {
@@ -91,7 +96,10 @@ const TradesOverview: React.FC<{}> = (props) => {
       filters: {
         buyerUsername: {
           equals: null
-        }
+        },
+        isCompleted: {
+          equals: false,
+        },
       }
     }),
   );
@@ -127,38 +135,61 @@ const TradesOverview: React.FC<{}> = (props) => {
   const renderTrade = useCallback((trade: OverviewTradeDto) => {
     return (
       <Trade
+        key={trade.id}
         className={styles.tradeItem}
         sellerUsername={trade.sellerUsername}
         sellerAccepted={trade.sellerAccepted}
+        buyerUsername={trade.buyerUsername ?? undefined}
         buyerAccepted={trade.buyerAccepted}
         price={trade.price}
         createdAt={trade.createdAt}
         nftSeed={trade.nftSeed}
         isPublic={trade.isPublic}
         isComplete={trade.isCompleted}
-        buyerUsername={trade.buyerUsername ?? undefined}
-        onAccept={() => acceptTrade({ id: trade.id })}
-        onDecline={() => declineTrade({ id: trade.id })}
+        canAccept={
+          user !== undefined &&
+          !trade.isCompleted &&
+          !(
+            (trade.buyerAccepted && trade.buyerUsername === user.username) ||
+            (trade.sellerAccepted && trade.sellerUsername === user.username)
+          )
+        }
+        canDecline={
+          user !== undefined &&
+          !trade.isCompleted &&
+          (
+            trade.sellerUsername === user.username ||
+            trade.buyerUsername === user.username
+          )
+        }
+        onAccept={() => acceptTrade({id: trade.id })}
+        onDecline={() => declineTrade({id: trade.id})}
       />
     )
   }, [acceptTrade, declineTrade]);
 
   return <div>
-    <Grid
-      title="My Trades"
-      sort={myTradesSort}
-      onSortChange={setMyTradesSort}
-      sortOptions={TRADE_SORT_OPTIONS}
-      items={myTradesData?.trades}
-      loading={isMyTradesLoading}
-      error={isMyTradesError ? myTradesError?.message ?? "Error fetching trades" : undefined}
-      keyProp={"id"}
-      page={myTradesPage}
-      onPageChange={setMyTradesPage}
-      pageSize={MY_TRADES_PAGE_SIZE}
-      totalElements={myTradesData?.totalCount}
-      renderItem={renderTrade}
-    />
+    {user && (
+      <Grid
+        title="My Trades"
+        sort={myTradesSort}
+        onSortChange={setMyTradesSort}
+        sortOptions={TRADE_SORT_OPTIONS}
+        items={myTradesData?.trades}
+        loading={isMyTradesLoading}
+        error={
+          isMyTradesError
+            ? myTradesError?.message ?? "Error fetching trades"
+            : undefined
+        }
+        keyProp={"id"}
+        page={myTradesPage}
+        onPageChange={setMyTradesPage}
+        pageSize={MY_TRADES_PAGE_SIZE}
+        totalElements={myTradesData?.totalCount}
+        renderItem={renderTrade}
+      />
+    )}
     <Grid
       title="Public Offers"
       sort={publicTradesSort}
@@ -166,7 +197,11 @@ const TradesOverview: React.FC<{}> = (props) => {
       sortOptions={TRADE_SORT_OPTIONS}
       items={publicTradesData?.trades}
       loading={isPublicTradesLoading}
-      error={isPublicTradesError ? publicTradesError?.message ?? "Error fetching trades" : undefined}
+      error={
+        isPublicTradesError
+          ? publicTradesError?.message ?? "Error fetching trades"
+          : undefined
+      }
       keyProp={"id"}
       page={publicTradesPage}
       onPageChange={setPublicTradesPage}

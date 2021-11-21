@@ -13,16 +13,20 @@ import {
     SortOrder,
     parseString,
     createToWhereMap,
-    QuerySorts,
+    QuerySort,
     QueryFilters,
     filtersToWhere,
 } from "../../utils/query";
 
+export type GetAllNftsSort = QuerySort<typeof queryPropMap>;
+
+export type GetAllNftsFilters = QueryFilters<typeof queryPropMap>;
+
 export type GetAllNftsRequest = {
     skip?: number,
     take: number,
-    sorts: QuerySorts<typeof queryPropMap>,
-    filters?: QueryFilters<typeof queryPropMap>,
+    sorts: GetAllNftsSort[],
+    filters?: GetAllNftsFilters,
 };
 
 export type OverviewNftDTO = {

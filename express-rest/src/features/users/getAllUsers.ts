@@ -16,16 +16,20 @@ import {
     SortOrder,
     parseString,
     createToWhereMap,
-    QuerySorts,
+    QuerySort,
     QueryFilters,
     filtersToWhere,
 } from "../../utils/query";
 
+export type GetAllUsersSort = QuerySort<typeof queryPropMap>;
+
+export type GetAllUsersFilters = QueryFilters<typeof queryPropMap>;
+
 export type GetAllUsersRequest = {
     skip?: number,
     take: number,
-    sorts: QuerySorts<typeof queryPropMap>,
-    filters?: QueryFilters<typeof queryPropMap>,
+    sorts: GetAllUsersSort[],
+    filters?: GetAllUsersFilters,
 }
 
 export type OverviewUserDto = {

@@ -24,6 +24,8 @@ const Trade = (props: {
   onAccept: () => void,
   onDecline: () => void,
   className?: string,
+  canAccept?: boolean,
+  canDecline?: boolean,
 }) => {
   return (
     <div className={classNames(
@@ -92,16 +94,22 @@ const Trade = (props: {
             {CURRENCY_SYMBOL}{props.price}
           </span>
         </div>
-        <div className={styles.actions}>
-          <button>
-            <FontAwesomeIcon icon={faCheck} color={"green"} fixedWidth />
-            <span>Accept</span>
-          </button>
-          <button>
-            <FontAwesomeIcon icon={faXmark} color={"red"} fixedWidth />
-            <span>Decline</span>
-          </button>
-        </div>
+        {(props.canAccept || props.canDecline) && (
+          <div className={styles.actions}>
+            {props.canAccept && (
+              <button onClick={props.onAccept}>
+                <FontAwesomeIcon icon={faCheck} color={"green"} fixedWidth/>
+                <span>Accept</span>
+              </button>
+            )}
+            {props.canDecline && (
+              <button onClick={props.onDecline}>
+                <FontAwesomeIcon icon={faXmark} color={"red"} fixedWidth />
+                <span>Delete</span>
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )

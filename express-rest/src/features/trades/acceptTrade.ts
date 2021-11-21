@@ -46,14 +46,13 @@ export const acceptTrade: PrivateFeature<AcceptTradeRequest, AcceptTradeResponse
         return err(new ApiError("Trade not found", 404));
     }
 
-    assert(trade.buyer !== null);
-    assert(trade.buyerId !== null);
     assert(trade.seller !== null);
     assert(trade.sellerId !== null);
 
     if (
         trade.sellerId !== ctx.user.id &&
-        trade.buyerId !== ctx.user.id
+        trade.buyerId !== ctx.user.id &&
+        trade.buyer !== null
     ) {
         return err(new ApiError("Cannot accept trade you are not participating in", 403));
     }
@@ -65,8 +64,21 @@ export const acceptTrade: PrivateFeature<AcceptTradeRequest, AcceptTradeResponse
         return err(new ApiError("Already accepted", 400));
     }
 
-    if (trade.buyer.balance < trade.price) {
+    const buyer: User = trade.buyer ?? ctx.user;
+
+    if (buyer.balance < trade.price) {
         return err(new ApiError("Insufficient funds", 400));
+    }
+
+    if (trade.buyerId === null) {
+        await ctx.prisma.trade.update({
+            where: {
+                id: request.id,
+            },
+            data: {
+                buyerId: ctx.user.id
+            }
+        });
     }
 
     const updatedTradeWithPasswords = await ctx.prisma.trade.update({
@@ -79,12 +91,12 @@ export const acceptTrade: PrivateFeature<AcceptTradeRequest, AcceptTradeResponse
             seller: true,
         },
         data: {
-            buyerAccepted: trade.buyerAccepted || trade.buyerId === ctx.user.id,
+            buyerAccepted: trade.buyerAccepted || buyer.id === ctx.user.id,
             sellerAccepted: trade.sellerAccepted || trade.sellerId === ctx.user.id,
             soldAt: new Date(),
             buyer: {
                 update: {
-                    balance: trade.seller.balance - trade.price,
+                    balance: buyer.balance - trade.price,
                 }
             },
             seller: {
@@ -94,7 +106,7 @@ export const acceptTrade: PrivateFeature<AcceptTradeRequest, AcceptTradeResponse
             },
             nft: {
                 update: {
-                    ownerId: trade.buyerId,
+                    ownerId: buyer.id,
                     lastTradeId: trade.id,
                     highestTradeId: (
                         trade.nft.highestTrade === null ||
@@ -132,7 +144,7 @@ export const acceptTrade: PrivateFeature<AcceptTradeRequest, AcceptTradeResponse
         description: (
             `[${trade.seller.username}](/users/${trade.seller.username}) sold ` +
             `["${trade.nft.seed}"](/nfts/${trade.nft.seed}) to ` +
-            `[${trade.buyer.username}](/users/${trade.buyer.username}) for ` +
+            `[${buyer.username}](/users/${buyer.username}) for ` +
             `${CURRENCY_SYMBOL}${trade.price}.`
         ) as Markdown
     })

@@ -148,6 +148,19 @@ const serializeSort = <T extends object>(sorts: Sorts<T>): string => {
     .join(",");
 };
 
+
+function parseDate(input: string): Date {
+  return new Date(Date.parse(input));
+}
+
+function parseDateIfNotNull(input: string | null): Date | null {
+  if (input === null) {
+    return null;
+  }
+
+  return parseDate(input);
+}
+
 /* -------------------------------------------------- */
 
 export const getAllUsers = async (request: GetAllUsersRequest): Promise<GetAllUsersResponse> => {
@@ -165,7 +178,7 @@ export const getAllUsers = async (request: GetAllUsersRequest): Promise<GetAllUs
     ...response,
     users: response.users.map((user) => ({
       ...user,
-      createdAt: new Date(Date.parse(user.createdAt)),
+      createdAt: parseDate(user.createdAt),
     }))
   }
 }
@@ -185,7 +198,7 @@ export const getAllNfts = async (request: GetAllNftsRequest): Promise<GetAllNfts
     ...response,
     nfts: response.nfts.map((nft) => ({
       ...nft,
-      mintedAt: new Date(Date.parse(nft.mintedAt)),
+      mintedAt: parseDate(nft.mintedAt),
     }))
   }
 }
@@ -199,19 +212,19 @@ export const mintNft = async (request: CreateNftRequest): Promise<CreateNftRespo
 
   return {
     ...response,
-    mintedAt: new Date(Date.parse(response.mintedAt)),
+    mintedAt: parseDate(response.mintedAt),
     minter: {
       ...response.minter,
-      createdAt: new Date(Date.parse(response.minter.createdAt)),
+      createdAt: parseDate(response.minter.createdAt),
     },
     owner: {
       ...response.owner,
-      createdAt: new Date(Date.parse(response.owner.createdAt)),
+      createdAt: parseDate(response.owner.createdAt),
     },
     trades: response.trades.map((trade) => ({
       ...trade,
-      createdAt: new Date(Date.parse(trade.createdAt)),
-      soldAt: trade.soldAt != null ? new Date(Date.parse(trade.soldAt)) : null,
+      createdAt: parseDate(trade.createdAt),
+      soldAt: parseDateIfNotNull(trade.soldAt),
     }))
   };
 }
@@ -227,17 +240,40 @@ export const getAllTrades = async (request: GetAllTradesRequest): Promise<GetAll
     }, "filters"),
   );
 
-  return response;
+  return {
+    ...response,
+    trades: response.trades.map((trade) => ({
+      ...trade,
+      createdAt: parseDate(trade.createdAt),
+      soldAt: parseDateIfNotNull(trade.soldAt),
+    })),
+  };
 };
 
 export const acceptTrade = async (request: AcceptTradeRequest): Promise<AcceptTradeResponse> => {
   const response = await makeRequest<AcceptTradeRequest, AcceptTradeResponse>(
     "POST",
-    `/trades/${request.id}`,
+    `/trades/${request.id}/accept`,
     request,
   );
 
-  return response;
+  return {
+    ...response,
+    soldAt: parseDateIfNotNull(response.soldAt),
+    createdAt: parseDate(response.createdAt),
+    nft: {
+      ...response.nft,
+      mintedAt: parseDate(response.nft.mintedAt)
+    },
+    seller: {
+      ...response.seller,
+      createdAt: parseDate(response.seller.createdAt),
+    },
+    buyer: {
+      ...response.buyer,
+      createdAt: parseDate(response.buyer.createdAt),
+    },
+  };
 };
 
 export const declineTrade = async (request: DeleteTradeRequest): Promise<DeleteTradeResponse> => {

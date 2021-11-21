@@ -12,16 +12,16 @@ const authMiddleware = (prisma: PrismaClient) => (
             next();
             return;
         }
-    
+
         if (!/^Bearer .+$/.test(authHeader)) {
             res.status(400).json({ error: "Invalid authorization header" });
             return;
         }
-    
+
         const unvalidatedAuthToken = authHeader.replace(/^Bearer /, "");
 
         let payload: AuthPayload;
-        
+
         try {
             payload = jwt.verify(unvalidatedAuthToken, env.AUTH_SECRET!) as AuthPayload;
         } catch (error) {
@@ -36,7 +36,7 @@ const authMiddleware = (prisma: PrismaClient) => (
         });
 
         if (user === null) {
-            res.status(401).json({ error: "User not found" })
+            res.status(401).json({ error: "Logged in user not found" })
             return;
         }
 

@@ -13,10 +13,10 @@ export type BaseQueryPropMap = Record<string, {
 
 export type Sorts<T extends object> = Array<[keyof T, SortOrder]>;
 
-export type QuerySorts<QueryPropMap extends BaseQueryPropMap> = Array<[
+export type QuerySort<QueryPropMap extends BaseQueryPropMap> = [
     keyof SubType<QueryPropMap, { toOrderBy: any }>,
     SortOrder,
-]>;
+];
 
 export type QueryFilters<QueryPropMap extends BaseQueryPropMap> = {
     [Key in keyof SubType<QueryPropMap, { toWhere: any }>]?: {
@@ -84,14 +84,14 @@ export const parseBoolean = (input: string | unknown): Result<boolean, string> =
 export const parseSort = <QueryPropMap extends BaseQueryPropMap>(
   input: string | unknown,
   queryPropMap: QueryPropMap,
-): Result<QuerySorts<QueryPropMap>, string> => {
+): Result<QuerySort<QueryPropMap>[], string> => {
     if (!is<string>(input) || !input.match(/([+-][a-z_]+,)*[+-][a-z_]+/)) {
         return err(`Invalid structure. Example structure: '?sorts=+foo,-bar' to sort by 'foo' ascending and 'bar' descending.`);
     }
 
     const parts = input.split(",");
 
-    let sorts: QuerySorts<QueryPropMap> = [];
+    let sorts: QuerySort<QueryPropMap>[] = [];
 
     for (const part of parts) {
         const sign = part.slice(0, 1);
@@ -106,7 +106,7 @@ export const parseSort = <QueryPropMap extends BaseQueryPropMap>(
             return err(`Invalid key '${sortKey}' to sort on. Valid keys: ${validKeys.join(", ")}`);
         }
 
-        sorts.push([sortKey, order] as QuerySorts<QueryPropMap>[number]);
+        sorts.push([sortKey, order] as QuerySort<QueryPropMap>);
     }
 
     return ok(sorts);
@@ -183,14 +183,24 @@ export const filtersToWhere = <QueryPropMap extends BaseQueryPropMap, Where>(
             return acc;
         }
 
-        return merge(
+        const mergedWhere = merge(
           acc,
           Object.entries(toWhereMap).reduce(
-            (acc, [opKey, toWhere]) => (
-              merge(acc, toWhere(filters[filterKey]?.[opKey as keyof typeof filters[keyof typeof filters]]))
-            ),
+            (acc, [opKey, toWhere]) => {
+                type OpKey = keyof typeof filters[keyof typeof filters];
+                const value = filters[filterKey]?.[opKey as OpKey];
+                if (value === undefined) {
+                    return acc;
+                }
+                const where = toWhere(value);
+                return (
+                  merge(acc, where)
+                );
+            },
             {},
           ),
         );
+
+        return mergedWhere;
     }, {} as Where);
 }
