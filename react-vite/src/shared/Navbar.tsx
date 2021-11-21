@@ -13,12 +13,10 @@ import {
   faUserPlus,
   faUsers,
 } from "@fortawesome/pro-duotone-svg-icons";
+import { getLocalAuthPayload } from "../utils/localStorage";
 
 const Navbar = ({}) => {
-  // TODO: Load from auth token
-  const loggedInUser: {username: string} | undefined = {
-    username: "tobloef"
-  };
+  const loggedInUser = getLocalAuthPayload()?.user;
 
   return (
     <div className={styles.navbar}>
