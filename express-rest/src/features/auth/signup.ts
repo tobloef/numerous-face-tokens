@@ -11,12 +11,12 @@ import { SetupRequest } from "../../utils/expressHandler";
 import generateId from "../../utils/generateId";
 import env from "../../utils/env";
 
-type SignupRequest = {
+export type SignupRequest = {
     username: string,
     password: string,
 };
 
-type SignupResponse = AuthToken;
+export type SignupResponse = AuthToken;
 
 export const signup: PublicFeature<SignupRequest, SignupResponse> = async (
     request,
@@ -58,6 +58,6 @@ export const setupSignupRequest: SetupRequest<SignupRequest, {}> = (req) => {
     if (!is<SignupRequest>(req.body)) {
         return err(new ApiError("Invalid signup info", 400));
     }
-    
+
     return ok(req.body);
 }

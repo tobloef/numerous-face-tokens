@@ -13,10 +13,10 @@ import {
   faUserPlus,
   faUsers,
 } from "@fortawesome/pro-duotone-svg-icons";
-import { getLocalAuthPayload } from "../utils/localStorage";
+import { useGlobalState } from "../utils/globalState";
 
 const Navbar = ({}) => {
-  const loggedInUser = getLocalAuthPayload()?.user;
+  const [authPayload, setAuthToken] = useGlobalState('authPayload');
 
   return (
     <div className={styles.navbar}>
@@ -37,17 +37,17 @@ const Navbar = ({}) => {
         </NavLink>
       </div>
       <div className={styles.right}>
-        {loggedInUser !== undefined && (
+        {authPayload?.user !== undefined && (
           <>
-            <NavLink to={`/users/${loggedInUser.username}`} end>
-              <div><FontAwesomeIcon icon={faUser} /> <span>{loggedInUser.username}</span></div>
+            <NavLink to={`/users/${authPayload.user.username}`} end>
+              <div><FontAwesomeIcon icon={faUser} /> <span>{authPayload.user.username}</span></div>
             </NavLink>
             <NavLink to={`/logout`} end>
               <div><FontAwesomeIcon icon={faRightFromBracket} /> <span>Log out</span></div>
             </NavLink>
           </>
         )}
-        {loggedInUser === undefined && (
+        {authPayload?.user === undefined && (
           <>
             <NavLink to="/register" end>
               <div><FontAwesomeIcon icon={faUserPlus} /> <span>Register</span></div>

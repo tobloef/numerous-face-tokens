@@ -1,6 +1,6 @@
 import qs from "qs";
 import BaseError from "./BaseError";
-import { getLocalAuthToken } from "./localStorage";
+import { getAuthToken } from "./localStorage";
 import {
   GetAllUsersRequest,
   GetAllUsersResponse,
@@ -29,6 +29,11 @@ import {
   DeleteTradeRequest,
   DeleteTradeResponse,
 } from "../../../express-rest/src/features/trades/deleteTrade";
+import {
+  SignupRequest,
+  SignupResponse,
+} from "../../../express-rest/src/features/auth/signup";
+import AuthToken from "../../../express-rest/src/types/AuthToken";
 
 const BASE_URL = "http://localhost:3010";
 
@@ -61,7 +66,7 @@ export const makeRequest = async <Req extends object, Res>(
     "Content-Type": "application/json",
   };
 
-  const authToken = getLocalAuthToken();
+  const authToken = getAuthToken();
   if (authToken != undefined) {
     headers = {
       ...headers,
@@ -284,4 +289,15 @@ export const declineTrade = async (request: DeleteTradeRequest): Promise<DeleteT
   );
 
   return response;
+};
+
+
+export const signup = async (request: SignupRequest): Promise<SignupResponse> => {
+  const response = await makeRequest<SignupRequest, SignupResponse>(
+    "POST",
+    "/signup",
+    request,
+  )
+
+  return response as AuthToken;
 };

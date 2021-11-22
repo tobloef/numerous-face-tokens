@@ -5,6 +5,7 @@ import Sort from "../types/Sort";
 import Pagination, {
   PageProps,
 } from "./Pagination";
+import classNames from "classnames";
 
 const Grid = <
   T,
@@ -20,6 +21,7 @@ const Grid = <
     sort?: S,
     onSortChange?: (newSort: S) => void,
     sortOptions?: Options<S>,
+    className?: string,
   }
   & PageProps
 ) => {
@@ -37,7 +39,7 @@ const Grid = <
   }, [props.sort]);
 
   return (
-    <div className={styles.gridWrapper}>
+    <div className={classNames(styles.gridWrapper, props.className)}>
       <div className={styles.header}>
         {props.title !== undefined && (
           <h2>{props.title}</h2>

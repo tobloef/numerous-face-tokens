@@ -25,7 +25,7 @@ import {
   DeleteTradeResponse,
 } from "../../../express-rest/src/features/trades/deleteTrade";
 import { Options } from "../shared/Select";
-import { getLocalAuthPayload } from "../utils/localStorage";
+import { useGlobalState } from "../utils/globalState";
 
 const MY_TRADES_PAGE_SIZE = 10;
 
@@ -58,7 +58,7 @@ const TradesOverview: React.FC<{}> = (props) => {
 
   const queryClient = useQueryClient();
 
-  const user = getLocalAuthPayload()?.user;
+  const [authPayload, setAuthToken] = useGlobalState('authPayload');
 
   const {
     isLoading: isMyTradesLoading,
@@ -73,12 +73,12 @@ const TradesOverview: React.FC<{}> = (props) => {
       sorts: [myTradesSort],
       filters: {
         participantUsername: {
-          equals: user?.username,
+          equals: authPayload?.user?.username,
         },
       }
     }),
     {
-      enabled: user !== undefined,
+      enabled: authPayload?.user !== undefined,
     }
   );
 
@@ -147,19 +147,19 @@ const TradesOverview: React.FC<{}> = (props) => {
         isPublic={trade.isPublic}
         isComplete={trade.isCompleted}
         canAccept={
-          user !== undefined &&
+          authPayload?.user !== undefined &&
           !trade.isCompleted &&
           !(
-            (trade.buyerAccepted && trade.buyerUsername === user.username) ||
-            (trade.sellerAccepted && trade.sellerUsername === user.username)
+            (trade.buyerAccepted && trade.buyerUsername === authPayload?.user.username) ||
+            (trade.sellerAccepted && trade.sellerUsername === authPayload?.user.username)
           )
         }
         canDecline={
-          user !== undefined &&
+          authPayload?.user !== undefined &&
           !trade.isCompleted &&
           (
-            trade.sellerUsername === user.username ||
-            trade.buyerUsername === user.username
+            trade.sellerUsername === authPayload?.user.username ||
+            trade.buyerUsername === authPayload?.user.username
           )
         }
         onAccept={() => acceptTrade({id: trade.id })}
@@ -169,7 +169,7 @@ const TradesOverview: React.FC<{}> = (props) => {
   }, [acceptTrade, declineTrade]);
 
   return <div>
-    {user && (
+    {authPayload?.user && (
       <Grid
         title="My Trades"
         sort={myTradesSort}
@@ -188,6 +188,7 @@ const TradesOverview: React.FC<{}> = (props) => {
         pageSize={MY_TRADES_PAGE_SIZE}
         totalElements={myTradesData?.totalCount}
         renderItem={renderTrade}
+        className={styles.myTrades}
       />
     )}
     <Grid
@@ -208,6 +209,7 @@ const TradesOverview: React.FC<{}> = (props) => {
       pageSize={PUBLIC_TRADES_PAGE_SIZE}
       totalElements={publicTradesData?.totalCount}
       renderItem={renderTrade}
+      className={styles.publicTrades}
     />
   </div>;
 };

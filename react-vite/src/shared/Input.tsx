@@ -7,6 +7,7 @@ const Input: React.FC<{
   value: string,
   placeholder?: string,
   className?: string,
+  type?: string,
 }> = (props) => {
   return (
     <input
@@ -14,6 +15,7 @@ const Input: React.FC<{
       value={props.value}
       placeholder={props.placeholder}
       className={classNames(props.className, styles.input)}
+      type={props.type}
     />
   );
 };
