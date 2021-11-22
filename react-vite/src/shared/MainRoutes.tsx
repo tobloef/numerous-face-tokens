@@ -12,6 +12,7 @@ import TradeDetails from "../trades/TradeDetails";
 import NftDetails from "../nfts/NftDetails";
 import Login from "../auth/Login";
 import styles from "./MainRoutes.module.css";
+import Logout from "../auth/Logout";
 
 const MainRoutes = ({}) => (
   <div className={styles.mainWrapper}>
@@ -33,6 +34,7 @@ const MainRoutes = ({}) => (
                   </Route>
                   <Route path="register" element={<Register/>}/>
                   <Route path="login" element={<Login/>}/>
+                  <Route path="logout" element={<Logout/>}/>
               </Route>
           </Routes>
       </div>

@@ -16,9 +16,6 @@ import {
   setAuthToken,
 } from "../utils/localStorage";
 import { useGlobalState } from "../utils/globalState";
-import jwt from "jsonwebtoken";
-import AuthToken from "../../../express-rest/src/types/AuthToken";
-import AuthPayload from "../../../express-rest/src/types/AuthPayload";
 
 const Register: React.FC<{}> = (props) => {
   const [username, setUsername] = useState("");
@@ -26,7 +23,7 @@ const Register: React.FC<{}> = (props) => {
 
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const [authPayload, setAuthPayload] = useGlobalState('authPayload');
+  const [_, setAuthPayload] = useGlobalState('authPayload');
 
   const {
     mutate: register,

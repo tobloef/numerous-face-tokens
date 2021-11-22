@@ -58,7 +58,7 @@ const TradesOverview: React.FC<{}> = (props) => {
 
   const queryClient = useQueryClient();
 
-  const [authPayload, setAuthToken] = useGlobalState('authPayload');
+  const [authPayload] = useGlobalState('authPayload');
 
   const {
     isLoading: isMyTradesLoading,

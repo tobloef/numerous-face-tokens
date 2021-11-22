@@ -10,12 +10,12 @@ import AuthPayload from "../../types/AuthPayload";
 import { SetupRequest } from "../../utils/expressHandler";
 import env from "../../utils/env";
 
-type LoginRequest = {
+export type LoginRequest = {
     username: string,
     password: string,
 };
 
-type LoginResponse = AuthToken;
+export type LoginResponse = AuthToken;
 
 export const login: PublicFeature<LoginRequest, LoginResponse> = async (
     request,
@@ -52,6 +52,6 @@ export const setupLoginRequest: SetupRequest<LoginRequest, {}> = (req) => {
     if (!is<LoginRequest>(req.body)) {
         return err(new ApiError("Invalid login info", 400));
     }
-    
+
     return ok(req.body);
 }

@@ -34,6 +34,10 @@ import {
   SignupResponse,
 } from "../../../express-rest/src/features/auth/signup";
 import AuthToken from "../../../express-rest/src/types/AuthToken";
+import {
+  LoginRequest,
+  LoginResponse,
+} from "../../../express-rest/src/features/auth/login";
 
 const BASE_URL = "http://localhost:3010";
 
@@ -296,6 +300,18 @@ export const signup = async (request: SignupRequest): Promise<SignupResponse> =>
   const response = await makeRequest<SignupRequest, SignupResponse>(
     "POST",
     "/signup",
+    request,
+  )
+
+  return response as AuthToken;
+};
+
+
+
+export const login = async (request: LoginRequest): Promise<LoginResponse> => {
+  const response = await makeRequest<LoginRequest, LoginResponse>(
+    "POST",
+    "/login",
     request,
   )
 

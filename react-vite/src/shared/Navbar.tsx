@@ -16,7 +16,7 @@ import {
 import { useGlobalState } from "../utils/globalState";
 
 const Navbar = ({}) => {
-  const [authPayload, setAuthToken] = useGlobalState('authPayload');
+  const [authPayload] = useGlobalState('authPayload');
 
   return (
     <div className={styles.navbar}>
