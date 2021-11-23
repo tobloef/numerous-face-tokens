@@ -12,7 +12,7 @@ const Grid = <
   S extends Sort<any>
 >(props:
   & {
-    title?: string,
+    title?: string | React.ReactNode,
     items: T[] | undefined,
     loading?: boolean,
     error?: string,
@@ -42,7 +42,7 @@ const Grid = <
     <div className={classNames(styles.gridWrapper, props.className)}>
       <div className={styles.header}>
         {props.title !== undefined && (
-          <h2>{props.title}</h2>
+          (typeof props.title === "string" ? (<h2>{props.title}</h2>) : props.title)
         )}
         {(
           serializedSort !== undefined &&

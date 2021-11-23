@@ -9,7 +9,7 @@
     margin-bottom: 5px;
 }
 
-.header h2 {
+.header > :first-child {
     margin: 0;
     flex: 1;
 }

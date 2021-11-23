@@ -42,6 +42,10 @@ import {
   GetUserRequest,
   GetUserResponse,
 } from "../../../express-rest/src/features/users/getUser";
+import {
+  GetNftRequest,
+  GetNftResponse,
+} from "../../../express-rest/src/features/nfts/getNft";
 
 const BASE_URL = "http://localhost:3010";
 
@@ -292,7 +296,7 @@ export const acceptTrade = async (request: AcceptTradeRequest): Promise<AcceptTr
 export const declineTrade = async (request: DeleteTradeRequest): Promise<DeleteTradeResponse> => {
   const response = await makeRequest<DeleteTradeRequest, DeleteTradeResponse>(
     "DELETE",
-    `/trades/${request.id}`,
+    `/trades/${encodeURIComponent(request.id)}`,
     request,
   );
 
@@ -325,7 +329,7 @@ export const login = async (request: LoginRequest): Promise<LoginResponse> => {
 export const getUser = async (request: GetUserRequest): Promise<GetUserResponse> => {
   const response = await makeRequest<GetUserRequest, GetUserResponse>(
     "GET",
-    `/users/${request.username}`,
+    `/users/${encodeURIComponent(request.username)}`,
     request,
   );
 
@@ -350,5 +354,41 @@ export const getUser = async (request: GetUserRequest): Promise<GetUserResponse>
       ...nft,
       mintedAt: parseDate(nft.mintedAt),
     })),
+  };
+}
+
+export const getNft = async (request: GetNftRequest): Promise<GetNftResponse> => {
+  const response = await makeRequest<GetNftRequest, GetNftResponse>(
+    "GET",
+    `/nfts/${encodeURIComponent(request.seed)}`,
+    request,
+  );
+
+  return {
+    ...response,
+    mintedAt: parseDate(response.mintedAt),
+    minter: {
+      ...response.minter,
+      createdAt: parseDate(response.minter.createdAt),
+    },
+    owner: {
+      ...response.owner,
+      createdAt: parseDate(response.owner.createdAt),
+    },
+    trades: response.trades.map((trade) => ({
+      ...trade,
+      createdAt: parseDate(trade.createdAt),
+      soldAt: parseDateIfNotNull(trade.soldAt),
+    })),
+    highestTrade: response.highestTrade !== null ? {
+      ...response.highestTrade,
+      soldAt: parseDateIfNotNull(response.highestTrade.soldAt),
+      createdAt: parseDate(response.highestTrade.createdAt),
+    } : null,
+    lastTrade: response.lastTrade !== null ? {
+      ...response.lastTrade,
+      soldAt: parseDateIfNotNull(response.lastTrade.soldAt),
+      createdAt: parseDate(response.lastTrade.createdAt),
+    } : null,
   };
 }

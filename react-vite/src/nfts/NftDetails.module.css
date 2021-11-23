@@ -1,0 +1,49 @@
+.detailsWrapper {
+    display: flex;
+}
+
+.imageWrapper {
+    background: white;
+    border: 1px solid hsl(0, 0%, 80%);
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    margin-right: 10px;
+}
+
+.imageWrapper img {
+    width: 200px;
+    height: 200px;
+    image-rendering: pixelated;
+}
+
+.info {
+    background: white;
+    border: 1px solid hsl(0, 0%, 80%);
+    padding: 20px;
+    flex: 1;
+}
+
+.info > *:not(:last-child) {
+    margin-bottom: 5px;
+}
+
+.info > * {
+    display: flex;
+}
+
+.info > * > label {
+    font-weight: bold;
+    display: block;
+    width: 200px;
+    text-align: right;
+    margin-right: 10px;
+}
+
+.deemphasized {
+    font-weight: normal;
+}
+
+.trades {
+    margin-top: 20px;
+}

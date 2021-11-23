@@ -1,6 +1,6 @@
 import styles from "./Trade.module.css";
 import classNames from "classnames";
-import SmallNftCard from "../nfts/SmallNftCard";
+import NftCard from "../nfts/NftCard";
 import {
   faCheck,
   faQuestion,
@@ -10,8 +10,23 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
 import { CURRENCY_SYMBOL } from "../../../express-rest/src/utils/constants";
+import {
+  useMutation,
+  useQueryClient,
+} from "react-query";
+import {
+  AcceptTradeRequest,
+  AcceptTradeResponse,
+} from "../../../express-rest/src/features/trades/acceptTrade";
+import * as api from "../utils/api";
+import {
+  DeleteTradeRequest,
+  DeleteTradeResponse,
+} from "../../../express-rest/src/features/trades/deleteTrade";
+import { useGlobalState } from "../utils/globalState";
 
 const Trade = (props: {
+  id: string,
   className?: string,
   sellerUsername: string,
   buyerUsername?: string,
@@ -21,23 +36,56 @@ const Trade = (props: {
   createdAt: Date,
   nftSeed: string,
   isPublic: boolean,
-  isComplete: boolean,
-  onAccept: () => void,
-  canAccept?: boolean,
-  acceptError?: string,
-  isAcceptLoading?: boolean,
-  canDecline?: boolean,
-  onDecline: () => void,
-  declineError?: string,
-  isDeclineLoading?: boolean,
+  isCompleted: boolean,
 }) => {
+  const queryClient = useQueryClient();
+  const [authPayload] = useGlobalState('authPayload');
+
+  const {
+    mutate: accept,
+    isLoading: isAcceptLoading,
+    isError: isAcceptError,
+    error: acceptError,
+  } = useMutation<AcceptTradeResponse, Error, AcceptTradeRequest>(
+    async (request) => {
+      const trade = await api.acceptTrade(request);
+      queryClient.invalidateQueries("getAllTrades");
+      return trade;
+    },
+  );
+
+  const {
+    mutate: decline,
+    isLoading: isDeclineLoading,
+    isError: isDeclineError,
+    error: declineError,
+  } = useMutation<DeleteTradeResponse, Error, DeleteTradeRequest>(
+    async (request) => {
+      const success = await api.declineTrade(request);
+      queryClient.invalidateQueries("getAllTrades");
+      return success;
+    },
+  );
+
+  const canAccept = !props.isCompleted &&
+    !(
+      (props.buyerAccepted && props.buyerUsername === authPayload?.user.username) ||
+      (props.sellerAccepted && props.sellerUsername === authPayload?.user.username)
+    )
+
+  const canDecline = !props.isCompleted &&
+  (
+    props.sellerUsername === authPayload?.user.username ||
+    props.buyerUsername === authPayload?.user.username
+  )
+
   return (
     <div className={classNames(
       props.className,
       styles.trade,
-      { [styles.completed]: props.isComplete }
+      { [styles.completed]: props.isCompleted }
     )}>
-      <SmallNftCard
+      <NftCard
         seed={props.nftSeed}
         className={styles.nftCard}
       />
@@ -98,25 +146,25 @@ const Trade = (props: {
             {CURRENCY_SYMBOL}{props.price}
           </span>
         </div>
-        {(props.canAccept || props.canDecline) && (
+        {(canAccept || canDecline) && (
           <div className={styles.actions}>
-            {props.canAccept && (
-              <button onClick={props.onAccept} disabled={props.isAcceptLoading}>
+            {canAccept && (
+              <button onClick={() => accept({ id: props.id })} disabled={isAcceptLoading}>
                 <FontAwesomeIcon icon={faCheck} color={"green"} fixedWidth/>
                 <span>Accept</span>
               </button>
             )}
-            {props.acceptError !== undefined && (
-              <span>{props.acceptError}</span>
+            {isAcceptError && (
+              <span>{acceptError?.message ?? "Error accepting trade"}</span>
             )}
-            {props.canDecline && (
-              <button onClick={props.onDecline} disabled={props.isDeclineLoading}>
+            {canDecline && (
+              <button onClick={() => accept({ id: props.id })} disabled={isDeclineLoading}>
                 <FontAwesomeIcon icon={faXmark} color={"red"} fixedWidth />
                 <span>Delete</span>
               </button>
             )}
-            {props.declineError !== undefined && (
-              <span>{props.declineError}</span>
+            {isDeclineError && (
+              <span>{declineError?.message ?? "Error accepting trade"}</span>
             )}
           </div>
         )}

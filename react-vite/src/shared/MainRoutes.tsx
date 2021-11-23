@@ -8,7 +8,6 @@ import UserDetails from "../users/UserDetails";
 import NftsOverview from "../nfts/NftsOverview";
 import Register from "../auth/Register";
 import TradesOverview from "../trades/TradesOverview";
-import TradeDetails from "../trades/TradeDetails";
 import NftDetails from "../nfts/NftDetails";
 import Login from "../auth/Login";
 import styles from "./MainRoutes.module.css";
@@ -30,7 +29,6 @@ const MainRoutes = ({}) => (
                   </Route>
                   <Route path="trades">
                       <Route index element={<TradesOverview/>}/>
-                      <Route path=":tradeId" element={<TradeDetails/>}/>
                   </Route>
                   <Route path="register" element={<Register/>}/>
                   <Route path="login" element={<Login/>}/>

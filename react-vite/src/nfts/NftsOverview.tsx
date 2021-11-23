@@ -2,8 +2,7 @@ import React, {
   useState,
 } from "react";
 import Input from "../shared/Input";
-import { Options } from "../shared/Select";
-import SmallNftCard from "./SmallNftCard";
+import NftCard from "./NftCard";
 import {
   GetAllNftsResponse,
   OverviewNftDTO,
@@ -22,33 +21,9 @@ import {
   CreateNftResponse,
 } from "../../../express-rest/src/features/nfts/createNft";
 import { useGlobalState } from "../utils/globalState";
-
-const SORT_OPTIONS: Options<Sort<OverviewNftDTO>> = [
-  {
-    label: "Newest first",
-    value: ["mintedAt", "desc"],
-  },
-  {
-    label: "Oldest first",
-    value: ["mintedAt", "asc"],
-  },
-  {
-    label: "Highest value first",
-    value: ["highestSellPrice", "desc"],
-  },
-  {
-    label: "Lowest value first",
-    value: ["highestSellPrice", "asc"],
-  },
-  {
-    label: "Seed A → Z",
-    value: ["seed", "asc"],
-  },
-  {
-    label: "Seed Z → A",
-    value: ["seed", "desc"],
-  },
-]
+import {
+  NFT_SORT_OPTIONS,
+} from "../utils/sortOptions";
 
 const NftsOverview: React.FC<{}> = (props) => {
   const PAGE_SIZE = 8 * 3;
@@ -123,7 +98,7 @@ const NftsOverview: React.FC<{}> = (props) => {
               <span className={styles.mintSuccess}>
                 Successfully minted NFT!
               </span>
-              <SmallNftCard
+              <NftCard
                 seed={mintNftData.seed}
                 ownerUsername={mintNftData.owner.username}
               />
@@ -132,10 +107,10 @@ const NftsOverview: React.FC<{}> = (props) => {
         </div>
       )}
       <Grid
-        title="All NFTs"
+        title={<h1>NFTs</h1>}
         sort={sort}
         onSortChange={setSort}
-        sortOptions={SORT_OPTIONS}
+        sortOptions={NFT_SORT_OPTIONS}
         items={nftsData?.nfts}
         loading={isNftsLoading}
         error={isNftsError ? nftsError?.message ?? "Error fetching NFTs" : undefined}
@@ -145,7 +120,7 @@ const NftsOverview: React.FC<{}> = (props) => {
         pageSize={PAGE_SIZE}
         totalElements={nftsData?.totalCount}
         renderItem={(nft: OverviewNftDTO) => (
-          <SmallNftCard
+          <NftCard
             seed={nft.seed}
             ownerUsername={nft.ownerUsername}
             to={`/nfts/${nft.seed}`}

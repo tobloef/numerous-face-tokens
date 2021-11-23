@@ -31,57 +31,15 @@ import {
   DeleteTradeRequest,
   DeleteTradeResponse,
 } from "../../../express-rest/src/features/trades/deleteTrade";
-import SmallNftCard from "../nfts/SmallNftCard";
+import NftCard from "../nfts/NftCard";
 import { CURRENCY_SYMBOL } from "../../../express-rest/src/utils/constants";
+import {
+  NFT_SORT_OPTIONS,
+  TRADE_SORT_OPTIONS,
+} from "../utils/sortOptions";
 
 const TRADES_PAGE_SIZE = 10;
 const NFTS_PAGE_SIZE = 10;
-
-const TRADES_SORT_OPTIONS: Options<GetAllTradesSort> = [
-  {
-    label: "Newest first",
-    value: ["createdAt", "desc"],
-  },
-  {
-    label: "Oldest first",
-    value: ["createdAt", "asc"],
-  },
-  {
-    label: "Highest price first",
-    value: ["price", "desc"],
-  },
-  {
-    label: "Lowest price first",
-    value: ["price", "asc"],
-  },
-];
-
-const NFTS_SORT_OPTIONS: Options<GetAllNftsSort> = [
-  {
-    label: "Newest first",
-    value: ["mintedAt", "desc"],
-  },
-  {
-    label: "Oldest first",
-    value: ["mintedAt", "asc"],
-  },
-  {
-    label: "Highest value first",
-    value: ["highestSellPrice", "desc"],
-  },
-  {
-    label: "Lowest value first",
-    value: ["highestSellPrice", "asc"],
-  },
-  {
-    label: "Seed A → Z",
-    value: ["seed", "asc"],
-  },
-  {
-    label: "Seed Z → A",
-    value: ["seed", "desc"],
-  },
-];
 
 const UserDetails: React.FC<{}> = (props) => {
   const { username } = useParams();
@@ -89,7 +47,6 @@ const UserDetails: React.FC<{}> = (props) => {
   const [tradesPage, setTradesPage] = useState(1);
   const [nftsSort, setNftsSort] = useState<GetAllNftsSort>(["mintedAt", "desc"]);
   const [nftsPage, setNftsPage] = useState(1);
-  const queryClient = useQueryClient();
 
   if (username === undefined) {
     throw new Error("Username was undefined");
@@ -143,32 +100,6 @@ const UserDetails: React.FC<{}> = (props) => {
     }),
   );
 
-  const {
-    mutate: acceptTrade,
-    isLoading: isAcceptTradeLoading,
-    isError: isAcceptTradeError,
-    error: acceptTradeError,
-  } = useMutation<AcceptTradeResponse, Error, AcceptTradeRequest>(
-    async (request) => {
-      const trade = await api.acceptTrade(request);
-      queryClient.invalidateQueries("getAllTrades");
-      return trade;
-    },
-  );
-
-  const {
-    mutate: declineTrade,
-    isLoading: isDeclineTradeLoading,
-    isError: isDeclineTradeError,
-    error: declineTradeError,
-  } = useMutation<DeleteTradeResponse, Error, DeleteTradeRequest>(
-    async (request) => {
-      const success = await api.declineTrade(request);
-      queryClient.invalidateQueries("getAllTrades");
-      return success;
-    },
-  );
-
   if (isLoading) {
     return (
       <div className={styles.textWrapper}>
@@ -200,7 +131,7 @@ const UserDetails: React.FC<{}> = (props) => {
         title="My NFTs"
         sort={nftsSort}
         onSortChange={setNftsSort}
-        sortOptions={NFTS_SORT_OPTIONS}
+        sortOptions={NFT_SORT_OPTIONS}
         items={nftsData?.nfts}
         loading={isNftsLoading}
         error={isNftsError ? nftsError?.message ?? "Error fetching NFTs" : undefined}
@@ -210,7 +141,7 @@ const UserDetails: React.FC<{}> = (props) => {
         pageSize={NFTS_PAGE_SIZE}
         totalElements={nftsData?.totalCount}
         renderItem={(nft: OverviewNftDTO) => (
-          <SmallNftCard
+          <NftCard
             seed={nft.seed}
             ownerUsername={nft.ownerUsername}
             to={`/nfts/${nft.seed}`}
@@ -221,7 +152,7 @@ const UserDetails: React.FC<{}> = (props) => {
         title="My Trades"
         sort={tradesSort}
         onSortChange={setTradesSort}
-        sortOptions={TRADES_SORT_OPTIONS}
+        sortOptions={TRADE_SORT_OPTIONS}
         items={myTradesData?.trades}
         loading={isMyTradesLoading}
         error={
@@ -236,6 +167,7 @@ const UserDetails: React.FC<{}> = (props) => {
         totalElements={myTradesData?.totalCount}
         renderItem={(trade) => (
           <Trade
+            id={trade.id}
             key={trade.id}
             className={styles.tradeItem}
             sellerUsername={trade.sellerUsername}
@@ -246,27 +178,7 @@ const UserDetails: React.FC<{}> = (props) => {
             createdAt={trade.createdAt}
             nftSeed={trade.nftSeed}
             isPublic={trade.isPublic}
-            isComplete={trade.isCompleted}
-            onAccept={() => acceptTrade({id: trade.id })}
-            canAccept={
-              !trade.isCompleted &&
-              !(
-                (trade.buyerAccepted && trade.buyerUsername === username) ||
-                (trade.sellerAccepted && trade.sellerUsername === username)
-              )
-            }
-            acceptError={isAcceptTradeError ? acceptTradeError?.message ?? "Error accepting trade" : undefined}
-            isAcceptLoading={isAcceptTradeLoading}
-            onDecline={() => declineTrade({id: trade.id})}
-            canDecline={
-              !trade.isCompleted &&
-              (
-                trade.sellerUsername === username ||
-                trade.buyerUsername === username
-              )
-            }
-            declineError={isDeclineTradeError ? declineTradeError?.message ?? "Error deleting trade" : undefined}
-            isDeclineLoading={isDeclineTradeLoading}
+            isCompleted={trade.isCompleted}
           />
         )}
         className={styles.myTrades}

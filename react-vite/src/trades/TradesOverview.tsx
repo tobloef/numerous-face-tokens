@@ -26,27 +26,10 @@ import {
 } from "../../../express-rest/src/features/trades/deleteTrade";
 import { Options } from "../shared/Select";
 import { useGlobalState } from "../utils/globalState";
+import { TRADE_SORT_OPTIONS } from "../utils/sortOptions";
 
 const PUBLIC_TRADES_PAGE_SIZE = 10;
 
-const TRADE_SORT_OPTIONS: Options<GetAllTradesSort> = [
-  {
-    label: "Newest first",
-    value: ["createdAt", "desc"],
-  },
-  {
-    label: "Oldest first",
-    value: ["createdAt", "asc"],
-  },
-  {
-    label: "Highest price first",
-    value: ["price", "desc"],
-  },
-  {
-    label: "Lowest price first",
-    value: ["price", "asc"],
-  },
-];
 
 const TradesOverview: React.FC<{}> = (props) => {
   const [publicTradesSort, setPublicTradesSort] = useState<GetAllTradesSort>(["createdAt", "desc"]);
@@ -104,7 +87,7 @@ const TradesOverview: React.FC<{}> = (props) => {
 
   return <div>
     <Grid
-      title="Public Offers"
+      title={(<h1>Public Trade Offers</h1>)}
       sort={publicTradesSort}
       onSortChange={setPublicTradesSort}
       sortOptions={TRADE_SORT_OPTIONS}
@@ -123,6 +106,7 @@ const TradesOverview: React.FC<{}> = (props) => {
       renderItem={(trade) => (
         <Trade
           key={trade.id}
+          id={trade.id}
           className={styles.tradeItem}
           sellerUsername={trade.sellerUsername}
           sellerAccepted={trade.sellerAccepted}
@@ -132,29 +116,7 @@ const TradesOverview: React.FC<{}> = (props) => {
           createdAt={trade.createdAt}
           nftSeed={trade.nftSeed}
           isPublic={trade.isPublic}
-          isComplete={trade.isCompleted}
-          onAccept={() => acceptTrade({id: trade.id })}
-          canAccept={
-            authPayload?.user !== undefined &&
-            !trade.isCompleted &&
-            !(
-              (trade.buyerAccepted && trade.buyerUsername === authPayload?.user.username) ||
-              (trade.sellerAccepted && trade.sellerUsername === authPayload?.user.username)
-            )
-          }
-          acceptError={isAcceptTradeError ? acceptTradeError?.message ?? "Error accepting trade" : undefined}
-          isAcceptLoading={isAcceptTradeLoading}
-          onDecline={() => declineTrade({id: trade.id})}
-          canDecline={
-            authPayload?.user !== undefined &&
-            !trade.isCompleted &&
-            (
-              trade.sellerUsername === authPayload?.user.username ||
-              trade.buyerUsername === authPayload?.user.username
-            )
-          }
-          declineError={isDeclineTradeError ? declineTradeError?.message ?? "Error deleting trade" : undefined}
-          isDeclineLoading={isDeclineTradeLoading}
+          isCompleted={trade.isCompleted}
         />
       )}
       className={styles.publicTrades}

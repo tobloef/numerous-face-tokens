@@ -5,16 +5,18 @@ import { PublicFeature } from "../../types/feature";
 import deleteProp from "../../utils/deleteProp";
 import { SetupRequest } from "../../utils/expressHandler";
 
-type GetNftRequest = {
+export type GetNftRequest = {
     seed: string,
 };
 
-type GetNftResponse = 
+export type GetNftResponse =
  & Nft
  & {
     minter: User;
     owner: User;
     trades: Trade[];
+    lastTrade: Trade | null;
+    highestTrade: Trade | null;
 };
 
 export const getNft: PublicFeature<GetNftRequest, GetNftResponse> = async (
@@ -37,7 +39,7 @@ export const getNft: PublicFeature<GetNftRequest, GetNftResponse> = async (
     if (nftWithUserPasswords == null) {
         return err(new ApiError("NFT not found", 404));
     }
-    
+
     const nft = {
         ...nftWithUserPasswords,
         minter: deleteProp(nftWithUserPasswords.minter, "passwordHash"),

@@ -1,9 +1,9 @@
 import React from "react";
-import styles from "./SmallNftCard.module.css";
+import styles from "./NftCard.module.css";
 import { Link } from "react-router-dom";
 import classNames from "classnames";
 
-const SmallNftCard = (props: {
+const NftCard = (props: {
   seed: string,
   ownerUsername?: string,
   highestTradePrice?: number,
@@ -16,7 +16,10 @@ const SmallNftCard = (props: {
       to={`/nfts/${props.seed}`}
     >
       <div className={styles.smallNftCard}>
-        <img src={`https://server.tobloef.com/faces/${props.seed}.png`} />
+        <img
+          src={`https://server.tobloef.com/faces/${encodeURIComponent(props.seed)}.png`}
+          alt={props.seed}
+        />
         <span className={styles.seed}>{props.seed}</span>
         {props.ownerUsername !== undefined && (
           <span>
@@ -33,4 +36,4 @@ const SmallNftCard = (props: {
   )
 };
 
-export default SmallNftCard;
+export default NftCard;
