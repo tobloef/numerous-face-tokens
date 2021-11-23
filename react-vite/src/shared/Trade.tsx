@@ -12,6 +12,7 @@ import { Link } from "react-router-dom";
 import { CURRENCY_SYMBOL } from "../../../express-rest/src/utils/constants";
 
 const Trade = (props: {
+  className?: string,
   sellerUsername: string,
   buyerUsername?: string,
   sellerAccepted: boolean,
@@ -22,10 +23,13 @@ const Trade = (props: {
   isPublic: boolean,
   isComplete: boolean,
   onAccept: () => void,
-  onDecline: () => void,
-  className?: string,
   canAccept?: boolean,
+  acceptError?: string,
+  isAcceptLoading?: boolean,
   canDecline?: boolean,
+  onDecline: () => void,
+  declineError?: string,
+  isDeclineLoading?: boolean,
 }) => {
   return (
     <div className={classNames(
@@ -97,16 +101,22 @@ const Trade = (props: {
         {(props.canAccept || props.canDecline) && (
           <div className={styles.actions}>
             {props.canAccept && (
-              <button onClick={props.onAccept}>
+              <button onClick={props.onAccept} disabled={props.isAcceptLoading}>
                 <FontAwesomeIcon icon={faCheck} color={"green"} fixedWidth/>
                 <span>Accept</span>
               </button>
             )}
+            {props.acceptError !== undefined && (
+              <span>{props.acceptError}</span>
+            )}
             {props.canDecline && (
-              <button onClick={props.onDecline}>
+              <button onClick={props.onDecline} disabled={props.isDeclineLoading}>
                 <FontAwesomeIcon icon={faXmark} color={"red"} fixedWidth />
                 <span>Delete</span>
               </button>
+            )}
+            {props.declineError !== undefined && (
+              <span>{props.declineError}</span>
             )}
           </div>
         )}

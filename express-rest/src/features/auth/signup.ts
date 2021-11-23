@@ -24,6 +24,10 @@ export const signup: PublicFeature<SignupRequest, SignupResponse> = async (
 ) => {
     const username = request.username.toLowerCase();
 
+    if (username === "") {
+        return err(new ApiError("Username cannot be empty", 400));
+    }
+
     const existingUser = await ctx.prisma.user.findUnique({
         where: {
             username,

@@ -27,8 +27,6 @@ import {
 import { Options } from "../shared/Select";
 import { useGlobalState } from "../utils/globalState";
 
-const MY_TRADES_PAGE_SIZE = 10;
-
 const PUBLIC_TRADES_PAGE_SIZE = 10;
 
 const TRADE_SORT_OPTIONS: Options<GetAllTradesSort> = [
@@ -51,36 +49,10 @@ const TRADE_SORT_OPTIONS: Options<GetAllTradesSort> = [
 ];
 
 const TradesOverview: React.FC<{}> = (props) => {
-  const [myTradesSort, setMyTradesSort] = useState<GetAllTradesSort>(["createdAt", "desc"]);
-  const [myTradesPage, setMyTradesPage] = useState(1);
   const [publicTradesSort, setPublicTradesSort] = useState<GetAllTradesSort>(["createdAt", "desc"]);
   const [publicTradesPage, setPublicTradesPage] = useState(1);
-
   const queryClient = useQueryClient();
-
   const [authPayload] = useGlobalState('authPayload');
-
-  const {
-    isLoading: isMyTradesLoading,
-    isError: isMyTradesError,
-    data: myTradesData,
-    error: myTradesError,
-  } = useQuery<GetAllTradesResponse, Error>(
-    ["getAllTrades", "myTrades", myTradesPage, myTradesSort],
-    () => api.getAllTrades({
-      take: MY_TRADES_PAGE_SIZE,
-      skip: (myTradesPage - 1) * MY_TRADES_PAGE_SIZE,
-      sorts: [myTradesSort],
-      filters: {
-        participantUsername: {
-          equals: authPayload?.user?.username,
-        },
-      }
-    }),
-    {
-      enabled: authPayload?.user !== undefined,
-    }
-  );
 
   const {
     isLoading: isPublicTradesLoading,
@@ -106,7 +78,6 @@ const TradesOverview: React.FC<{}> = (props) => {
 
   const {
     mutate: acceptTrade,
-    isSuccess: isAcceptTradeSuccess,
     isLoading: isAcceptTradeLoading,
     isError: isAcceptTradeError,
     error: acceptTradeError,
@@ -120,7 +91,6 @@ const TradesOverview: React.FC<{}> = (props) => {
 
   const {
     mutate: declineTrade,
-    isSuccess: isDeclineTradeSuccess,
     isLoading: isDeclineTradeLoading,
     isError: isDeclineTradeError,
     error: declineTradeError,
@@ -132,65 +102,7 @@ const TradesOverview: React.FC<{}> = (props) => {
     },
   );
 
-  const renderTrade = useCallback((trade: OverviewTradeDto) => {
-    return (
-      <Trade
-        key={trade.id}
-        className={styles.tradeItem}
-        sellerUsername={trade.sellerUsername}
-        sellerAccepted={trade.sellerAccepted}
-        buyerUsername={trade.buyerUsername ?? undefined}
-        buyerAccepted={trade.buyerAccepted}
-        price={trade.price}
-        createdAt={trade.createdAt}
-        nftSeed={trade.nftSeed}
-        isPublic={trade.isPublic}
-        isComplete={trade.isCompleted}
-        canAccept={
-          authPayload?.user !== undefined &&
-          !trade.isCompleted &&
-          !(
-            (trade.buyerAccepted && trade.buyerUsername === authPayload?.user.username) ||
-            (trade.sellerAccepted && trade.sellerUsername === authPayload?.user.username)
-          )
-        }
-        canDecline={
-          authPayload?.user !== undefined &&
-          !trade.isCompleted &&
-          (
-            trade.sellerUsername === authPayload?.user.username ||
-            trade.buyerUsername === authPayload?.user.username
-          )
-        }
-        onAccept={() => acceptTrade({id: trade.id })}
-        onDecline={() => declineTrade({id: trade.id})}
-      />
-    )
-  }, [acceptTrade, declineTrade]);
-
   return <div>
-    {authPayload?.user && (
-      <Grid
-        title="My Trades"
-        sort={myTradesSort}
-        onSortChange={setMyTradesSort}
-        sortOptions={TRADE_SORT_OPTIONS}
-        items={myTradesData?.trades}
-        loading={isMyTradesLoading}
-        error={
-          isMyTradesError
-            ? myTradesError?.message ?? "Error fetching trades"
-            : undefined
-        }
-        keyProp={"id"}
-        page={myTradesPage}
-        onPageChange={setMyTradesPage}
-        pageSize={MY_TRADES_PAGE_SIZE}
-        totalElements={myTradesData?.totalCount}
-        renderItem={renderTrade}
-        className={styles.myTrades}
-      />
-    )}
     <Grid
       title="Public Offers"
       sort={publicTradesSort}
@@ -208,7 +120,43 @@ const TradesOverview: React.FC<{}> = (props) => {
       onPageChange={setPublicTradesPage}
       pageSize={PUBLIC_TRADES_PAGE_SIZE}
       totalElements={publicTradesData?.totalCount}
-      renderItem={renderTrade}
+      renderItem={(trade) => (
+        <Trade
+          key={trade.id}
+          className={styles.tradeItem}
+          sellerUsername={trade.sellerUsername}
+          sellerAccepted={trade.sellerAccepted}
+          buyerUsername={trade.buyerUsername ?? undefined}
+          buyerAccepted={trade.buyerAccepted}
+          price={trade.price}
+          createdAt={trade.createdAt}
+          nftSeed={trade.nftSeed}
+          isPublic={trade.isPublic}
+          isComplete={trade.isCompleted}
+          onAccept={() => acceptTrade({id: trade.id })}
+          canAccept={
+            authPayload?.user !== undefined &&
+            !trade.isCompleted &&
+            !(
+              (trade.buyerAccepted && trade.buyerUsername === authPayload?.user.username) ||
+              (trade.sellerAccepted && trade.sellerUsername === authPayload?.user.username)
+            )
+          }
+          acceptError={isAcceptTradeError ? acceptTradeError?.message ?? "Error accepting trade" : undefined}
+          isAcceptLoading={isAcceptTradeLoading}
+          onDecline={() => declineTrade({id: trade.id})}
+          canDecline={
+            authPayload?.user !== undefined &&
+            !trade.isCompleted &&
+            (
+              trade.sellerUsername === authPayload?.user.username ||
+              trade.buyerUsername === authPayload?.user.username
+            )
+          }
+          declineError={isDeclineTradeError ? declineTradeError?.message ?? "Error deleting trade" : undefined}
+          isDeclineLoading={isDeclineTradeLoading}
+        />
+      )}
       className={styles.publicTrades}
     />
   </div>;

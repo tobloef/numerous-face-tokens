@@ -38,6 +38,10 @@ import {
   LoginRequest,
   LoginResponse,
 } from "../../../express-rest/src/features/auth/login";
+import {
+  GetUserRequest,
+  GetUserResponse,
+} from "../../../express-rest/src/features/users/getUser";
 
 const BASE_URL = "http://localhost:3010";
 
@@ -317,3 +321,34 @@ export const login = async (request: LoginRequest): Promise<LoginResponse> => {
 
   return response as AuthToken;
 };
+
+export const getUser = async (request: GetUserRequest): Promise<GetUserResponse> => {
+  const response = await makeRequest<GetUserRequest, GetUserResponse>(
+    "GET",
+    `/users/${request.username}`,
+    request,
+  );
+
+  return {
+    ...response,
+    createdAt: parseDate(response.createdAt),
+    soldTrades: response.soldTrades.map((trade) => ({
+      ...trade,
+      createdAt: parseDate(trade.createdAt),
+      soldAt: parseDateIfNotNull(trade.soldAt),
+    })),
+    boughtTrades: response.boughtTrades.map((trade) => ({
+      ...trade,
+      createdAt: parseDate(trade.createdAt),
+      soldAt: parseDateIfNotNull(trade.soldAt),
+    })),
+    ownedNfts: response.ownedNfts.map((nft) => ({
+      ...nft,
+      mintedAt: parseDate(nft.mintedAt),
+    })),
+    mintedNfts: response.mintedNfts.map((nft) => ({
+      ...nft,
+      mintedAt: parseDate(nft.mintedAt),
+    })),
+  };
+}

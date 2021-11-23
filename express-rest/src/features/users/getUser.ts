@@ -5,11 +5,11 @@ import ApiError from "../../ApiError";
 import { PublicFeature } from "../../types/feature";
 import { SetupRequest } from "../../utils/expressHandler";
 
-type GetUserRequest = {
+export type GetUserRequest = {
     username: string,
 };
 
-type GetUserResponse = 
+export type GetUserResponse =
  & User
  & {
     boughtTrades: Trade[];
@@ -37,7 +37,7 @@ export const getUser: PublicFeature<GetUserRequest, GetUserResponse> = async (
     if (user == null) {
         return err(new ApiError(`No user found with username '${request.username}'.`, 404));
     }
-    
+
     return ok(user);
 };
 
@@ -45,7 +45,7 @@ export const setupGetUserRequest: SetupRequest<GetUserRequest, { username: strin
     if (!is<string>(req.params.username)) {
         return err(new ApiError("Invalid username", 400));
     }
-    
+
     return ok({
         username: req.params.username,
     });

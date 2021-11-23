@@ -21,6 +21,7 @@ import {
   CreateNftRequest,
   CreateNftResponse,
 } from "../../../express-rest/src/features/nfts/createNft";
+import { useGlobalState } from "../utils/globalState";
 
 const SORT_OPTIONS: Options<Sort<OverviewNftDTO>> = [
   {
@@ -56,6 +57,7 @@ const NftsOverview: React.FC<{}> = (props) => {
   const [sort, setSort] = useState<Sort<OverviewNftDTO>>(["mintedAt", "desc"]);
   const [newNftSeed, setNewNftSeed] = useState<string>("");
   const queryClient = useQueryClient();
+  const [authPayload] = useGlobalState('authPayload');
 
   const {
     isLoading: isNftsLoading,
@@ -89,44 +91,46 @@ const NftsOverview: React.FC<{}> = (props) => {
 
   return (
     <div className={styles.nftsOverview}>
-      <div className={styles.mintNftWrapper}>
-        <h3 className={styles.mintNftTitle}>Mint new NFT</h3>
-        <div className={styles.mintNftInputWrapper}>
-          <form onSubmit={(e) => {
-            e.preventDefault();
-            mintNft({seed: newNftSeed});
-          }}>
-            <Input
-              onChange={(newValue) => {
-                resetMintNft();
-                setNewNftSeed(newValue);
-              }}
-              value={newNftSeed}
-              placeholder="Seed"
-            />
-            <button
-              type="submit"
-              disabled={isMintNftLoading || newNftSeed === ""}
-            >
-              Mint
-            </button>
-          </form>
+      {authPayload?.user !== undefined && (
+        <div className={styles.mintNftWrapper}>
+          <h3 className={styles.mintNftTitle}>Mint new NFT</h3>
+          <div className={styles.mintNftInputWrapper}>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              mintNft({seed: newNftSeed});
+            }}>
+              <Input
+                onChange={(newValue) => {
+                  resetMintNft();
+                  setNewNftSeed(newValue);
+                }}
+                value={newNftSeed}
+                placeholder="Seed"
+              />
+              <button
+                type="submit"
+                disabled={isMintNftLoading || newNftSeed === ""}
+              >
+                Mint
+              </button>
+            </form>
+          </div>
+          {isMintNftError && (
+            <span>{mintNftError?.message ?? "Error minting NFT"}</span>
+          )}
+          {mintNftData != null && (
+            <>
+              <span className={styles.mintSuccess}>
+                Successfully minted NFT!
+              </span>
+              <SmallNftCard
+                seed={mintNftData.seed}
+                ownerUsername={mintNftData.owner.username}
+              />
+            </>
+          )}
         </div>
-        {isMintNftError && (
-          <span>{mintNftError?.message ?? "Error minting NFT"}</span>
-        )}
-        {mintNftData != null && (
-          <>
-            <span className={styles.mintSuccess}>
-              Successfully minted NFT!
-            </span>
-            <SmallNftCard
-              seed={mintNftData.seed}
-              ownerUsername={mintNftData.owner.username}
-            />
-          </>
-        )}
-      </div>
+      )}
       <Grid
         title="All NFTs"
         sort={sort}
