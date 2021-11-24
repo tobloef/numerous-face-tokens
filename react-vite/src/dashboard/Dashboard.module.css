@@ -1,0 +1,44 @@
+.dashboard {
+    display: flex;
+    justify-content: center;
+    max-width: 1200px;
+}
+
+.infoWrapper {
+    border: 1px solid hsl(0, 0%, 80%);
+    background: white;
+    padding: 20px;
+    margin-right: 20px;
+    flex: 0 1 500px;
+    height: fit-content;
+}
+
+.header {
+    font-size: 2em;
+    margin: 10px 0px 20px 0px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.explainer {
+
+}
+
+.eventLog {
+    border: 1px solid hsl(0, 0%, 80%);
+    background: white;
+    flex: 1 1 400px;
+    padding: 20px;
+}
+
+@media only screen and (max-width: 800px) {
+    .dashboard {
+        flex-direction: column;
+    }
+
+    .infoWrapper {
+        margin-right: 0px;
+        margin-bottom: 20px;
+        flex: 0;
+    }
+}

@@ -9,7 +9,7 @@ const Dashboard: React.FC<{
     <div className={styles.dashboard}>
       <div className={styles.infoWrapper}>
         <p className={styles.header}>
-          Welcome Numerous Face Tokens
+          Welcome to Numerous Face Tokens
         </p>
         <p className={styles.explainer}>
           This site is a mock trading platform for Numerous Face Tokens (NFTs).
@@ -21,10 +21,13 @@ const Dashboard: React.FC<{
           Numerous Face Tokens was created as an attempt to compare multiple web technology stacks
           and you can find the source code <a href={"https://github.com/tobloef/numerous-face-tokens"}>on GitHub</a>.
           The version of the site you are currently viewing, was made with TypeScript, React.js, Express.js and Prisma.
+          <br />
+          <br />
+          ~ Tobias ☺
         </p>
       </div>
-      <div>
-
+      <div className={styles.eventLog}>
+        <h2>Live Event Log</h2>
       </div>
     </div>
   )
