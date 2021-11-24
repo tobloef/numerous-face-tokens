@@ -22,6 +22,7 @@ const Grid = <
     onSortChange?: (newSort: S) => void,
     sortOptions?: Options<S>,
     className?: string,
+    noDataText?: string,
   }
   & PageProps
 ) => {
@@ -79,7 +80,7 @@ const Grid = <
           if (props.items === undefined || props.items.length === 0) {
             return (
               <div className={styles.gridTextWrapper}>
-                No data
+                {props.noDataText ?? "No data"}
               </div>
             )
           }

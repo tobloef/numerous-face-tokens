@@ -118,6 +118,7 @@ const NftsOverview: React.FC<{}> = (props) => {
         page={page}
         onPageChange={setPage}
         pageSize={PAGE_SIZE}
+        noDataText={"No NFTs"}
         totalElements={nftsData?.totalCount}
         renderItem={(nft: OverviewNftDTO) => (
           <NftCard

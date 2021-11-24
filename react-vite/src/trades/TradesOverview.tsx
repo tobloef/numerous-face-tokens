@@ -103,6 +103,7 @@ const TradesOverview: React.FC<{}> = (props) => {
       onPageChange={setPublicTradesPage}
       pageSize={PUBLIC_TRADES_PAGE_SIZE}
       totalElements={publicTradesData?.totalCount}
+      noDataText={"No Trades"}
       renderItem={(trade) => (
         <Trade
           key={trade.id}

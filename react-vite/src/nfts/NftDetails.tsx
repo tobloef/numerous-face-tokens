@@ -134,6 +134,7 @@ const NftDetails: React.FC<{}> = (props) => {
         onPageChange={setTradesPage}
         pageSize={TRADES_PAGE_SIZE}
         totalElements={tradesData?.totalCount}
+        noDataText={"No Trades"}
         renderItem={(trade) => (
           <Trade
             key={trade.id}

@@ -31,6 +31,7 @@ const Table = <T extends object,>(props:
     getRowUrl?: (clickedRow: T) => string,
     loading?: boolean,
     error?: string,
+    noDataText?: string,
   }
   & PageProps
 ): ReactElement => {
@@ -102,7 +103,7 @@ const Table = <T extends object,>(props:
               <tr>
                 <td colSpan={props.columns.length}>
                   <div className={styles.textRowWrapper}>
-                    No data
+                    {props.noDataText ?? "No data"}
                   </div>
                 </td>
               </tr>

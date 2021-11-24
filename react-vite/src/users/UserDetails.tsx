@@ -140,6 +140,7 @@ const UserDetails: React.FC<{}> = (props) => {
         onPageChange={setNftsPage}
         pageSize={NFTS_PAGE_SIZE}
         totalElements={nftsData?.totalCount}
+        noDataText={"No NFTs"}
         renderItem={(nft: OverviewNftDTO) => (
           <NftCard
             seed={nft.seed}
@@ -165,6 +166,7 @@ const UserDetails: React.FC<{}> = (props) => {
         onPageChange={setTradesPage}
         pageSize={TRADES_PAGE_SIZE}
         totalElements={myTradesData?.totalCount}
+        noDataText={"No Trades"}
         renderItem={(trade) => (
           <Trade
             id={trade.id}

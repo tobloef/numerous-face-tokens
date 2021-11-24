@@ -95,6 +95,7 @@ const UsersOverview: React.FC<{}> = (props) => {
         onPageChange={setPage}
         pageSize={PAGE_SIZE}
         totalElements={data?.totalCount}
+        noDataText={"No users"}
       />
     </div>
   )
