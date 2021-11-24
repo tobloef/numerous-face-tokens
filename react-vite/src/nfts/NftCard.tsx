@@ -2,6 +2,7 @@ import React from "react";
 import styles from "./NftCard.module.css";
 import { Link } from "react-router-dom";
 import classNames from "classnames";
+import { getNftImageLink } from "../utils/getNftImageLink";
 
 const NftCard = (props: {
   seed: string,
@@ -17,7 +18,7 @@ const NftCard = (props: {
     >
       <div className={styles.smallNftCard}>
         <img
-          src={`https://server.tobloef.com/faces/${encodeURIComponent(props.seed)}.png`}
+          src={getNftImageLink(props.seed)}
           alt={props.seed}
         />
         <span className={styles.seed}>{props.seed}</span>

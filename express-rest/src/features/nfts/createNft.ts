@@ -7,6 +7,7 @@ import deleteProp from "../../utils/deleteProp";
 import { SetupRequest } from "../../utils/expressHandler";
 import generateId from "../../utils/generateId";
 import Markdown from "../../types/Markdown";
+import { getNftImageLink } from "../../utils/getNftImageLink";
 
 export type CreateNftRequest = {
     seed: string,
@@ -69,7 +70,8 @@ export const createNft: PrivateFeature<CreateNftRequest, CreateNftResponse> = as
         title: `NFT Minted` as Markdown,
         description: (
             `[${nft.minter.username}](/users/${nft.minter.username}) minted ` +
-            `["${nft.seed}"](/nfts/${nft.seed})`
+            `["${nft.seed}"](/nfts/${nft.seed})\n` +
+            `![${nft.seed}](${getNftImageLink(nft.seed)})`
         ) as Markdown
     })
 

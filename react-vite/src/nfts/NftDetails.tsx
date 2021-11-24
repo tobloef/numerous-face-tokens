@@ -14,6 +14,7 @@ import {
   GetAllTradesResponse,
   GetAllTradesSort,
 } from "../../../express-rest/src/features/trades/getAllTrades";
+import { getNftImageLink } from "../utils/getNftImageLink";
 
 const TRADES_PAGE_SIZE = 10;
 
@@ -81,7 +82,7 @@ const NftDetails: React.FC<{}> = (props) => {
       <div className={styles.detailsWrapper}>
         <div className={styles.imageWrapper}>
           <img
-            src={`https://server.tobloef.com/faces/${encodeURIComponent(seed)}.png`}
+            src={getNftImageLink(seed)}
             alt={seed}
           />
         </div>

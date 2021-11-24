@@ -5,6 +5,7 @@ export type NotificationEvent = {
     time: Date,
     title: Markdown,
     description: Markdown,
+    image?: string,
 };
 
 export type Notifier = (event: NotificationEvent) => void;

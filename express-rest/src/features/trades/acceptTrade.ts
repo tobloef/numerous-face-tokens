@@ -7,6 +7,7 @@ import deleteProp from "../../utils/deleteProp";
 import assert from "assert";
 import Markdown from "../../types/Markdown";
 import { CURRENCY_SYMBOL } from "../../utils/constants";
+import { getNftImageLink } from "../../utils/getNftImageLink";
 
 export type AcceptTradeRequest = {
     id: string,
@@ -145,8 +146,9 @@ export const acceptTrade: PrivateFeature<AcceptTradeRequest, AcceptTradeResponse
             `[${trade.seller.username}](/users/${trade.seller.username}) sold ` +
             `["${trade.nft.seed}"](/nfts/${trade.nft.seed}) to ` +
             `[${buyer.username}](/users/${buyer.username}) for ` +
-            `${CURRENCY_SYMBOL}${trade.price}.`
-        ) as Markdown
+            `${CURRENCY_SYMBOL}${trade.price}.\n` +
+            `![${trade.nft.seed}](${getNftImageLink(trade.nft.seed)})`
+        ) as Markdown,
     })
 
     return ok(updatedTrade);
