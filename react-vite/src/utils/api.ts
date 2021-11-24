@@ -51,7 +51,7 @@ import {
   CreateTradeResponse,
 } from "../../../express-rest/src/features/trades/createTrade";
 
-const BASE_URL = "http://localhost:3010";
+const BASE_URL = "localhost:3010";
 
 const trimLeadingSlash = (str: string): string => str.replace(/^\//, "");
 
@@ -72,7 +72,7 @@ export const makeRequest = async <Req extends object, Res>(
     method === "PUT" ||
     method === "PATCH"
   );
-  let url = `${BASE_URL}/${trimLeadingSlash(path)}`;
+  let url = `http://${BASE_URL}/${trimLeadingSlash(path)}`;
   if (!canHaveBody) {
     url += `?${qs.stringify(request)}`;
   }
@@ -138,7 +138,7 @@ export const makeRequest = async <Req extends object, Res>(
   return checkResponse(response);
 };
 
-type SerializeDates<T> =
+export type SerializeDates<T> =
   T extends Array<any>
     ? Array<SerializeDates<T[number]>>
     : (
@@ -170,17 +170,17 @@ const serializeSort = <T extends object>(sorts: Sorts<T>): string => {
 };
 
 
-function parseDate(input: string): Date {
-  return new Date(Date.parse(input));
-}
+export const parseDate = (input: string): Date => (
+  new Date(Date.parse(input))
+);
 
-function parseDateIfNotNull(input: string | null): Date | null {
+export const parseDateIfNotNull = (input: string | null): Date | null => {
   if (input === null) {
     return null;
   }
 
   return parseDate(input);
-}
+};
 
 /* -------------------------------------------------- */
 
@@ -422,3 +422,7 @@ export const createTrade = async (request: CreateTradeRequest): Promise<CreateTr
     } : null,
   };
 };
+
+export const connectEventLog = () => {
+  return new WebSocket(`ws://${BASE_URL}/log`);
+}

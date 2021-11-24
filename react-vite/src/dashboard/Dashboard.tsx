@@ -1,10 +1,48 @@
-import React from "react";
+import React, {
+  useEffect,
+  useState,
+} from "react";
 import styles from "./Dashboard.module.css";
 import { CURRENCY_SYMBOL } from "../../../express-rest/src/utils/constants";
+import {
+  connectEventLog,
+  parseDate,
+  SerializeDates,
+} from "../utils/api";
+import { NotificationEvent } from "../../../express-rest/src/eventNotifier";
+import ReactMarkdown from "react-markdown";
+import ReactTimeAgo from 'react-time-ago'
 
 const Dashboard: React.FC<{
 
 }> = (props) => {
+  const [events, setEvents] = useState<NotificationEvent[]>([]);
+
+  useEffect(() => {
+    const ws = connectEventLog();
+
+    ws.addEventListener("message", (e) => {
+      const eventOrEvents = JSON.parse(e.data);
+      const events = Array.isArray(eventOrEvents)
+        ? eventOrEvents
+        : [eventOrEvents];
+
+     const parsedEvents = events.map((event) => ({
+       ...event,
+       time: parseDate(event.time)
+     }))
+
+      setEvents((prevEvents) => [
+        ...prevEvents,
+        ...parsedEvents,
+      ]);
+    })
+
+    return () => {
+      ws.close();
+    };
+  }, []);
+
   return (
     <div className={styles.dashboard}>
       <div className={styles.infoWrapper}>
@@ -28,6 +66,23 @@ const Dashboard: React.FC<{
       </div>
       <div className={styles.eventLog}>
         <h2>Live Event Log</h2>
+        <div className={styles.eventList}>
+          {events.map((event) => (
+            <div className={styles.event}>
+              <div className={styles.eventHeader}>
+                <span className={styles.eventTitle}>
+                  <b>{event.title}</b>
+                </span>
+                <span className={styles.eventTitle}>
+                  <ReactTimeAgo date={event.time} />
+                </span>
+              </div>
+              <span className={styles.eventDescription}>
+                <ReactMarkdown>{event.description}</ReactMarkdown>
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )

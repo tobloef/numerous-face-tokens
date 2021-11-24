@@ -8,6 +8,10 @@ import {
   QueryClientProvider,
 } from "react-query";
 import "./index.css"
+import TimeAgo from 'javascript-time-ago'
+import en from 'javascript-time-ago/locale/en.json'
+
+TimeAgo.addDefaultLocale(en)
 
 const queryClient = new QueryClient({
   defaultOptions: {

@@ -42,3 +42,8 @@
         flex: 0;
     }
 }
+
+.eventList {
+    display: flex;
+    flex-direction: column-reverse;
+}

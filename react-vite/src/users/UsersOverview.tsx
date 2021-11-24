@@ -8,7 +8,6 @@ import {
   GetAllUsersResponse,
   OverviewUserDto,
 } from "../../../express-rest/src/features/users/getAllUsers"
-import { formatDate } from "../utils/formatDate";
 import {
   useQuery,
 } from "react-query";
@@ -54,7 +53,7 @@ const UsersOverview: React.FC<{}> = (props) => {
       {
         key: "createdAt",
         header: "Creation Date",
-        cell: (value) => formatDate(value),
+        cell: (value) => value.toLocaleString(),
       },
       {
         key: "balance",

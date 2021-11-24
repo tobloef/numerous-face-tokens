@@ -13,7 +13,10 @@ import usersRouter from "./routers/usersRouter";
 import { createRegisterRoute } from "./utils/expressHandler";
 import env from "./utils/env";
 import { removePropertiesRecursivelyMiddleware } from "./middleware/removePasswordsMiddleware";
-import { createNofitier } from "./eventNotifier";
+import {
+  createNotifier,
+  getEventCache,
+} from "./eventNotifier";
 import cors from "cors";
 
 const prismaClient = new PrismaClient();
@@ -25,9 +28,13 @@ const wss = new WebSocket.Server({
   server,
 });
 
+wss.on("connection", (client) => {
+  client.send(JSON.stringify(getEventCache()));
+})
+
 const registerRoute = createRegisterRoute({
   prisma: prismaClient,
-  notify: createNofitier(wss),
+  notify: createNotifier(wss),
 });
 
 app.use(cors())
