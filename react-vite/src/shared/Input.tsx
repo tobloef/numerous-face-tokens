@@ -8,11 +8,24 @@ const Input: React.FC<{
   placeholder?: string,
   className?: string,
   type?: string,
+  pattern?: RegExp,
 }> = (props) => {
+  const value = (props.pattern !== undefined && !props.pattern.test(props.value))
+    ? undefined
+    : props.value;
+
   return (
     <input
-      onChange={(e) => props.onChange(e.target.value)}
-      value={props.value}
+      onChange={(e) => {
+        const newValue = e.target.value;
+        if (props.pattern !== undefined && !props.pattern.test(newValue)) {
+          e.preventDefault();
+          return;
+        }
+
+        props.onChange(newValue);
+      }}
+      value={value}
       placeholder={props.placeholder}
       className={classNames(props.className, styles.input)}
       type={props.type}

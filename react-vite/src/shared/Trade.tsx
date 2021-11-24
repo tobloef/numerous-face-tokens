@@ -50,6 +50,7 @@ const Trade = (props: {
     async (request) => {
       const trade = await api.acceptTrade(request);
       queryClient.invalidateQueries("getAllTrades");
+      queryClient.invalidateQueries(["getNft", props.nftSeed]);
       return trade;
     },
   );
@@ -63,6 +64,7 @@ const Trade = (props: {
     async (request) => {
       const success = await api.declineTrade(request);
       queryClient.invalidateQueries("getAllTrades");
+      queryClient.invalidateQueries(["getNft", props.nftSeed]);
       return success;
     },
   );

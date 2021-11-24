@@ -10,7 +10,7 @@
     margin: 0 0 20px 0;
 }
 
-.login span {
+.fieldWrapper > span {
     font-weight: bold;
     margin-bottom: 5px;
 }
@@ -32,4 +32,8 @@
 
 .fieldWrapper:not(:last-child) {
     margin-bottom: 15px;
+}
+
+.error {
+    margin-top: 15px;
 }

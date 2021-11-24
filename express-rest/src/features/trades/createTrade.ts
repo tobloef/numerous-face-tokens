@@ -1,20 +1,20 @@
 import { is } from "typescript-is";
 import { err, ok } from "neverthrow";
 import ApiError from "../../ApiError";
-import { PrivateFeature, PublicFeature } from "../../types/feature";
+import { PrivateFeature } from "../../types/feature";
 import { SetupRequest } from "../../utils/expressHandler";
 import { Nft, Trade, User } from "@prisma/client";
 import deleteProp from "../../utils/deleteProp";
 import generateId from "../../utils/generateId";
 
-type CreateTradeRequest = {
+export type CreateTradeRequest = {
     sellerUsername: string,
     buyerUsername: string | null,
     nftSeed: string,
     price: number,
 };
 
-type CreateTradeResponse = 
+export type CreateTradeResponse =
     & Trade
     & {
         nft: Nft;
@@ -110,6 +110,6 @@ export const setupCreateTradeRequest: SetupRequest<CreateTradeRequest, {}> = (re
     if (!is<CreateTradeRequest>(req.body)) {
         return err(new ApiError("Invalid trade", 400));
     }
-    
+
     return ok(req.body);
 }

@@ -70,9 +70,9 @@ const Login: React.FC<{}> = (props) => {
         Log in
       </button>
       {isError && (
-        <div>
-          {error}
-        </div>
+        <span className={styles.error}>
+          {error?.message ?? "Error logging in"}
+        </span>
       )}
     </form>
   </div>;

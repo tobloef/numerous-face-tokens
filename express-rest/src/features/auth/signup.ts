@@ -24,15 +24,16 @@ export const signup: PublicFeature<SignupRequest, SignupResponse> = async (
     request,
     ctx,
 ) => {
-    const username = request.username.toLowerCase();
-
-    if (!VALID_USERNAME_REGEX.test(username)) {
+    if (!VALID_USERNAME_REGEX.test(request.username)) {
         return err(new ApiError("Invalid username", 400));
     }
 
-    const existingUser = await ctx.prisma.user.findUnique({
+    const existingUser = await ctx.prisma.user.findFirst({
         where: {
-            username,
+            username: {
+                equals: request.username,
+                mode: 'insensitive',
+            }
         }
     });
 
@@ -43,7 +44,7 @@ export const signup: PublicFeature<SignupRequest, SignupResponse> = async (
     const user = await ctx.prisma.user.create({
         data: {
             id: generateId(),
-            username,
+            username: request.username,
             passwordHash: bcrypt.hashSync(request.password),
             balance: 1000,
         }

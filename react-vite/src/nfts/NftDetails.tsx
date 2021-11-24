@@ -1,7 +1,15 @@
 import React, { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import {
+  Link,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 import styles from "./NftDetails.module.css";
-import { useQuery } from "react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "react-query";
 import * as api from "../utils/api";
 import {
   GetNftResponse,
@@ -15,6 +23,13 @@ import {
   GetAllTradesSort,
 } from "../../../express-rest/src/features/trades/getAllTrades";
 import { getNftImageLink } from "../utils/getNftImageLink";
+import { useGlobalState } from "../utils/globalState";
+import Input from "../shared/Input";
+import {
+  CreateTradeRequest,
+  CreateTradeResponse,
+} from "../../../express-rest/src/features/trades/createTrade";
+import { createTrade } from "../utils/api";
 
 const TRADES_PAGE_SIZE = 10;
 
@@ -22,6 +37,9 @@ const NftDetails: React.FC<{}> = (props) => {
   const { seed } = useParams();
   const [tradesSort, setTradesSort] = useState<GetAllTradesSort>(["createdAt", "desc"]);
   const [tradesPage, setTradesPage] = useState(1);
+  const [authPayload] = useGlobalState('authPayload');
+  const [price, setPrice] = useState<number>();
+  const queryClient = useQueryClient();
 
   if (seed === undefined) {
     throw new Error("Seed was undefined");
@@ -37,6 +55,19 @@ const NftDetails: React.FC<{}> = (props) => {
     () => api.getNft({
       seed,
     }),
+  );
+
+  const {
+    mutate: createTrade,
+    isLoading: isCreateTradeLoading,
+    isError: isCreateTradeError,
+    error: createTradeError,
+  } = useMutation<CreateTradeResponse, Error, CreateTradeRequest>(
+    async (request) => {
+      const trade = await api.createTrade(request);
+      queryClient.invalidateQueries("getAllTrades");
+      return trade;
+    },
   );
 
   const {
@@ -116,6 +147,35 @@ const NftDetails: React.FC<{}> = (props) => {
               : (<i>Never traded</i>)
           }</span></div>
         </div>
+        {authPayload?.user !== undefined && (
+          <div className={styles.createTradeWrapper}>
+            <h3>Create Trade</h3>
+            <div className={styles.priceWrapper}>
+              <span><b>Price</b></span>
+              <Input
+                onChange={(newValue) => setPrice(newValue === "" ? undefined : Number(newValue))}
+                value={price === undefined ? "" : String(price)}
+                pattern={/^[0-9]*$/}
+              />
+              <button
+                disabled={price === undefined || data === undefined || isCreateTradeLoading}
+                onClick={() => createTrade({
+                  nftSeed: data!.seed,
+                  price: price!,
+                  buyerUsername: data!.owner.username !== authPayload.user.username
+                    ? authPayload.user.username
+                    : null,
+                  sellerUsername: data!.owner.username,
+                })}
+              >
+                {data?.owner.username === authPayload.user.username ? "Sell NFT" : "Buy NFT"}
+              </button>
+              {isCreateTradeError && (
+                <span>{createTradeError?.message ?? "Error creating trade"}</span>
+              )}
+            </div>
+          </div>
+        )}
       </div>
       <Grid
         title={"Trades for NFT"}

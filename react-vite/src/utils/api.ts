@@ -46,6 +46,10 @@ import {
   GetNftRequest,
   GetNftResponse,
 } from "../../../express-rest/src/features/nfts/getNft";
+import {
+  CreateTradeRequest,
+  CreateTradeResponse,
+} from "../../../express-rest/src/features/trades/createTrade";
 
 const BASE_URL = "http://localhost:3010";
 
@@ -392,3 +396,29 @@ export const getNft = async (request: GetNftRequest): Promise<GetNftResponse> =>
     } : null,
   };
 }
+
+export const createTrade = async (request: CreateTradeRequest): Promise<CreateTradeResponse> => {
+  const response = await makeRequest<CreateTradeRequest, CreateTradeResponse>(
+    "POST",
+    "/trades",
+    request,
+  );
+
+  return {
+    ...response,
+    soldAt: parseDateIfNotNull(response.soldAt),
+    createdAt: parseDate(response.createdAt),
+    nft: {
+      ...response.nft,
+      mintedAt: parseDate(response.nft.mintedAt),
+    },
+    seller: {
+      ...response.seller,
+      createdAt: parseDate(response.seller.createdAt),
+    },
+    buyer: response.buyer != null ? {
+      ...response.buyer,
+      createdAt: parseDate(response.buyer.createdAt),
+    } : null,
+  };
+};

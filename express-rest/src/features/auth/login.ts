@@ -21,11 +21,12 @@ export const login: PublicFeature<LoginRequest, LoginResponse> = async (
     request,
     ctx,
 ) => {
-    const username = request.username.toLowerCase();
-
-    const user = await ctx.prisma.user.findUnique({
+    const user = await ctx.prisma.user.findFirst({
         where: {
-            username,
+            username: {
+                equals: request.username,
+                mode: 'insensitive',
+            },
         }
     });
 

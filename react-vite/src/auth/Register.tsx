@@ -72,9 +72,9 @@ const Register: React.FC<{}> = (props) => {
         Register
       </button>
       {isError && (
-        <div>
-          {error}
-        </div>
+        <span className={styles.error}>
+          {error?.message ?? "Error registering"}
+        </span>
       )}
     </form>
   </div>;

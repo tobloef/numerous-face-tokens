@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import styles from "./UserDetails.module.css";
 import {
-  useMutation,
   useQuery,
-  useQueryClient,
 } from "react-query";
 import {
   GetAllNftsResponse,
@@ -12,7 +10,6 @@ import {
 } from "../../../express-rest/src/features/nfts/getAllNfts";
 import * as api from "../utils/api";
 import {
-  Link,
   useParams,
 } from "react-router-dom";
 import { GetUserResponse } from "../../../express-rest/src/features/users/getUser";
@@ -21,22 +18,14 @@ import {
   GetAllTradesResponse,
   GetAllTradesSort,
 } from "../../../express-rest/src/features/trades/getAllTrades";
-import { Options } from "../shared/Select";
 import Trade from "../shared/Trade";
-import {
-  AcceptTradeRequest,
-  AcceptTradeResponse,
-} from "../../../express-rest/src/features/trades/acceptTrade";
-import {
-  DeleteTradeRequest,
-  DeleteTradeResponse,
-} from "../../../express-rest/src/features/trades/deleteTrade";
 import NftCard from "../nfts/NftCard";
 import { CURRENCY_SYMBOL } from "../../../express-rest/src/utils/constants";
 import {
   NFT_SORT_OPTIONS,
   TRADE_SORT_OPTIONS,
 } from "../utils/sortOptions";
+import { useGlobalState } from "../utils/globalState";
 
 const TRADES_PAGE_SIZE = 10;
 const NFTS_PAGE_SIZE = 10;
@@ -47,6 +36,7 @@ const UserDetails: React.FC<{}> = (props) => {
   const [tradesPage, setTradesPage] = useState(1);
   const [nftsSort, setNftsSort] = useState<GetAllNftsSort>(["mintedAt", "desc"]);
   const [nftsPage, setNftsPage] = useState(1);
+  const [authPayload] = useGlobalState('authPayload');
 
   if (username === undefined) {
     throw new Error("Username was undefined");
@@ -82,10 +72,10 @@ const UserDetails: React.FC<{}> = (props) => {
   );
 
   const {
-    isLoading: isMyTradesLoading,
-    isError: isMyTradesError,
-    data: myTradesData,
-    error: myTradesError,
+    isLoading: isTradesLoading,
+    isError: isTradesError,
+    data: tradesData,
+    error: tradesError,
   } = useQuery<GetAllTradesResponse, Error>(
     ["getAllTrades", "myTrades", tradesPage, tradesSort],
     () => api.getAllTrades({
@@ -111,7 +101,7 @@ const UserDetails: React.FC<{}> = (props) => {
   if (isError) {
     return (
       <div className={styles.textWrapper}>
-        <span>{error}</span>
+        <span>{error?.message ?? "Error fetching user"}</span>
       </div>
     )
   }
@@ -128,7 +118,7 @@ const UserDetails: React.FC<{}> = (props) => {
       </div>
       <Grid
         className={styles.nfts}
-        title="My NFTs"
+        title={`${authPayload?.user.username === username ? "My" : "User's"} NFTs`}
         sort={nftsSort}
         onSortChange={setNftsSort}
         sortOptions={NFT_SORT_OPTIONS}
@@ -143,6 +133,7 @@ const UserDetails: React.FC<{}> = (props) => {
         noDataText={"No NFTs"}
         renderItem={(nft: OverviewNftDTO) => (
           <NftCard
+            key={nft.seed}
             seed={nft.seed}
             ownerUsername={nft.ownerUsername}
             to={`/nfts/${nft.seed}`}
@@ -150,22 +141,22 @@ const UserDetails: React.FC<{}> = (props) => {
         )}
       />
       <Grid
-        title="My Trades"
+        title={`${authPayload?.user.username === username ? "My" : "User's"} Trades`}
         sort={tradesSort}
         onSortChange={setTradesSort}
         sortOptions={TRADE_SORT_OPTIONS}
-        items={myTradesData?.trades}
-        loading={isMyTradesLoading}
+        items={tradesData?.trades}
+        loading={isTradesLoading}
         error={
-          isMyTradesError
-            ? myTradesError?.message ?? "Error fetching trades"
+          isTradesError
+            ? tradesError?.message ?? "Error fetching trades"
             : undefined
         }
         keyProp={"id"}
         page={tradesPage}
         onPageChange={setTradesPage}
         pageSize={TRADES_PAGE_SIZE}
-        totalElements={myTradesData?.totalCount}
+        totalElements={tradesData?.totalCount}
         noDataText={"No Trades"}
         renderItem={(trade) => (
           <Trade

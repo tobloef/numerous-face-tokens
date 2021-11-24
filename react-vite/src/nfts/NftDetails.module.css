@@ -47,3 +47,22 @@
 .trades {
     margin-top: 20px;
 }
+
+.createTradeWrapper {
+    border: 1px solid hsl(0, 0%, 80%);
+    padding: 20px 10px 10px 10px;
+    background: white;
+    margin-left: 10px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.priceWrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+.priceWrapper > :not(:last-child) {
+    margin-bottom: 10px;
+}
