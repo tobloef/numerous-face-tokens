@@ -9,7 +9,7 @@ import generateId from "../../utils/generateId";
 import Markdown from "../../types/Markdown";
 import { getNftImageLink } from "../../utils/getNftImageLink";
 
-const VALID_NFT_REGEX = /[a-z0-9_\-.]{1,30}]/i;
+const VALID_NFT_REGEX = /^[a-z0-9_\-.]{1,30}$/i;
 
 export type CreateNftRequest = {
     seed: string,

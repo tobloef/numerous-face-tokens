@@ -11,7 +11,7 @@ import { SetupRequest } from "../../utils/expressHandler";
 import generateId from "../../utils/generateId";
 import env from "../../utils/env";
 
-const VALID_USERNAME_REGEX = /[a-z0-9]{1,20}]/i;
+const VALID_USERNAME_REGEX = /^[a-z0-9]{1,20}$/i;
 
 export type SignupRequest = {
     username: string,
