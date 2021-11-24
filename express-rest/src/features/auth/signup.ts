@@ -11,6 +11,8 @@ import { SetupRequest } from "../../utils/expressHandler";
 import generateId from "../../utils/generateId";
 import env from "../../utils/env";
 
+const VALID_USERNAME_REGEX = /[a-z0-9]{1,20}]/i;
+
 export type SignupRequest = {
     username: string,
     password: string,
@@ -24,8 +26,8 @@ export const signup: PublicFeature<SignupRequest, SignupResponse> = async (
 ) => {
     const username = request.username.toLowerCase();
 
-    if (username === "") {
-        return err(new ApiError("Username cannot be empty", 400));
+    if (!VALID_USERNAME_REGEX.test(username)) {
+        return err(new ApiError("Invalid username", 400));
     }
 
     const existingUser = await ctx.prisma.user.findUnique({

@@ -9,6 +9,8 @@ import generateId from "../../utils/generateId";
 import Markdown from "../../types/Markdown";
 import { getNftImageLink } from "../../utils/getNftImageLink";
 
+const VALID_NFT_REGEX = /[a-z0-9_\-.]{1,30}]/i;
+
 export type CreateNftRequest = {
     seed: string,
 };
@@ -25,6 +27,10 @@ export const createNft: PrivateFeature<CreateNftRequest, CreateNftResponse> = as
     request,
     ctx,
 ) => {
+    if (!VALID_NFT_REGEX.test(request.seed)) {
+        return err(new ApiError("Invalid seed", 400));
+    }
+
     const existingNft = await ctx.prisma.nft.findUnique({
         where: {
             seed: request.seed,
@@ -35,22 +41,12 @@ export const createNft: PrivateFeature<CreateNftRequest, CreateNftResponse> = as
         return err(new ApiError("An NFT with that seed already exists", 409));
     }
 
-    const user = await ctx.prisma.user.findUnique({
-        where: {
-            id: ctx.user.id,
-        }
-    });
-
-    if (user === null) {
-        return err(new ApiError("User not found", 404));
-    }
-
     const nftWithUserPasswords = await ctx.prisma.nft.create({
         data: {
             id: generateId(),
             seed: request.seed,
-            minterId: user.id,
-            ownerId: user.id,
+            minterId: ctx.user.id,
+            ownerId: ctx.user.id,
         },
         include: {
             minter: true,
