@@ -15,6 +15,7 @@
     ]
   },
   "ts-node": {
-    "files": true
+    "files": true,
+    "compiler": "ttypescript"
   }
 }
