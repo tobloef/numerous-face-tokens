@@ -4,7 +4,7 @@ import {
     ok,
 } from "neverthrow";
 import ApiError from "../../ApiError";
-import { PrivateFeature } from "../../types/feature";
+import { PrivateFeature } from "../../types/Feature";
 import SetupRequest from "../../types/SetupRequest";
 import {
     Nft,

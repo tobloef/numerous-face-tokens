@@ -8,7 +8,7 @@ import {
   ok,
 } from "neverthrow";
 import ApiError from "../../ApiError";
-import { PublicFeature } from "../../types/feature";
+import { PublicFeature } from "../../types/Feature";
 import deleteProp from "../../utils/deleteProp";
 import SetupRequest from "../../types/SetupRequest";
 

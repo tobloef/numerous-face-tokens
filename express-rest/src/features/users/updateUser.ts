@@ -8,7 +8,7 @@ import {
   err,
   ok,
 } from "neverthrow";
-import { PrivateFeature } from "../../types/feature";
+import { PrivateFeature } from "../../types/Feature";
 import ApiError from "../../ApiError";
 import bcrypt from "bcryptjs";
 import SetupRequest from "../../types/SetupRequest";

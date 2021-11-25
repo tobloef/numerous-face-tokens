@@ -9,7 +9,7 @@ import {
 } from "neverthrow";
 import { is } from "typescript-is";
 import ApiError from "../../ApiError";
-import { PublicFeature } from "../../types/feature";
+import { PublicFeature } from "../../types/Feature";
 import SetupRequest from "../../types/SetupRequest";
 
 export type GetUserRequest = {
