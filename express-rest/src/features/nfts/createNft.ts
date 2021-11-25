@@ -15,8 +15,11 @@ import SetupRequest from "../../types/SetupRequest";
 import generateId from "../../utils/generateId";
 import Markdown from "../../types/Markdown";
 import { getNftImageLink } from "../../utils/getNftImageLink";
+import { CURRENCY_SYMBOL } from "../../utils/constants";
 
 const VALID_NFT_REGEX = /^[a-z0-9_]{1,30}$/i;
+
+export const MINT_PRICE = 10;
 
 export type CreateNftRequest = {
   seed: string,
@@ -50,6 +53,19 @@ export const createNft: PrivateFeature<CreateNftRequest, CreateNftResponse> = as
   if (existingNft !== null) {
     return err(new ApiError("An NFT with that seed already exists", 409));
   }
+
+  if (ctx.user.balance < MINT_PRICE) {
+    return err(new ApiError(`Insufficient funds. Minting costs ${CURRENCY_SYMBOL}${MINT_PRICE}.`, 400))
+  }
+
+  await ctx.prisma.user.update({
+    where: {
+      id: ctx.user.id,
+    },
+    data: {
+      balance: ctx.user.balance - MINT_PRICE,
+    }
+  })
 
   const nftWithUserPasswords = await ctx.prisma.nft.create({
     data: {

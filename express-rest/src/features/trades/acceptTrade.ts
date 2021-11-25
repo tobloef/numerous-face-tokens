@@ -75,7 +75,7 @@ export const acceptTrade: PrivateFeature<AcceptTradeRequest, AcceptTradeResponse
   const buyer: User = trade.buyer ?? ctx.user;
 
   if (buyer.balance < trade.price) {
-    return err(new ApiError("Insufficient funds", 400));
+    return err(new ApiError(`Insufficient funds. Have ${CURRENCY_SYMBOL}${buyer.balance}, need ${CURRENCY_SYMBOL}${trade.price}.`, 400));
   }
 
   if (trade.buyerId === null) {

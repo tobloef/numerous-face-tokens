@@ -17,9 +17,11 @@ import Grid from "../shared/Grid";
 import {
   CreateNftRequest,
   CreateNftResponse,
+  MINT_PRICE,
 } from "../../../express-rest/src/features/nfts/createNft";
 import { useGlobalState } from "../utils/globalState";
 import { NFT_SORT_OPTIONS } from "../utils/sortOptions";
+import { CURRENCY_SYMBOL } from "../../../express-rest/src/utils/constants";
 
 const NftsOverview: React.FC<{}> = (props) => {
   const PAGE_SIZE = 8 * 3;
@@ -65,6 +67,7 @@ const NftsOverview: React.FC<{}> = (props) => {
       {authPayload?.user !== undefined && (
         <div className={styles.mintNftWrapper}>
           <h3 className={styles.mintNftTitle}>Mint new NFT</h3>
+          <span>Minting costs {CURRENCY_SYMBOL}{MINT_PRICE}.</span>
           <div className={styles.mintNftInputWrapper}>
             <form onSubmit={(e) => {
               e.preventDefault();
