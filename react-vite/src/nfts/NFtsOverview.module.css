@@ -15,8 +15,8 @@
     padding: 20px;
 }
 
-.mintNftTitle {
-    margin: 0px 0px 20px 0px;
+.mintNftWrapper > * {
+    margin-bottom: 10px;
 }
 
 .mintNftInputWrapper {
