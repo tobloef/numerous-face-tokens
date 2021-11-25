@@ -49,7 +49,7 @@ import {
   CreateTradeResponse,
 } from "../../../express-rest/src/features/trades/createTrade";
 
-const BASE_URL = "localhost:3010";
+const BASE_URL = process.env.NODE_ENV === "production" ? "server.tobloef.com/express" : "localhost:3010";
 
 const trimLeadingSlash = (str: string): string => str.replace(/^\//, "");
 
@@ -70,7 +70,10 @@ export const makeRequest = async <Req extends object, Res>(
     method === "PUT" ||
     method === "PATCH"
   );
-  let url = `http://${BASE_URL}/${trimLeadingSlash(path)}`;
+
+  const protocol = process.env.NODE_ENV === "production" ? "https" : "http"
+
+  let url = `${protocol}://${BASE_URL}/${trimLeadingSlash(path)}`;
   if (!canHaveBody) {
     url += `?${qs.stringify(request)}`;
   }
