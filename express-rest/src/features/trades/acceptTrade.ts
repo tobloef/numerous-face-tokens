@@ -129,7 +129,9 @@ export const acceptTrade: PrivateFeature<AcceptTradeRequest, AcceptTradeResponse
 
   await ctx.prisma.trade.deleteMany({
     where: {
-      id: trade.id,
+      nft: {
+        seed: trade.nft.seed,
+      },
       OR: [
         {buyerAccepted: false},
         {sellerAccepted: false},
