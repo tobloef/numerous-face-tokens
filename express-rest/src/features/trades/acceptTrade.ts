@@ -141,13 +141,13 @@ export const acceptTrade: PrivateFeature<AcceptTradeRequest, AcceptTradeResponse
 
     ctx.notify({
         time: new Date(),
-        title: `NFT Sold` as Markdown,
+        title: `NFT Sold`,
         description: (
-            `[${trade.seller.username}](/users/${trade.seller.username}) sold ` +
-            `["${trade.nft.seed}"](/nfts/${trade.nft.seed}) to ` +
-            `[${buyer.username}](/users/${buyer.username}) for ` +
-            `${CURRENCY_SYMBOL}${trade.price}.\n` +
-            `![${trade.nft.seed}](${getNftImageLink(trade.nft.seed)})`
+            `![${trade.nft.seed}](${getNftImageLink(trade.nft.seed)})\n\n` +
+            `User [${trade.seller.username}](/users/${trade.seller.username}) sold ` +
+            `NFT [${trade.nft.seed}](/nfts/${trade.nft.seed}) to ` +
+            `user [${buyer.username}](/users/${buyer.username}) for ` +
+            `${CURRENCY_SYMBOL}${trade.price}.`
         ) as Markdown,
     })
 

@@ -6,6 +6,9 @@ import { SetupRequest } from "../../utils/expressHandler";
 import { Nft, Trade, User } from "@prisma/client";
 import deleteProp from "../../utils/deleteProp";
 import generateId from "../../utils/generateId";
+import Markdown from "../../types/Markdown";
+import { CURRENCY_SYMBOL } from "../../utils/constants";
+import { getNftImageLink } from "../../utils/getNftImageLink";
 
 export type CreateTradeRequest = {
     sellerUsername: string,
@@ -102,6 +105,39 @@ export const createTrade: PrivateFeature<CreateTradeRequest, CreateTradeResponse
             ? deleteProp(tradeWithUserPasswords.buyer, "passwordHash")
             : null,
     };
+
+    let eventDescription: Markdown;
+
+    if (trade.buyer !== null && ctx.user.username === trade.buyer.username) {
+        eventDescription = (
+          `![${nft.seed}](${getNftImageLink(nft.seed)})\n\n` +
+          `User [${trade.buyer.username}](/users/${trade.buyer.username}) wants to buy ` +
+          `NFT [${trade.nft.seed}](/nfts/${trade.nft.seed}) from ` +
+          `user [${trade.seller.username}](/users/${trade.seller.username}) for ` +
+          `${CURRENCY_SYMBOL}${trade.price}.`
+        ) as Markdown;
+    } else if (trade.buyer !== null && ctx.user.username === trade.seller.username) {
+        eventDescription = (
+          `![${nft.seed}](${getNftImageLink(nft.seed)})\n\n` +
+          `User [${trade.seller.username}](/users/${trade.seller.username}) wants to sell ` +
+          `NFT [${trade.nft.seed}](/nfts/${trade.nft.seed}) to ` +
+          `user [${trade.buyer.username}](/users/${trade.buyer.username}) for ` +
+          `${CURRENCY_SYMBOL}${trade.price}.`
+        ) as Markdown;
+    } else {
+        eventDescription = (
+          `![${nft.seed}](${getNftImageLink(nft.seed)})\n\n` +
+          `User [${trade.seller.username}](/users/${trade.seller.username}) wants to sell ` +
+          `NFT [${trade.nft.seed}](/nfts/${trade.nft.seed}) for ` +
+          `${CURRENCY_SYMBOL}${trade.price}.`
+        ) as Markdown;
+    }
+
+    ctx.notify({
+        title: "Trade created",
+        description: eventDescription,
+        time: new Date(),
+    });
 
     return ok(trade);
 };

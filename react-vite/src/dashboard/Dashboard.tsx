@@ -1,4 +1,5 @@
 import React, {
+  ReactChildren,
   useEffect,
   useState,
 } from "react";
@@ -7,11 +8,13 @@ import { CURRENCY_SYMBOL } from "../../../express-rest/src/utils/constants";
 import {
   connectEventLog,
   parseDate,
-  SerializeDates,
 } from "../utils/api";
 import { NotificationEvent } from "../../../express-rest/src/eventNotifier";
+// @ts-ignore
 import ReactMarkdown from "react-markdown";
-import ReactTimeAgo from 'react-time-ago'
+// @ts-ignore
+import ReactTimeAgo from "react-time-ago"
+import { Link } from "react-router-dom";
 
 const Dashboard: React.FC<{
 
@@ -33,8 +36,8 @@ const Dashboard: React.FC<{
      }))
 
       setEvents((prevEvents) => [
-        ...prevEvents,
         ...parsedEvents,
+        ...prevEvents,
       ]);
     })
 
@@ -64,22 +67,38 @@ const Dashboard: React.FC<{
           ~ Tobias ☺
         </p>
       </div>
+
       <div className={styles.eventLog}>
         <h2>Live Event Log</h2>
         <div className={styles.eventList}>
           {events.map((event) => (
-            <div className={styles.event}>
+            <div
+              key={`${event.title}_${event.description}_${event.time}`}
+              className={styles.event}
+            >
               <div className={styles.eventHeader}>
                 <span className={styles.eventTitle}>
                   <b>{event.title}</b>
                 </span>
-                <span className={styles.eventTitle}>
+                <span className={styles.eventTime}>
                   <ReactTimeAgo date={event.time} />
                 </span>
               </div>
-              <span className={styles.eventDescription}>
-                <ReactMarkdown>{event.description}</ReactMarkdown>
-              </span>
+              <div className={styles.eventDescription}>
+                <ReactMarkdown
+                  skipHtml={true}
+                  components={{
+                    a: (props: {
+                      href: string,
+                      children: ReactChildren,
+                    }) => (
+                      <Link to={props.href}>{props.children}</Link>
+                    ),
+                  }}
+                >
+                  {event.description}
+                </ReactMarkdown>
+              </div>
             </div>
           ))}
         </div>

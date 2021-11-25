@@ -5,9 +5,8 @@ const cache: NotificationEvent[] = [];
 
 export type NotificationEvent = {
     time: Date,
-    title: Markdown,
+    title: string,
     description: Markdown,
-    image?: string,
 };
 
 export type Notifier = (event: NotificationEvent) => void;
@@ -18,10 +17,10 @@ export const createNotifier = (wss: WebSocket.Server): Notifier => {
             throw new Error("Cannot send notification, WebSocket Server not set up yet");
         }
 
-        const newLength = cache.push(event);
+        const newLength = cache.unshift(event);
 
         if (newLength > 10) {
-            cache.shift();
+            cache.pop();
         }
 
         wss.clients.forEach((ws) => {

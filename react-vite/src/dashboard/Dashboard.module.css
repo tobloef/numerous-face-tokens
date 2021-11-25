@@ -11,6 +11,7 @@
     margin-right: 20px;
     flex: 0 1 500px;
     height: fit-content;
+    border-radius: 10px;
 }
 
 .header {
@@ -21,7 +22,7 @@
 }
 
 .explainer {
-
+    font-size: 1.15em;
 }
 
 .eventLog {
@@ -29,6 +30,7 @@
     background: white;
     flex: 1 1 400px;
     padding: 20px;
+    border-radius: 10px;
 }
 
 @media only screen and (max-width: 800px) {
@@ -45,5 +47,41 @@
 
 .eventList {
     display: flex;
-    flex-direction: column-reverse;
+    flex-direction: column;
+}
+
+.event {
+    border: 1px solid hsl(0, 0%, 80%);
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 5px;
+}
+
+.event:not(:last-child) {
+    margin-bottom: 10px;
+}
+
+.eventHeader {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 1.15em;
+}
+
+.eventDescription {
+    display: flex;
+}
+
+.eventDescription > p {
+    margin: 0;
+}
+
+.eventDescription a {
+    font-weight: bold;
+}
+
+.eventDescription img {
+    width: 100px;
+    margin-right: 10px;
 }

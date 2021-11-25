@@ -9,7 +9,7 @@ import generateId from "../../utils/generateId";
 import Markdown from "../../types/Markdown";
 import { getNftImageLink } from "../../utils/getNftImageLink";
 
-const VALID_NFT_REGEX = /^[a-z0-9_\-.]{1,30}$/i;
+const VALID_NFT_REGEX = /^[a-z0-9_]{1,30}$/i;
 
 export type CreateNftRequest = {
     seed: string,
@@ -28,7 +28,7 @@ export const createNft: PrivateFeature<CreateNftRequest, CreateNftResponse> = as
     ctx,
 ) => {
     if (!VALID_NFT_REGEX.test(request.seed)) {
-        return err(new ApiError("Invalid seed", 400));
+        return err(new ApiError("The seed can only contain letters, numbers and underscores, and must be between 1 and 30 characters.", 400));
     }
 
     const existingNft = await ctx.prisma.nft.findUnique({
@@ -63,11 +63,11 @@ export const createNft: PrivateFeature<CreateNftRequest, CreateNftResponse> = as
 
     ctx.notify({
         time: new Date(),
-        title: `NFT Minted` as Markdown,
+        title: `NFT Minted`,
         description: (
-            `[${nft.minter.username}](/users/${nft.minter.username}) minted ` +
-            `["${nft.seed}"](/nfts/${nft.seed})\n` +
-            `![${nft.seed}](${getNftImageLink(nft.seed)})`
+            `![${nft.seed}](${getNftImageLink(nft.seed)})\n\n` +
+            `User [${nft.minter.username}](/users/${nft.minter.username}) minted ` +
+            `NFT [${nft.seed}](/nfts/${nft.seed}).`
         ) as Markdown
     })
 

@@ -10,6 +10,8 @@ import { PublicFeature } from "../../types/feature";
 import { SetupRequest } from "../../utils/expressHandler";
 import generateId from "../../utils/generateId";
 import env from "../../utils/env";
+import * as domain from "domain";
+import Markdown from "../../types/Markdown";
 
 const VALID_USERNAME_REGEX = /^[a-z0-9]{1,20}$/i;
 
@@ -57,6 +59,12 @@ export const signup: PublicFeature<SignupRequest, SignupResponse> = async (
     };
 
     const token = jwt.sign(authPayload, env.AUTH_SECRET!) as AuthToken;
+
+    ctx.notify({
+        title: "User registered",
+        description: `User [${user.username}](/users/${user.username}) signed up. Welcome!` as Markdown,
+        time: new Date()
+    });
 
     return ok(token);
 };
