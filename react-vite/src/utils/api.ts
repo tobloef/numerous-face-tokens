@@ -426,5 +426,6 @@ export const createTrade = async (request: CreateTradeRequest): Promise<CreateTr
 };
 
 export const connectEventLog = () => {
-  return new WebSocket(`ws://${BASE_URL}/log`);
+  const protocol = process.env.NODE_ENV === "production" ? "wss" : "ws"
+  return new WebSocket(`${protocol}://${BASE_URL}/log`);
 }
