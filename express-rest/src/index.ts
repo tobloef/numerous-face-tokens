@@ -1,4 +1,6 @@
 import dotenv from "dotenv";
+dotenv.config({path: "../.env"});
+
 import express from "express";
 import http from "http";
 import WebSocket from "ws";
@@ -16,8 +18,6 @@ import {
   getEventCache,
 } from "./eventNotifier";
 import cors from "cors";
-
-dotenv.config({path: "../.env"});
 
 const prismaClient = new PrismaClient();
 
