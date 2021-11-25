@@ -7,7 +7,8 @@
     "update-db": "prisma db push --accept-data-loss",
     "start-db": "cd .. && docker-compose --file ./postgres.docker.yml up",
     "reset-db": "prisma migrate reset --force && yarn update-db",
-    "compile": "ttsc --noEmit"
+    "compile": "ttsc --noEmit",
+    "prod": "ts-node ./src/index.ts"
   },
   "dependencies": {
     "@prisma/client": "^3.3.0",
