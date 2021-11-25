@@ -1,10 +1,7 @@
 import React, { useState } from "react";
 import Input from "../shared/Input";
 import styles from "./Login.module.css";
-import {
-  useMutation,
-  useQueryClient,
-} from "react-query";
+import { useMutation } from "react-query";
 import {
   SignupRequest,
   SignupResponse,
@@ -22,7 +19,7 @@ const Login: React.FC<{}> = (props) => {
   const [password, setPassword] = useState("");
 
   const navigate = useNavigate();
-  const [_, setAuthPayload] = useGlobalState('authPayload');
+  const [_, setAuthPayload] = useGlobalState("authPayload");
 
   const {
     mutate: login,

@@ -2,10 +2,10 @@ import styles from "./Trade.module.css";
 import classNames from "classnames";
 import NftCard from "../nfts/NftCard";
 import {
+  faArrowDown,
   faCheck,
   faQuestion,
-  faArrowDown,
-  faXmark
+  faXmark,
 } from "@fortawesome/pro-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
@@ -39,7 +39,7 @@ const Trade = (props: {
   isCompleted: boolean,
 }) => {
   const queryClient = useQueryClient();
-  const [authPayload] = useGlobalState('authPayload');
+  const [authPayload] = useGlobalState("authPayload");
 
   const {
     mutate: accept,
@@ -76,16 +76,16 @@ const Trade = (props: {
     )
 
   const canDecline = !props.isCompleted &&
-  (
-    props.sellerUsername === authPayload?.user.username ||
-    props.buyerUsername === authPayload?.user.username
-  )
+    (
+      props.sellerUsername === authPayload?.user.username ||
+      props.buyerUsername === authPayload?.user.username
+    )
 
   return (
     <div className={classNames(
       props.className,
       styles.trade,
-      { [styles.completed]: props.isCompleted }
+      {[styles.completed]: props.isCompleted},
     )}>
       <NftCard
         seed={props.nftSeed}
@@ -114,8 +114,8 @@ const Trade = (props: {
                 </span>
                 {(
                   props.sellerAccepted
-                    ? (<FontAwesomeIcon icon={faCheck} color={"green"} />)
-                    : (<FontAwesomeIcon icon={faQuestion} color={"yellow"} />)
+                    ? (<FontAwesomeIcon icon={faCheck} color={"green"}/>)
+                    : (<FontAwesomeIcon icon={faQuestion} color={"yellow"}/>)
                 )}
               </div>
             </div>
@@ -133,8 +133,8 @@ const Trade = (props: {
                 </span>
                 {(
                   props.buyerAccepted
-                    ? (<FontAwesomeIcon icon={faCheck} color={"green"} />)
-                    : (<FontAwesomeIcon icon={faQuestion} color={"orange"} />)
+                    ? (<FontAwesomeIcon icon={faCheck} color={"green"}/>)
+                    : (<FontAwesomeIcon icon={faQuestion} color={"orange"}/>)
                 )}
               </div>
             </div>
@@ -151,7 +151,7 @@ const Trade = (props: {
         {(canAccept || canDecline) && (
           <div className={styles.actions}>
             {canAccept && (
-              <button onClick={() => accept({ id: props.id })} disabled={isAcceptLoading}>
+              <button onClick={() => accept({id: props.id})} disabled={isAcceptLoading}>
                 <FontAwesomeIcon icon={faCheck} color={"green"} fixedWidth/>
                 <span>Accept</span>
               </button>
@@ -160,8 +160,8 @@ const Trade = (props: {
               <span>{acceptError?.message ?? "Error accepting trade"}</span>
             )}
             {canDecline && (
-              <button onClick={() => accept({ id: props.id })} disabled={isDeclineLoading}>
-                <FontAwesomeIcon icon={faXmark} color={"red"} fixedWidth />
+              <button onClick={() => accept({id: props.id})} disabled={isDeclineLoading}>
+                <FontAwesomeIcon icon={faXmark} color={"red"} fixedWidth/>
                 <span>Delete</span>
               </button>
             )}

@@ -1,6 +1,6 @@
-import { customAlphabet } from 'nanoid'
+import { customAlphabet } from "nanoid"
 
-const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+const alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
 const generateId: () => string = customAlphabet(alphabet, 12);
 

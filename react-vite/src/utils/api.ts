@@ -5,9 +5,7 @@ import {
   GetAllUsersRequest,
   GetAllUsersResponse,
 } from "../../../express-rest/src/features/users/getAllUsers";
-import {
-  Sorts,
-} from "../../../express-rest/src/utils/query";
+import { Sorts } from "../../../express-rest/src/utils/query";
 import deleteProp from "../../../express-rest/src/utils/deleteProp";
 import {
   GetAllNftsRequest,
@@ -143,15 +141,17 @@ export type SerializeDates<T> =
     ? Array<SerializeDates<T[number]>>
     : (
       T extends object
-        ? { [Key in keyof T]: (
-          T[Key] extends Date
-            ? string
-            : (
-              T[Key] extends (Date | null)
-                ? (string | null)
-                : SerializeDates<T[Key]>
+        ? {
+          [Key in keyof T]: (
+            T[Key] extends Date
+              ? string
+              : (
+                T[Key] extends (Date | null)
+                  ? (string | null)
+                  : SerializeDates<T[Key]>
+                )
             )
-          ) }
+        }
         : T
       );
 
@@ -200,7 +200,7 @@ export const getAllUsers = async (request: GetAllUsersRequest): Promise<GetAllUs
     users: response.users.map((user) => ({
       ...user,
       createdAt: parseDate(user.createdAt),
-    }))
+    })),
   }
 }
 
@@ -220,7 +220,7 @@ export const getAllNfts = async (request: GetAllNftsRequest): Promise<GetAllNfts
     nfts: response.nfts.map((nft) => ({
       ...nft,
       mintedAt: parseDate(nft.mintedAt),
-    }))
+    })),
   }
 }
 
@@ -246,7 +246,7 @@ export const mintNft = async (request: CreateNftRequest): Promise<CreateNftRespo
       ...trade,
       createdAt: parseDate(trade.createdAt),
       soldAt: parseDateIfNotNull(trade.soldAt),
-    }))
+    })),
   };
 }
 
@@ -284,7 +284,7 @@ export const acceptTrade = async (request: AcceptTradeRequest): Promise<AcceptTr
     createdAt: parseDate(response.createdAt),
     nft: {
       ...response.nft,
-      mintedAt: parseDate(response.nft.mintedAt)
+      mintedAt: parseDate(response.nft.mintedAt),
     },
     seller: {
       ...response.seller,
@@ -317,7 +317,6 @@ export const signup = async (request: SignupRequest): Promise<SignupResponse> =>
 
   return response as AuthToken;
 };
-
 
 
 export const login = async (request: LoginRequest): Promise<LoginResponse> => {

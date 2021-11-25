@@ -8,9 +8,7 @@ import {
   GetAllUsersResponse,
   OverviewUserDto,
 } from "../../../express-rest/src/features/users/getAllUsers"
-import {
-  useQuery,
-} from "react-query";
+import { useQuery } from "react-query";
 import * as api from "../utils/api";
 import Sort from "../types/Sort";
 import styles from "./UsersOverview.module.css";
@@ -36,12 +34,12 @@ const UsersOverview: React.FC<{}> = (props) => {
       filters: {
         username: {
           contains: usernameFilter,
-        }
-      }
+        },
+      },
     }),
     {
-      retry: false
-    }
+      retry: false,
+    },
   );
 
   const columns = useMemo(
@@ -68,7 +66,7 @@ const UsersOverview: React.FC<{}> = (props) => {
         header: "Owned NFTs",
       },
     ],
-    []
+    [],
   );
 
   return (

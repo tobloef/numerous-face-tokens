@@ -1,17 +1,13 @@
 import React, { useState } from "react";
 import styles from "./UserDetails.module.css";
-import {
-  useQuery,
-} from "react-query";
+import { useQuery } from "react-query";
 import {
   GetAllNftsResponse,
   GetAllNftsSort,
   OverviewNftDTO,
 } from "../../../express-rest/src/features/nfts/getAllNfts";
 import * as api from "../utils/api";
-import {
-  useParams,
-} from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { GetUserResponse } from "../../../express-rest/src/features/users/getUser";
 import Grid from "../shared/Grid";
 import {
@@ -31,12 +27,12 @@ const TRADES_PAGE_SIZE = 10;
 const NFTS_PAGE_SIZE = 10;
 
 const UserDetails: React.FC<{}> = (props) => {
-  const { username } = useParams();
+  const {username} = useParams();
   const [tradesSort, setTradesSort] = useState<GetAllTradesSort>(["createdAt", "desc"]);
   const [tradesPage, setTradesPage] = useState(1);
   const [nftsSort, setNftsSort] = useState<GetAllNftsSort>(["mintedAt", "desc"]);
   const [nftsPage, setNftsPage] = useState(1);
-  const [authPayload] = useGlobalState('authPayload');
+  const [authPayload] = useGlobalState("authPayload");
 
   if (username === undefined) {
     throw new Error("Username was undefined");
@@ -49,7 +45,7 @@ const UserDetails: React.FC<{}> = (props) => {
     error,
   } = useQuery<GetUserResponse, Error>(
     ["getUser", username],
-    () => api.getUser({ username }),
+    () => api.getUser({username}),
   );
 
   const {
@@ -67,7 +63,7 @@ const UserDetails: React.FC<{}> = (props) => {
         ownerUsername: {
           equals: username,
         },
-      }
+      },
     }),
   );
 
@@ -86,7 +82,7 @@ const UserDetails: React.FC<{}> = (props) => {
         participantUsername: {
           equals: username,
         },
-      }
+      },
     }),
   );
 

@@ -7,8 +7,8 @@ import {
 
 const token = getAuthToken();
 
-export const { useGlobalState } = createGlobalState<{
+export const {useGlobalState} = createGlobalState<{
   authPayload: AuthPayload | undefined
 }>({
-  authPayload: decodeToken(token)
+  authPayload: decodeToken(token),
 });

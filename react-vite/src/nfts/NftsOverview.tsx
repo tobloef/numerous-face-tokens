@@ -1,6 +1,4 @@
-import React, {
-  useState,
-} from "react";
+import React, { useState } from "react";
 import Input from "../shared/Input";
 import NftCard from "./NftCard";
 import {
@@ -21,9 +19,7 @@ import {
   CreateNftResponse,
 } from "../../../express-rest/src/features/nfts/createNft";
 import { useGlobalState } from "../utils/globalState";
-import {
-  NFT_SORT_OPTIONS,
-} from "../utils/sortOptions";
+import { NFT_SORT_OPTIONS } from "../utils/sortOptions";
 
 const NftsOverview: React.FC<{}> = (props) => {
   const PAGE_SIZE = 8 * 3;
@@ -32,7 +28,7 @@ const NftsOverview: React.FC<{}> = (props) => {
   const [sort, setSort] = useState<Sort<OverviewNftDTO>>(["mintedAt", "desc"]);
   const [newNftSeed, setNewNftSeed] = useState<string>("");
   const queryClient = useQueryClient();
-  const [authPayload] = useGlobalState('authPayload');
+  const [authPayload] = useGlobalState("authPayload");
 
   const {
     isLoading: isNftsLoading,

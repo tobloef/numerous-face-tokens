@@ -16,9 +16,7 @@ import ReactMarkdown from "react-markdown";
 import ReactTimeAgo from "react-time-ago"
 import { Link } from "react-router-dom";
 
-const Dashboard: React.FC<{
-
-}> = (props) => {
+const Dashboard: React.FC<{}> = (props) => {
   const [events, setEvents] = useState<NotificationEvent[]>([]);
 
   useEffect(() => {
@@ -30,10 +28,10 @@ const Dashboard: React.FC<{
         ? eventOrEvents
         : [eventOrEvents];
 
-     const parsedEvents = events.map((event) => ({
-       ...event,
-       time: parseDate(event.time)
-     }))
+      const parsedEvents = events.map((event) => ({
+        ...event,
+        time: parseDate(event.time),
+      }))
 
       setEvents((prevEvents) => [
         ...parsedEvents,
@@ -57,13 +55,13 @@ const Dashboard: React.FC<{
           Each NFT is randomly generated from a specified "seed" that you enter when you create a new NFT.
           When signing up, you automatically gain {CURRENCY_SYMBOL}1000, the currency of this site,
           which you can use to buy and sell NFTs.
-          <br />
-          <br />
+          <br/>
+          <br/>
           Numerous Face Tokens was created as an attempt to compare multiple web technology stacks
           and you can find the source code <a href={"https://github.com/tobloef/numerous-face-tokens"}>on GitHub</a>.
           The version of the site you are currently viewing, was made with TypeScript, React.js, Express.js and Prisma.
-          <br />
-          <br />
+          <br/>
+          <br/>
           ~ Tobias ☺
         </p>
       </div>
@@ -81,18 +79,15 @@ const Dashboard: React.FC<{
                   <b>{event.title}</b>
                 </span>
                 <span className={styles.eventTime}>
-                  <ReactTimeAgo date={event.time} />
+                  <ReactTimeAgo date={event.time}/>
                 </span>
               </div>
               <div className={styles.eventDescription}>
                 <ReactMarkdown
                   skipHtml={true}
                   components={{
-                    a: (props: {
-                      href: string,
-                      children: ReactChildren,
-                    }) => (
-                      <Link to={props.href}>{props.children}</Link>
+                    a: (props) => (
+                      <Link to={props.href ?? ""}>{props.children}</Link>
                     ),
                   }}
                 >

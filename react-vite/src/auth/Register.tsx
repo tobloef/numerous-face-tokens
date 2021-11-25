@@ -23,7 +23,7 @@ const Register: React.FC<{}> = (props) => {
 
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const [_, setAuthPayload] = useGlobalState('authPayload');
+  const [_, setAuthPayload] = useGlobalState("authPayload");
 
   const {
     mutate: register,

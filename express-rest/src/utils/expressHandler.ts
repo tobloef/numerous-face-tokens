@@ -1,9 +1,18 @@
 import { PrismaClient } from "@prisma/client";
 import express from "express";
-import { err, Result } from "neverthrow";
+import {
+  err,
+  Result,
+} from "neverthrow";
 import ApiError from "../ApiError";
-import { PrivateContext, PublicContext } from "../types/Context";
-import { PrivateFeature, PublicFeature } from "../types/feature";
+import {
+  PrivateContext,
+  PublicContext,
+} from "../types/Context";
+import {
+  PrivateFeature,
+  PublicFeature,
+} from "../types/feature";
 import ParseRouteParameters from "../types/ParseRouteParameters";
 
 export type SetupRequest<Request, Params extends object> = (
@@ -17,18 +26,18 @@ export type RegisterRouteProps<Request, Response, Path extends string> =
     path: Path
     setupRequest: SetupRequest<Request, ParseRouteParameters<Path>>,
   } & (
-    | {
-      auth: true,
-      feature: PrivateFeature<Request, Response>,
-    }
-    | {
-      auth: false,
-      feature: PublicFeature<Request, Response>,
-    }
+  | {
+  auth: true,
+  feature: PrivateFeature<Request, Response>,
+}
+  | {
+  auth: false,
+  feature: PublicFeature<Request, Response>,
+}
   )
 
 export type RegisterRoute = <Request, Response, Path extends string>(
-  props: RegisterRouteProps<Request, Response, Path>
+  props: RegisterRouteProps<Request, Response, Path>,
 ) => void;
 
 export type ExpressHandler<Path> = (
@@ -46,7 +55,7 @@ export const createRegisterRoute = (ctx: PublicContext & { prisma: PrismaClient 
 
       if (requestResult.isErr()) {
         res.status(requestResult.error.statusCode).json({
-          error: requestResult.error.message
+          error: requestResult.error.message,
         });
         return;
       }
@@ -75,7 +84,7 @@ export const createRegisterRoute = (ctx: PublicContext & { prisma: PrismaClient 
             } else {
               return props.feature(requestResult.value, newPublicContext);
             }
-          }
+          },
         );
       } catch (error) {
         next(error);
@@ -83,7 +92,7 @@ export const createRegisterRoute = (ctx: PublicContext & { prisma: PrismaClient 
       }
 
       if (responseResult.isErr()) {
-        res.status(responseResult.error.statusCode).json({ error: responseResult.error.message })
+        res.status(responseResult.error.statusCode).json({error: responseResult.error.message})
         return;
       }
 

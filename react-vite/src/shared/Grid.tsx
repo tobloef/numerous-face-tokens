@@ -2,29 +2,25 @@ import Select, { Options } from "./Select";
 import React, { useMemo } from "react";
 import styles from "./Grid.module.css";
 import Sort from "../types/Sort";
-import Pagination, {
-  PageProps,
-} from "./Pagination";
+import Pagination, { PageProps } from "./Pagination";
 import classNames from "classnames";
 
-const Grid = <
-  T,
-  S extends Sort<any>
->(props:
-  & {
-    title?: string | React.ReactNode,
-    items: T[] | undefined,
-    loading?: boolean,
-    error?: string,
-    renderItem: (value: T) => React.ReactNode,
-    keyProp: keyof T,
-    sort?: S,
-    onSortChange?: (newSort: S) => void,
-    sortOptions?: Options<S>,
-    className?: string,
-    noDataText?: string,
-  }
-  & PageProps
+const Grid = <T,
+  S extends Sort<any>>(props:
+    & {
+      title?: string | React.ReactNode,
+      items: T[] | undefined,
+      loading?: boolean,
+      error?: string,
+      renderItem: (value: T) => React.ReactNode,
+      keyProp: keyof T,
+      sort?: S,
+      onSortChange?: (newSort: S) => void,
+      sortOptions?: Options<S>,
+      className?: string,
+      noDataText?: string,
+    }
+    & PageProps,
 ) => {
   const serializedSortOptions: Options<string> | undefined = useMemo(() => {
     return props.sortOptions?.map((option) => ({

@@ -1,6 +1,4 @@
 import dotenv from "dotenv";
-dotenv.config({ path: "../.env" });
-
 import express from "express";
 import http from "http";
 import WebSocket from "ws";
@@ -18,6 +16,8 @@ import {
   getEventCache,
 } from "./eventNotifier";
 import cors from "cors";
+
+dotenv.config({path: "../.env"});
 
 const prismaClient = new PrismaClient();
 
@@ -39,7 +39,7 @@ const registerRoute = createRegisterRoute({
 
 app.use(cors())
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({extended: true}));
 app.use(authMiddleware(prismaClient));
 app.use(removePropertiesRecursivelyMiddleware(["passwordHash"]));
 

@@ -1,21 +1,23 @@
 {
-    "compilerOptions": {
-        "target": "esnext",
-        "esModuleInterop": true,
-        "strict": true,
-        "rootDir": "./src",
-        "outDir": "./build",
-        "moduleResolution": "node",
-        "sourceMap": true,
-        "plugins": [
-            {
-                "transform": "typescript-is/lib/transform-inline/transformer",
-                "disallowSuperfluousObjectProperties": true,
-            }
-        ],
-        "typeRoots": ["./types"]
-    },
-    "ts-node": {
-        "files": true,
-    }
+  "compilerOptions": {
+    "target": "esnext",
+    "esModuleInterop": true,
+    "strict": true,
+    "rootDir": "./src",
+    "outDir": "./build",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "plugins": [
+      {
+        "transform": "typescript-is/lib/transform-inline/transformer",
+        "disallowSuperfluousObjectProperties": true
+      }
+    ],
+    "typeRoots": [
+      "./types"
+    ]
+  },
+  "ts-node": {
+    "files": true
+  }
 }

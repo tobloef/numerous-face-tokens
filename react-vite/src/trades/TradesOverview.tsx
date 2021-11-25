@@ -5,26 +5,15 @@ import React, {
 import {
   GetAllTradesResponse,
   GetAllTradesSort,
-  OverviewTradeDto,
 } from "../../../express-rest/src/features/trades/getAllTrades";
 import Trade from "../shared/Trade";
 import styles from "./TradesOverview.module.css";
 import Grid from "../shared/Grid";
 import {
-  useMutation,
   useQuery,
   useQueryClient,
 } from "react-query";
 import * as api from "../utils/api";
-import {
-  AcceptTradeRequest,
-  AcceptTradeResponse,
-} from "../../../express-rest/src/features/trades/acceptTrade";
-import {
-  DeleteTradeRequest,
-  DeleteTradeResponse,
-} from "../../../express-rest/src/features/trades/deleteTrade";
-import { Options } from "../shared/Select";
 import { useGlobalState } from "../utils/globalState";
 import { TRADE_SORT_OPTIONS } from "../utils/sortOptions";
 
@@ -37,7 +26,7 @@ const TradesOverview: React.FC<{}> = (props) => {
   const [myTradesSort, setMyTradesSort] = useState<GetAllTradesSort>(["createdAt", "desc"]);
   const [myTradesPage, setMyTradesPage] = useState(1);
   const queryClient = useQueryClient();
-  const [authPayload] = useGlobalState('authPayload');
+  const [authPayload] = useGlobalState("authPayload");
 
   const {
     isLoading: isPublicTradesLoading,
@@ -52,12 +41,12 @@ const TradesOverview: React.FC<{}> = (props) => {
       sorts: [publicTradesSort],
       filters: {
         buyerUsername: {
-          equals: null
+          equals: null,
         },
         isCompleted: {
           equals: false,
         },
-      }
+      },
     }),
   );
 
@@ -76,11 +65,11 @@ const TradesOverview: React.FC<{}> = (props) => {
         participantUsername: {
           equals: authPayload?.user.username,
         },
-      }
+      },
     }),
     {
-      enabled: authPayload !== undefined
-    }
+      enabled: authPayload !== undefined,
+    },
   );
 
   const renderTrade = useCallback(

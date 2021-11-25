@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import {
   Link,
-  useNavigate,
   useParams,
 } from "react-router-dom";
 import styles from "./NftDetails.module.css";
@@ -11,9 +10,7 @@ import {
   useQueryClient,
 } from "react-query";
 import * as api from "../utils/api";
-import {
-  GetNftResponse,
-} from "../../../express-rest/src/features/nfts/getNft";
+import { GetNftResponse } from "../../../express-rest/src/features/nfts/getNft";
 import { CURRENCY_SYMBOL } from "../../../express-rest/src/utils/constants";
 import Trade from "../shared/Trade";
 import Grid from "../shared/Grid";
@@ -29,15 +26,14 @@ import {
   CreateTradeRequest,
   CreateTradeResponse,
 } from "../../../express-rest/src/features/trades/createTrade";
-import { createTrade } from "../utils/api";
 
 const TRADES_PAGE_SIZE = 10;
 
 const NftDetails: React.FC<{}> = (props) => {
-  const { seed } = useParams();
+  const {seed} = useParams();
   const [tradesSort, setTradesSort] = useState<GetAllTradesSort>(["createdAt", "desc"]);
   const [tradesPage, setTradesPage] = useState(1);
-  const [authPayload] = useGlobalState('authPayload');
+  const [authPayload] = useGlobalState("authPayload");
   const [price, setPrice] = useState<number>();
   const queryClient = useQueryClient();
 
@@ -83,9 +79,9 @@ const NftDetails: React.FC<{}> = (props) => {
       sorts: [tradesSort],
       filters: {
         nftSeed: {
-          equals: seed
-        }
-      }
+          equals: seed,
+        },
+      },
     }),
   );
 

@@ -7,7 +7,7 @@ import { useGlobalState } from "../utils/globalState";
 const Logout = () => {
   const navigate = useNavigate();
 
-  const [_, setAuthPayload] = useGlobalState('authPayload');
+  const [_, setAuthPayload] = useGlobalState("authPayload");
 
   useEffect(() => {
     clearAuthToken();

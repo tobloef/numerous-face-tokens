@@ -3,17 +3,17 @@ import React from "react";
 
 export type PageProps =
   | {
-    page?: undefined,
-    onPageChange?: undefined,
-    totalElements?: undefined,
-    pageSize?: undefined,
-  }
+  page?: undefined,
+  onPageChange?: undefined,
+  totalElements?: undefined,
+  pageSize?: undefined,
+}
   | {
-    page: number,
-    onPageChange: (newPage: number) => void,
-    pageSize: number,
-    totalElements?: number,
-  };
+  page: number,
+  onPageChange: (newPage: number) => void,
+  pageSize: number,
+  totalElements?: number,
+};
 
 const Pagination = (props: PageProps) => {
   if (props.page === undefined) {

@@ -7,9 +7,7 @@ import { SortOrder } from "../../../express-rest/src/utils/query";
 import Sort from "../types/Sort";
 import classNames from "classnames";
 import { Link } from "react-router-dom";
-import Pagination, {
-  PageProps,
-} from "./Pagination";
+import Pagination, { PageProps } from "./Pagination";
 
 type ColumnInner<T, Key extends keyof T> = Key extends any ? {
   key: Key,
@@ -20,20 +18,20 @@ type ColumnInner<T, Key extends keyof T> = Key extends any ? {
 
 export type Column<T> = ColumnInner<T, keyof T>;
 
-const Table = <T extends object,>(props:
-  & {
-    data: T[] | undefined,
-    columns: Column<T>[],
-    onSort: (sort: Sort<T>) => void,
-    sort: [keyof T, SortOrder],
-    keyProp: keyof T,
-    className?: string,
-    getRowUrl?: (clickedRow: T) => string,
-    loading?: boolean,
-    error?: string,
-    noDataText?: string,
-  }
-  & PageProps
+const Table = <T extends object, >(props:
+    & {
+      data: T[] | undefined,
+      columns: Column<T>[],
+      onSort: (sort: Sort<T>) => void,
+      sort: [keyof T, SortOrder],
+      keyProp: keyof T,
+      className?: string,
+      getRowUrl?: (clickedRow: T) => string,
+      loading?: boolean,
+      error?: string,
+      noDataText?: string,
+    }
+    & PageProps,
 ): ReactElement => {
   return (
     <div
@@ -43,34 +41,34 @@ const Table = <T extends object,>(props:
         className={styles.table}
       >
         <thead>
-          <tr>
-            {props.columns.map((column) => {
-              const key = column.key as keyof T;
+        <tr>
+          {props.columns.map((column) => {
+            const key = column.key as keyof T;
 
-              return (
-                <th
-                  key={`header-${String(column.key)}`}
-                  className={classNames({
-                    [styles.sortable]: column.sortable ?? true,
-                  })}
-                  onClick={() => {
-                    if (props.sort[0] === key && props.sort[1] === "asc") {
-                      props.onSort([key, "desc"]);
-                    } else {
-                      props.onSort([key, "asc"]);
-                    }
-                  }}
-                >
-                  <span className={styles.headerText}>{column.header}</span>
-                  <span className={styles.sortArrow}>
+            return (
+              <th
+                key={`header-${String(column.key)}`}
+                className={classNames({
+                  [styles.sortable]: column.sortable ?? true,
+                })}
+                onClick={() => {
+                  if (props.sort[0] === key && props.sort[1] === "asc") {
+                    props.onSort([key, "desc"]);
+                  } else {
+                    props.onSort([key, "asc"]);
+                  }
+                }}
+              >
+                <span className={styles.headerText}>{column.header}</span>
+                <span className={styles.sortArrow}>
                     {props.sort[0] === key && (
                       props.sort[1] === "asc" ? "▼" : "▲"
                     )}
                   </span>
-                </th>
-              );
-            })}
-          </tr>
+              </th>
+            );
+          })}
+        </tr>
         </thead>
         <tbody>
         {(() => {
