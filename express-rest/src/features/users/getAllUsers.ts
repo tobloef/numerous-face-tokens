@@ -4,7 +4,7 @@ import {
   ok,
 } from "neverthrow";
 import ApiError from "../../ApiError";
-import { PublicFeature } from "../../types/feature";
+import { PublicFeature } from "../../types/Feature";
 import { DEFAULT_TAKE } from "../../utils/constants";
 import SetupRequest from "../../types/SetupRequest";
 import {

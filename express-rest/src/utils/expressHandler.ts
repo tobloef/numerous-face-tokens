@@ -12,7 +12,7 @@ import {
 import {
   PrivateFeature,
   PublicFeature,
-} from "../types/feature";
+} from "../types/Feature";
 import ParseRouteParameters from "../types/ParseRouteParameters";
 import SetupRequest from "../types/SetupRequest";
 
