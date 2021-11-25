@@ -27,7 +27,7 @@ const queryClient = new QueryClient({
 
 ReactDOM.render(
   <React.StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename={process.env.NODE_ENV === "production" ? "/react/" : "/"}>
       <QueryClientProvider client={queryClient}>
         <App/>
         <ReactQueryDevtools initialIsOpen={false}/>
