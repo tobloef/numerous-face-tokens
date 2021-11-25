@@ -160,7 +160,7 @@ const Trade = (props: {
               <span>{acceptError?.message ?? "Error accepting trade"}</span>
             )}
             {canDecline && (
-              <button onClick={() => accept({id: props.id})} disabled={isDeclineLoading}>
+              <button onClick={() => decline({id: props.id})} disabled={isDeclineLoading}>
                 <FontAwesomeIcon icon={faXmark} color={"red"} fixedWidth/>
                 <span>Delete</span>
               </button>

@@ -6,5 +6,5 @@ export default defineConfig({
   server: {
     port: 3010,
   },
-  base: process.env.NODE_ENV === "production" ? "/react/" : "/",
+  base: process.env.NODE_ENV === "production" ? "/nft/react/" : "/",
 })
