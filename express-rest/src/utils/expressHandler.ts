@@ -14,10 +14,7 @@ import {
   PublicFeature,
 } from "../types/feature";
 import ParseRouteParameters from "../types/ParseRouteParameters";
-
-export type SetupRequest<Request, Params extends object> = (
-  req: express.Request<Params>,
-) => Result<Request, ApiError>;
+import SetupRequest from "../types/SetupRequest";
 
 export type RegisterRouteProps<Request, Response, Path extends string> =
   {

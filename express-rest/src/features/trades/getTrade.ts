@@ -10,7 +10,7 @@ import {
 import ApiError from "../../ApiError";
 import { PublicFeature } from "../../types/feature";
 import deleteProp from "../../utils/deleteProp";
-import { SetupRequest } from "../../utils/expressHandler";
+import SetupRequest from "../../types/SetupRequest";
 
 type GetTradeRequest = {
   id: string,

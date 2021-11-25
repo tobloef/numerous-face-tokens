@@ -11,7 +11,7 @@ import {
     User,
 } from "@prisma/client";
 import deleteProp from "../../utils/deleteProp";
-import { SetupRequest } from "../../utils/expressHandler";
+import SetupRequest from "../../types/SetupRequest";
 import generateId from "../../utils/generateId";
 import Markdown from "../../types/Markdown";
 import { getNftImageLink } from "../../utils/getNftImageLink";

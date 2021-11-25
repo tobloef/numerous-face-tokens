@@ -10,7 +10,7 @@ import {
 import { is } from "typescript-is";
 import ApiError from "../../ApiError";
 import { PublicFeature } from "../../types/feature";
-import { SetupRequest } from "../../utils/expressHandler";
+import SetupRequest from "../../types/SetupRequest";
 
 export type GetUserRequest = {
   username: string,

@@ -5,7 +5,7 @@ import {
 } from "neverthrow";
 import ApiError from "../../ApiError";
 import { PrivateFeature } from "../../types/feature";
-import { SetupRequest } from "../../utils/expressHandler";
+import SetupRequest from "../../types/SetupRequest";
 import {
     Nft,
     Trade,

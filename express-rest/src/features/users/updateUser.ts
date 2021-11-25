@@ -11,7 +11,7 @@ import {
 import { PrivateFeature } from "../../types/feature";
 import ApiError from "../../ApiError";
 import bcrypt from "bcryptjs";
-import { SetupRequest } from "../../utils/expressHandler";
+import SetupRequest from "../../types/SetupRequest";
 
 type UpdateUserRequest = {
   username: string,

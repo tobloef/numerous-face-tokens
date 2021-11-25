@@ -4,7 +4,10 @@ dotenv.config({path: "../.env"});
 import express from "express";
 import http from "http";
 import WebSocket from "ws";
-import { PrismaClient } from "@prisma/client"
+import {
+  PrismaClient,
+  User,
+} from "@prisma/client"
 import authMiddleware from "./middleware/authMiddleware";
 import authRouter from "./routers/authRouter";
 import nftsRouter from "./routers/nftsRouter";
@@ -20,6 +23,14 @@ import {
 import cors from "cors";
 
 const prismaClient = new PrismaClient();
+
+declare global {
+  namespace Express {
+    interface Request {
+      user?: User
+    }
+  }
+}
 
 const app = express();
 const server = http.createServer(app);

@@ -10,7 +10,7 @@ import AuthPayload from "../../types/AuthPayload";
 import deleteProp from "../../utils/deleteProp";
 import AuthToken from "../../types/AuthToken";
 import { PublicFeature } from "../../types/feature";
-import { SetupRequest } from "../../utils/expressHandler";
+import SetupRequest from "../../types/SetupRequest";
 import generateId from "../../utils/generateId";
 import env from "../../utils/env";
 import Markdown from "../../types/Markdown";

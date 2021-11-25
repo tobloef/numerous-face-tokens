@@ -10,7 +10,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import AuthToken from "../../types/AuthToken";
 import AuthPayload from "../../types/AuthPayload";
-import { SetupRequest } from "../../utils/expressHandler";
+import SetupRequest from "../../types/SetupRequest";
 import env from "../../utils/env";
 
 export type LoginRequest = {

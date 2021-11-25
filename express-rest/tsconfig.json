@@ -12,9 +12,6 @@
         "transform": "typescript-is/lib/transform-inline/transformer",
         "disallowSuperfluousObjectProperties": true
       }
-    ],
-    "typeRoots": [
-      "./types"
     ]
   },
   "ts-node": {
