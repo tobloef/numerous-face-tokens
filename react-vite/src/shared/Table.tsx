@@ -52,17 +52,17 @@ const Table = <T extends object, >(props:
                   [styles.sortable]: column.sortable ?? true,
                 })}
                 onClick={() => {
-                  if (props.sort[0] === key && props.sort[1] === "asc") {
-                    props.onSort([key, "desc"]);
-                  } else {
+                  if (props.sort[0] === key && props.sort[1] === "desc") {
                     props.onSort([key, "asc"]);
+                  } else {
+                    props.onSort([key, "desc"]);
                   }
                 }}
               >
                 <span className={styles.headerText}>{column.header}</span>
                 <span className={styles.sortArrow}>
                     {props.sort[0] === key && (
-                      props.sort[1] === "asc" ? "▼" : "▲"
+                      props.sort[1] === "asc" ? "▲" : "▼"
                     )}
                   </span>
               </th>
