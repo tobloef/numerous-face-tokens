@@ -49,7 +49,7 @@ import {
   CreateTradeResponse,
 } from "../../../express-rest/src/features/trades/createTrade";
 
-const BASE_URL = process.env.NODE_ENV === "production" ? "server.tobloef.com/nft/express" : "localhost:3010";
+const BASE_URL = process.env.NODE_ENV === "production" ? "server.tobloef.com/nft/express" : "localhost:3011";
 
 const trimLeadingSlash = (str: string): string => str.replace(/^\//, "");
 

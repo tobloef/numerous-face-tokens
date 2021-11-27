@@ -8,6 +8,7 @@ import {
   PrismaClient,
   User,
 } from "@prisma/client"
+import morgan from "morgan"
 import authMiddleware from "./middleware/authMiddleware";
 import authRouter from "./routers/authRouter";
 import nftsRouter from "./routers/nftsRouter";
@@ -53,6 +54,7 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(authMiddleware(prismaClient));
 app.use(removePropertiesRecursivelyMiddleware(["passwordHash"]));
+app.use(morgan("tiny"));
 
 app.use(authRouter(registerRoute));
 app.use(nftsRouter(registerRoute));

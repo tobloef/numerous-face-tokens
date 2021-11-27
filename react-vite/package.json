@@ -4,7 +4,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "serve": "vite preview"
+    "serve": "vite preview --port 3010"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.3.0-beta2",
