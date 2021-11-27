@@ -59,33 +59,24 @@ export const createRegisterRoute = (ctx: PublicContext & { prisma: PrismaClient 
 
       let responseResult: Result<Response, ApiError>;
 
-      try {
-        responseResult = await ctx.prisma.$transaction(
-          async (transactionPrisma): Promise<Result<Response, ApiError>> => {
-            const newPublicContext: PublicContext = {
-              ...ctx,
-              prisma: transactionPrisma,
-            }
+      const newPublicContext: PublicContext = {
+        ...ctx,
+        prisma: ctx.prisma,
+      }
 
-            if (props.auth) {
-              if (req.user === undefined) {
-                return err(new ApiError("Unauthenticated", 403));
-              }
+      if (props.auth) {
+        if (req.user === undefined) {
+          throw new ApiError("Unauthenticated", 403);
+        }
 
-              const privateContext: PrivateContext = {
-                ...newPublicContext,
-                user: req.user,
-              };
+        const privateContext: PrivateContext = {
+          ...newPublicContext,
+          user: req.user,
+        };
 
-              return props.feature(requestResult.value, privateContext);
-            } else {
-              return props.feature(requestResult.value, newPublicContext);
-            }
-          },
-        );
-      } catch (error) {
-        next(error);
-        return;
+        responseResult = await props.feature(requestResult.value, privateContext);
+      } else {
+        responseResult = await props.feature(requestResult.value, newPublicContext);
       }
 
       if (responseResult.isErr()) {
