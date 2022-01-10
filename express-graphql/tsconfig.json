@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "strict": true,
+    "rootDir": "./src",
+    "outDir": "./build",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "plugins": [
+      {
+        "transform": "typescript-is/lib/transform-inline/transformer",
+        "disallowSuperfluousObjectProperties": true
+      }
+    ]
+  },
+  "ts-node": {
+    "files": true,
+    "compiler": "ttypescript"
+  }
+}

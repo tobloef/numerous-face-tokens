@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["interactiveTransactions"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+model Nft {
+  id              String            @id
+  minterId        String
+  minter          User  @relation("Minted", fields: [minterId], references: [id])
+  mintedAt        DateTime          @default(now())
+  ownerId         String
+  owner           User  @relation("Owned", fields: [ownerId], references: [id])
+  seed            String            @unique
+  trades          Trade[]           @relation("Trades")
+  lastTradeId     String?
+  lastTrade       Trade?            @relation("LastTrade", fields: [lastTradeId], references: [id])
+  highestTradeId  String?
+  highestTrade    Trade?            @relation("HighestTrade", fields: [highestTradeId], references: [id])
+}
+
+model User {
+  id            String    @id
+  createdAt     DateTime  @default(now())
+  username      String    @unique
+  passwordHash  String
+  balance       Int       @default(0)
+  ownedNfts     Nft[]     @relation("Owned")
+  mintedNfts    Nft[]     @relation("Minted")
+  boughtTrades  Trade[]   @relation("Bought")
+  soldTrades    Trade[]   @relation("Sold")
+}
+
+model Trade {
+  id                   String             @id
+  createdAt            DateTime           @default(now())
+  sellerId             String
+  seller               User   @relation("Sold", fields: [sellerId], references: [id])
+  sellerAccepted       Boolean            @default(false)
+  buyerId              String?
+  buyer                User?  @relation("Bought", fields: [buyerId], references: [id])
+  buyerAccepted        Boolean            @default(false)
+  soldAt               DateTime?
+  nftId                String
+  nft                  Nft                @relation("Trades", fields: [nftId], references: [id])
+  price                Int
+  lastTradeOfNft       Nft?                @relation("LastTrade")
+  highestTradeOfNft    Nft?                @relation("HighestTrade")
+}
