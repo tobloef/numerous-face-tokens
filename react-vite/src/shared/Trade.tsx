@@ -69,17 +69,19 @@ const Trade = (props: {
     },
   );
 
-  const canAccept = !props.isCompleted &&
+  const isPartOfTrade = (
+    props.sellerUsername === authPayload?.user.username ||
+    props.buyerUsername === authPayload?.user.username
+  );
+
+  const canAccept = !props.isCompleted && isPartOfTrade &&
     !(
       (props.buyerAccepted && props.buyerUsername === authPayload?.user.username) ||
       (props.sellerAccepted && props.sellerUsername === authPayload?.user.username)
     )
 
-  const canDecline = !props.isCompleted &&
-    (
-      props.sellerUsername === authPayload?.user.username ||
-      props.buyerUsername === authPayload?.user.username
-    )
+  const canDecline = !props.isCompleted && isPartOfTrade;
+
 
   return (
     <div className={classNames(
