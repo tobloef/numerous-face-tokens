@@ -8,12 +8,7 @@
     "outDir": "./build",
     "moduleResolution": "node",
     "sourceMap": true,
-    "plugins": [
-      {
-        "transform": "typescript-is/lib/transform-inline/transformer",
-        "disallowSuperfluousObjectProperties": true
-      }
-    ]
+    "noImplicitAny": false
   },
   "ts-node": {
     "files": true,
