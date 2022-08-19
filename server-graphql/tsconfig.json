@@ -8,10 +8,17 @@
     "outDir": "./build",
     "moduleResolution": "node",
     "sourceMap": true,
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "strictPropertyInitialization": false,
+    "lib": [
+      "es2018",
+      "esnext.asynciterable"
+    ]
   },
   "ts-node": {
     "files": true,
     "compiler": "ttypescript"
-  }
+  },
 }

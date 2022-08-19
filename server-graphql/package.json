@@ -12,10 +12,16 @@
   },
   "dependencies": {
     "apollo-server": "^3.10.1",
+    "class-validator": "^0.13.2",
     "graphql": "^16.6.0",
-    "graphql-scalars": "^1.18.0"
+    "graphql-scalars": "^1.18.0",
+    "pg": "^8.7.3",
+    "reflect-metadata": "^0.1.13",
+    "type-graphql": "^1.1.1",
+    "typeorm": "^0.3.7"
   },
   "devDependencies": {
+    "@types/node": "^18.7.7",
     "ts-node": "^10.9.1",
     "ts-node-dev": "^2.0.0",
     "ttypescript": "^1.5.13",
