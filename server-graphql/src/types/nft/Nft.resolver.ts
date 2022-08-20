@@ -11,7 +11,7 @@ import {
   ResolverInterface,
   Root,
 } from "type-graphql";
-import Nft from "./Nft";
+import Nft from "./Nft.entity";
 import {
   Max,
   Min,
@@ -21,8 +21,8 @@ import {
   SortArg,
   SortDirection,
 } from "../../utils/sorting";
-import User from "../user/User";
-import Trade from "../trade/Trade";
+import User from "../user/User.entity";
+import Trade from "../trade/Trade.entity";
 import {
   Between,
   FindOptionsOrder,
@@ -32,6 +32,7 @@ import {
   MoreThan,
   Repository,
 } from "typeorm";
+import { Database } from "../../utils/db";
 
 @InputType()
 class NftFilters {
@@ -70,10 +71,11 @@ class NftsArgs {
 
 @Resolver(() => Nft)
 export class NftResolver implements ResolverInterface<Nft> {
-  constructor(
-    private repo: Repository<Nft>
-  ) {}
+  repo: Repository<Nft>;
 
+  constructor() {
+    this.repo = Database.getRepository(Nft);
+  }
 
   @Query(() => Nft)
   async nftById(@Arg("id") id: string): Promise<Nft> {
@@ -136,7 +138,7 @@ export class NftResolver implements ResolverInterface<Nft> {
     return dbNft.trades;
   }
 
-  @FieldResolver()
+  @FieldResolver(() => Trade)
   async lastTrade(@Root() nft: Nft): Promise<Trade | null> {
     const dbNft = await this.repo.findOneOrFail({
       where: {
@@ -164,7 +166,7 @@ export class NftResolver implements ResolverInterface<Nft> {
     }, null);
   }
 
-  @FieldResolver()
+  @FieldResolver(() => Trade)
   async highestTrade(@Root() nft: Nft): Promise<Trade | null> {
     const dbNft = await this.repo.findOneOrFail({
       where: {

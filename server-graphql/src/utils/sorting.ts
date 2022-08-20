@@ -9,8 +9,6 @@ export enum SortDirection {
   DESC = "DESC",
 }
 
-console.debug("registerEnumType", registerEnumType);
-
 registerEnumType(SortDirection, {
   name: "SortDirection",
 })

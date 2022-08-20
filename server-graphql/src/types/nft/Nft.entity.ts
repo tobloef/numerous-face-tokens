@@ -3,8 +3,8 @@ import {
   ID,
   ObjectType,
 } from "type-graphql";
-import User from "../user/User";
-import Trade from "../trade/Trade";
+import User from "../user/User.entity";
+import Trade from "../trade/Trade.entity";
 import {
   Column,
   Entity,
@@ -29,11 +29,11 @@ export default class Nft {
   mintedAt: Date
 
   @ManyToOne(() => User, (user) => user.mintedNfts)
-  @Field()
+  @Field(() => User)
   minter: Promise<User>
 
   @ManyToOne(() => User, (user) => user.ownedNfts)
-  @Field()
+  @Field(() => User)
   owner: Promise<User>
 
   @ManyToMany(() => Trade)

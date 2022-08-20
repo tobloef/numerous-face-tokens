@@ -4,16 +4,14 @@
   "license": "MIT",
   "scripts": {
     "start": "ts-node-dev --respawn --compiler ttypescript ./src/index.ts",
-    "update-db": "prisma db push --accept-data-loss",
     "start-db": "cd .. && docker-compose --file ./postgres.docker.yml up",
-    "reset-db": "prisma migrate reset --force && yarn update-db",
     "compile": "ttsc --noEmit",
     "prod": "ts-node ./src/index.ts"
   },
   "dependencies": {
     "apollo-server": "^3.10.1",
     "class-validator": "^0.13.2",
-    "graphql": "^16.6.0",
+    "graphql": "^15.3.0",
     "graphql-scalars": "^1.18.0",
     "pg": "^8.7.3",
     "reflect-metadata": "^0.1.13",
