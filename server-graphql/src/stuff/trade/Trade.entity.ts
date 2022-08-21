@@ -40,12 +40,12 @@ export default class Trade {
   price: number
 
   @OneToMany(() => Nft, (nft) => nft.trades)
-  @Field(() => Nft)
-  nft: Nft
+  @Field(() => Nft, { nullable: false })
+  nft?: Nft
 
   @OneToMany(() => User, (user) => user.soldTrades)
-  @Field(() => User)
-  seller: User
+  @Field(() => User, { nullable: false })
+  seller?: User
 
   @OneToMany(() => User, (user) => user.boughtTrades, { nullable: true })
   @Field(() => User, { nullable: true })

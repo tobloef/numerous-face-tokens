@@ -12,5 +12,6 @@ export const Database = new DataSource({
   username: env.DB_USER,
   password: env.DB_PASS,
   synchronize: true,
-  entities: [Nft, User, Trade]
+  dropSchema: true,
+  entities: [Nft, User, Trade],
 });

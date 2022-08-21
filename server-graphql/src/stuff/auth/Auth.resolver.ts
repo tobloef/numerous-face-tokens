@@ -37,8 +37,8 @@ class LoginUserArgs {
 
 @Resolver()
 export class AuthResolver {
-  @Mutation(() => User)
-  async register(@Args() { username, password }: RegisterUserArgs): Promise<User> {
+  @Mutation(() => String)
+  async register(@Args() { username, password }: RegisterUserArgs): Promise<AuthToken> {
     const existingUser = await Database.manager.findOne(User, {
       where: {
         username,
@@ -57,16 +57,29 @@ export class AuthResolver {
 
     const passwordHash = bcrypt.hashSync(password);
 
-    const newUser = Database.manager.create(User, {
+    let newUser = Database.manager.create(User, {
       id: generateId(),
       balance: 1000,
       username,
       passwordHash,
       createdAt: new Date(),
+      mintedNfts: [],
+      ownedNfts: [],
+      boughtTrades: [],
+      soldTrades: [],
     });
-    await Database.manager.save(User, newUser);
+    newUser = await Database.manager.save(User, newUser);
 
-    return newUser;
+    console.debug("newUser.ownedNfts", newUser.ownedNfts);
+
+    const authPayload: AuthPayload = {
+      userId: newUser.id,
+      username: newUser.username,
+    };
+
+    const token: AuthToken = jwt.sign(authPayload, env.AUTH_SECRET);
+
+    return token;
   }
 
   @Mutation(() => String)

@@ -3,6 +3,7 @@ import {
   Args,
   ArgsType,
   Authorized,
+  Ctx,
   Field,
   FieldResolver,
   InputType,
@@ -35,6 +36,11 @@ import {
   Repository,
 } from "typeorm";
 import { Database } from "../../utils/db";
+import { UserInputError } from "apollo-server";
+import generateId from "../../utils/generateId";
+import Context from "../../utils/Context";
+import assert from "assert";
+import { SomeRequired } from "../../utils/SomeRequired";
 
 @InputType()
 class NftFilters {
@@ -106,10 +112,17 @@ export class NftResolver implements ResolverInterface<Nft> {
     const dbNft = await Database.manager.findOneOrFail(Nft, {
       where: {
         id: nft.id
+      },
+      relations: {
+        minter: true,
       }
-    });
+    }) as SomeRequired<Nft, "minter">;
 
-    return dbNft.minter;
+    const minter = dbNft.minter;
+
+    console.debug("minster", minter);
+
+    return minter;
   }
 
   @FieldResolver()
@@ -117,8 +130,11 @@ export class NftResolver implements ResolverInterface<Nft> {
     const dbNft = await Database.manager.findOneOrFail(Nft, {
       where: {
         id: nft.id
+      },
+      relations: {
+        owner: true
       }
-    });
+    }) as SomeRequired<Nft, "owner">;
 
     return dbNft.owner;
   }
@@ -128,8 +144,11 @@ export class NftResolver implements ResolverInterface<Nft> {
     const dbNft = await Database.manager.findOneOrFail(Nft, {
       where: {
         id: nft.id
+      },
+      relations: {
+        trades: true,
       }
-    });
+    }) as SomeRequired<Nft, "trades">;
 
     return dbNft.trades;
   }
@@ -139,11 +158,14 @@ export class NftResolver implements ResolverInterface<Nft> {
     const dbNft = await Database.manager.findOneOrFail(Nft, {
       where: {
         id: nft.id
+      },
+      relations: {
+        trades: true,
       }
-    });
+    }) as SomeRequired<Nft, "trades">;
 
     // TODO: Do this in DB, so we don't load all trades
-    return (await dbNft.trades).reduce<Trade | null>((currentLast, candidate) => {
+    return dbNft.trades.reduce<Trade | null>((currentLast, candidate) => {
       if (currentLast == null) {
         return candidate;
       }
@@ -167,11 +189,14 @@ export class NftResolver implements ResolverInterface<Nft> {
     const dbNft = await Database.manager.findOneOrFail(Nft, {
       where: {
         id: nft.id
+      },
+      relations: {
+        trades: true,
       }
-    });
+    }) as SomeRequired<Nft, "trades">;
 
     // TODO: Do this in DB, so we don't load all trades
-    return (await dbNft.trades).reduce<Trade | null>((currentLast, candidate) => {
+    return dbNft.trades.reduce<Trade | null>((currentLast, candidate) => {
       if (currentLast == null) {
         return candidate;
       }
@@ -185,6 +210,39 @@ export class NftResolver implements ResolverInterface<Nft> {
 
       return currentLast;
     }, null);
+  }
+
+  @Authorized()
+  @Mutation(() => Nft)
+  async mintNft(@Arg("seed", () => String) seed, @Ctx() ctx: Context): Promise<Nft> {
+    const existingNft = await Database.manager.findOne(Nft, {
+      where: {
+        seed,
+      }
+    });
+
+    if (existingNft != null) {
+      throw new UserInputError("An NFT with that seed already exists");
+    }
+
+    assert(ctx.user);
+
+    const newNft = Database.manager.create(Nft);
+    newNft.id = generateId();
+    newNft.seed = seed;
+    newNft.mintedAt = new Date();
+    newNft.minter = ctx.user;
+    newNft.owner = ctx.user;
+    newNft.trades = [];
+    await Database.manager.save(newNft);
+
+    console.debug(ctx.user);
+
+    ctx.user.mintedNfts.push(newNft);
+    ctx.user.ownedNfts.push(newNft);
+    await Database.manager.save(ctx.user);
+
+    return newNft;
   }
 }
 

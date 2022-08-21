@@ -12,6 +12,7 @@ import User from "../user/User.entity";
 import { Database } from "../../utils/db";
 import Nft from "../nft/Nft.entity";
 import Trade from "../trade/Trade.entity";
+import { SomeRequired } from "../../utils/SomeRequired";
 
 @ArgsType()
 class RegisterUserArgs {
@@ -55,8 +56,11 @@ export class UserResolver implements ResolverInterface<User> {
     const dbUser = await Database.manager.findOneOrFail(User, {
       where: {
         id: user.id
+      },
+      relations: {
+        ownedNfts: true,
       }
-    });
+    }) as SomeRequired<User, "ownedNfts">;
 
     return dbUser.ownedNfts;
   }
@@ -66,8 +70,11 @@ export class UserResolver implements ResolverInterface<User> {
     const dbUser = await Database.manager.findOneOrFail(User, {
       where: {
         id: user.id
+      },
+      relations: {
+        mintedNfts: true,
       }
-    });
+    }) as SomeRequired<User, "mintedNfts">;
 
     return dbUser.mintedNfts;
   }
@@ -77,8 +84,11 @@ export class UserResolver implements ResolverInterface<User> {
     const dbUser = await Database.manager.findOneOrFail(User, {
       where: {
         id: user.id
+      },
+      relations: {
+        boughtTrades: true,
       }
-    });
+    }) as SomeRequired<User, "boughtTrades">;
 
     return dbUser.boughtTrades;
   }
@@ -88,8 +98,11 @@ export class UserResolver implements ResolverInterface<User> {
     const dbUser = await Database.manager.findOneOrFail(User, {
       where: {
         id: user.id
+      },
+      relations: {
+        soldTrades: true,
       }
-    });
+    }) as SomeRequired<User, "soldTrades">;
 
     return dbUser.soldTrades;
   }

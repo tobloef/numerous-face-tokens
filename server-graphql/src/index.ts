@@ -18,10 +18,7 @@ import gqlAuthChecker from "./stuff/auth/gqlAuthChecker";
 import { NftResolver } from "./stuff/nft/Nft.resolver";
 import { UserResolver } from "./stuff/user/User.resolver";
 import { AuthResolver } from "./stuff/auth/Auth.resolver";
-
-type Context = {
-  user?: User,
-};
+import Context from "./utils/Context";
 
 (async () => {
   await Database.initialize();

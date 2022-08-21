@@ -29,14 +29,14 @@ export default class Nft {
   mintedAt: Date
 
   @ManyToOne(() => User, (user) => user.mintedNfts)
-  @Field(() => User)
-  minter: Promise<User>
+  @Field(() => User, { nullable: true })
+  minter?: User
 
   @ManyToOne(() => User, (user) => user.ownedNfts)
-  @Field(() => User)
-  owner: Promise<User>
+  @Field(() => User, { nullable: false })
+  owner?: User
 
   @ManyToMany(() => Trade)
-  @Field(() => [Trade])
-  trades: Promise<Trade[]>
+  @Field(() => [Trade], { nullable: false })
+  trades?: Trade[]
 }

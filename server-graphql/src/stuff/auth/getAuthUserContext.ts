@@ -5,10 +5,12 @@ import env from "../../utils/env";
 import { Database } from "../../utils/db";
 import { ReqRes } from "../../utils/types";
 import AuthPayload from "./AuthPayload";
+import Context from "../../utils/Context";
+import { SomeRequired } from "../../utils/SomeRequired";
 
 const getAuthUserContext = async (
   { req, res }: ReqRes
-): Promise<User | undefined> => {
+): Promise<Context["user"] | undefined> => {
   const authHeader = req.headers.authorization;
 
   if (authHeader == undefined) {
@@ -32,8 +34,21 @@ const getAuthUserContext = async (
   const user = await Database.manager.findOne(User, {
     where: {
       id: payload.userId
+    },
+    relations: {
+      ownedNfts: true,
+      mintedNfts: true,
+      boughtTrades: true,
+      soldTrades: true,
     }
-  });
+  }) as SomeRequired<User, (
+    | "ownedNfts"
+    | "mintedNfts"
+    | "boughtTrades"
+    | "soldTrades"
+  )>;
+
+  console.debug("user.ownedNfts", user.ownedNfts)
 
   if (user == null) {
     throw new AuthenticationError("Logged in user not found");
