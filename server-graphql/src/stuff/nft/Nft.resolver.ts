@@ -73,8 +73,6 @@ class NftsArgs {
 
 @Resolver(() => Nft)
 export class NftResolver implements ResolverInterface<Nft> {
-  repo: Repository<Nft>;
-
   @Query(() => Nft)
   async nftById(@Arg("id") id: string): Promise<Nft> {
     return Database.manager.findOneOrFail(Nft, {

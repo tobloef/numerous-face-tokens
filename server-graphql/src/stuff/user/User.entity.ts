@@ -31,19 +31,22 @@ export default class User {
   @Field()
   balance: number
 
+  @Column()
+  passwordHash: string
+
   @ManyToOne(() => Nft, (nft) => nft.owner)
   @Field(() => [Nft])
-  ownedNfts: [Nft]
+  ownedNfts: Nft[]
 
   @ManyToOne(() => Nft, (nft) => nft.minter)
   @Field(() => [Nft])
-  mintedNfts: [Nft]
+  mintedNfts: Nft[]
 
   @ManyToOne(() => Trade, (trade) => trade.buyer)
   @Field(() => [Trade])
-  boughtTrades: [Trade]
+  boughtTrades: Trade[]
 
   @ManyToOne(() => Trade, (trade) => trade.seller)
   @Field(() => [Trade])
-  soldTrades: [Trade]
+  soldTrades: Trade[]
 }

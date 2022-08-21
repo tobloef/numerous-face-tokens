@@ -1,6 +1,11 @@
 const ENV_VARS = [
   "API_PORT",
   "AUTH_SECRET",
+  "DB_HOST",
+  "DB_PORT",
+  "DB_NAME",
+  "DB_USER",
+  "DB_PASS",
 ] as const;
 
 const env: Record<typeof ENV_VARS[number], string> = ENV_VARS.reduce((acc, key) => {
