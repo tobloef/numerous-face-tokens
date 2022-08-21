@@ -2,10 +2,12 @@ import {
   Arg,
   Args,
   ArgsType,
+  Authorized,
   Field,
   FieldResolver,
   InputType,
   Int,
+  Mutation,
   Query,
   Resolver,
   ResolverInterface,
@@ -73,13 +75,9 @@ class NftsArgs {
 export class NftResolver implements ResolverInterface<Nft> {
   repo: Repository<Nft>;
 
-  constructor() {
-    this.repo = Database.getRepository(Nft);
-  }
-
   @Query(() => Nft)
   async nftById(@Arg("id") id: string): Promise<Nft> {
-    return this.repo.findOneOrFail({
+    return Database.manager.findOneOrFail(Nft, {
       where: {
         id
       },
@@ -88,7 +86,7 @@ export class NftResolver implements ResolverInterface<Nft> {
 
   @Query(() => Nft)
   async nftBySeed(@Arg("seed") seed: string): Promise<Nft> {
-    return this.repo.findOneOrFail({
+    return Database.manager.findOneOrFail(Nft, {
       where: {
         seed
       },
@@ -97,7 +95,7 @@ export class NftResolver implements ResolverInterface<Nft> {
 
   @Query(() => [Nft])
   async nfts(@Args() args: NftsArgs): Promise<Nft[]> {
-    return this.repo.find({
+    return Database.manager.find(Nft, {
       skip: args.skip,
       take: args.take,
       order: sortsToOrder(args.sorts),
@@ -107,7 +105,7 @@ export class NftResolver implements ResolverInterface<Nft> {
 
   @FieldResolver()
   async minter(@Root() nft: Nft): Promise<User> {
-    const dbNft = await this.repo.findOneOrFail({
+    const dbNft = await Database.manager.findOneOrFail(Nft, {
       where: {
         id: nft.id
       }
@@ -118,7 +116,7 @@ export class NftResolver implements ResolverInterface<Nft> {
 
   @FieldResolver()
   async owner(@Root() nft: Nft): Promise<User> {
-    const dbNft = await this.repo.findOneOrFail({
+    const dbNft = await Database.manager.findOneOrFail(Nft, {
       where: {
         id: nft.id
       }
@@ -129,7 +127,7 @@ export class NftResolver implements ResolverInterface<Nft> {
 
   @FieldResolver()
   async trades(@Root() nft: Nft): Promise<Trade[]> {
-    const dbNft = await this.repo.findOneOrFail({
+    const dbNft = await Database.manager.findOneOrFail(Nft, {
       where: {
         id: nft.id
       }
@@ -140,7 +138,7 @@ export class NftResolver implements ResolverInterface<Nft> {
 
   @FieldResolver(() => Trade)
   async lastTrade(@Root() nft: Nft): Promise<Trade | null> {
-    const dbNft = await this.repo.findOneOrFail({
+    const dbNft = await Database.manager.findOneOrFail(Nft, {
       where: {
         id: nft.id
       }
@@ -168,7 +166,7 @@ export class NftResolver implements ResolverInterface<Nft> {
 
   @FieldResolver(() => Trade)
   async highestTrade(@Root() nft: Nft): Promise<Trade | null> {
-    const dbNft = await this.repo.findOneOrFail({
+    const dbNft = await Database.manager.findOneOrFail(Nft, {
       where: {
         id: nft.id
       }
