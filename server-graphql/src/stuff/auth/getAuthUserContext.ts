@@ -5,7 +5,7 @@ import env from "../../utils/env";
 import { Database } from "../../utils/db";
 import { ReqRes } from "../../utils/types";
 import AuthPayload from "./AuthPayload";
-import Context from "../../utils/Context";
+import { Context } from "../../utils/Context";
 import { SomeRequired } from "../../utils/SomeRequired";
 
 const getAuthUserContext = async (
@@ -47,8 +47,6 @@ const getAuthUserContext = async (
     | "boughtTrades"
     | "soldTrades"
   )>;
-
-  console.debug("user.ownedNfts", user.ownedNfts)
 
   if (user == null) {
     throw new AuthenticationError("Logged in user not found");

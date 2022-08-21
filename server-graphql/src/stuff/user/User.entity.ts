@@ -9,6 +9,7 @@ import {
   Column,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryColumn,
 } from "typeorm";
 
@@ -34,19 +35,19 @@ export default class User {
   @Column()
   passwordHash: string
 
-  @ManyToOne(() => Nft, (nft) => nft.owner, { nullable: false })
+  @OneToMany(() => Nft, (nft) => nft.owner, { nullable: false })
   @Field(() => [Nft])
   ownedNfts?: Nft[]
 
-  @ManyToOne(() => Nft, (nft) => nft.minter, { nullable: false })
+  @OneToMany(() => Nft, (nft) => nft.minter, { nullable: false })
   @Field(() => [Nft])
   mintedNfts?: Nft[]
 
-  @ManyToOne(() => Trade, (trade) => trade.buyer, { nullable: false })
+  @OneToMany(() => Trade, (trade) => trade.buyer, { nullable: false })
   @Field(() => [Trade])
   boughtTrades?: Trade[]
 
-  @ManyToOne(() => Trade, (trade) => trade.seller, { nullable: false })
+  @OneToMany(() => Trade, (trade) => trade.seller, { nullable: false })
   @Field(() => [Trade])
   soldTrades?: Trade[]
 }

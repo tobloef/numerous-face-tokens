@@ -1,4 +1,11 @@
-import { DataSource } from "typeorm";
+import {
+  Column,
+  DataSource,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryColumn,
+} from "typeorm";
 import Nft from "../stuff/nft/Nft.entity";
 import User from "../stuff/user/User.entity";
 import Trade from "../stuff/trade/Trade.entity";
@@ -13,5 +20,5 @@ export const Database = new DataSource({
   password: env.DB_PASS,
   synchronize: true,
   dropSchema: true,
-  entities: [Nft, User, Trade],
+  entities: [Nft, Trade, User],
 });

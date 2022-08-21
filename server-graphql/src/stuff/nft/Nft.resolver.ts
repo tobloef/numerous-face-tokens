@@ -33,13 +33,11 @@ import {
   ILike,
   LessThan,
   MoreThan,
-  Repository,
 } from "typeorm";
 import { Database } from "../../utils/db";
 import { UserInputError } from "apollo-server";
 import generateId from "../../utils/generateId";
-import Context from "../../utils/Context";
-import assert from "assert";
+import { AuthedContext } from "../../utils/Context";
 import { SomeRequired } from "../../utils/SomeRequired";
 
 @InputType()
@@ -118,11 +116,7 @@ export class NftResolver implements ResolverInterface<Nft> {
       }
     }) as SomeRequired<Nft, "minter">;
 
-    const minter = dbNft.minter;
-
-    console.debug("minster", minter);
-
-    return minter;
+    return dbNft.minter;
   }
 
   @FieldResolver()
@@ -214,7 +208,7 @@ export class NftResolver implements ResolverInterface<Nft> {
 
   @Authorized()
   @Mutation(() => Nft)
-  async mintNft(@Arg("seed", () => String) seed, @Ctx() ctx: Context): Promise<Nft> {
+  async mintNft(@Arg("seed", () => String) seed, @Ctx() ctx: AuthedContext): Promise<Nft> {
     const existingNft = await Database.manager.findOne(Nft, {
       where: {
         seed,
@@ -225,8 +219,6 @@ export class NftResolver implements ResolverInterface<Nft> {
       throw new UserInputError("An NFT with that seed already exists");
     }
 
-    assert(ctx.user);
-
     const newNft = Database.manager.create(Nft);
     newNft.id = generateId();
     newNft.seed = seed;
@@ -235,8 +227,6 @@ export class NftResolver implements ResolverInterface<Nft> {
     newNft.owner = ctx.user;
     newNft.trades = [];
     await Database.manager.save(newNft);
-
-    console.debug(ctx.user);
 
     ctx.user.mintedNfts.push(newNft);
     ctx.user.ownedNfts.push(newNft);

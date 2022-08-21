@@ -5,7 +5,7 @@
   "type": "commonjs",
   "scripts": {
     "start": "ts-node-dev --respawn --compiler ttypescript ./src/index.ts",
-    "start-db": "cd .. && docker-compose --file ./postgres.docker.yml up",
+    "start-db": "cd .. && docker compose --file ./postgres.docker.yml up",
     "compile": "ttsc --noEmit",
     "prod": "ts-node ./src/index.ts"
   },

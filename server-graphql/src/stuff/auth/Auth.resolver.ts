@@ -70,8 +70,6 @@ export class AuthResolver {
     });
     newUser = await Database.manager.save(User, newUser);
 
-    console.debug("newUser.ownedNfts", newUser.ownedNfts);
-
     const authPayload: AuthPayload = {
       userId: newUser.id,
       username: newUser.username,

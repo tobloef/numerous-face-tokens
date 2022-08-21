@@ -10,15 +10,16 @@ import {
 import {
   buildSchema,
 } from "type-graphql";
-import { Database } from "./utils/db";
-import User from "./stuff/user/User.entity";
+import {
+  Database,
+} from "./utils/db";
 import { ReqRes } from "./utils/types";
 import getAuthUserContext from "./stuff/auth/getAuthUserContext";
 import gqlAuthChecker from "./stuff/auth/gqlAuthChecker";
 import { NftResolver } from "./stuff/nft/Nft.resolver";
 import { UserResolver } from "./stuff/user/User.resolver";
 import { AuthResolver } from "./stuff/auth/Auth.resolver";
-import Context from "./utils/Context";
+import { Context } from "./utils/Context";
 
 (async () => {
   await Database.initialize();

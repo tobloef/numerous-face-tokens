@@ -8,6 +8,7 @@ import Nft from "../nft/Nft.entity";
 import {
   Column,
   Entity,
+  ManyToOne,
   OneToMany,
   PrimaryColumn,
 } from "typeorm";
@@ -39,15 +40,15 @@ export default class Trade {
   @Field()
   price: number
 
-  @OneToMany(() => Nft, (nft) => nft.trades)
+  @ManyToOne(() => Nft, (nft) => nft.trades)
   @Field(() => Nft, { nullable: false })
   nft?: Nft
 
-  @OneToMany(() => User, (user) => user.soldTrades)
+  @ManyToOne(() => User, (user) => user.soldTrades)
   @Field(() => User, { nullable: false })
   seller?: User
 
-  @OneToMany(() => User, (user) => user.boughtTrades, { nullable: true })
+  @ManyToOne(() => User, (user) => user.boughtTrades, { nullable: true })
   @Field(() => User, { nullable: true })
   buyer?: User
 }
